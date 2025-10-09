@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from decouple import config
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-leywr#7bv=)5ej^de_dqyb1z(^e*8#xa!p)i*=qe@@vbaxm5*j'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -33,6 +34,10 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'accounts',
     'content',  # Nosso app de conteúdo
+    # Apps de terceiros
+    'crispy_forms',
+    'crispy_bootstrap5',
+
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
     'wagtail.embeds',
@@ -157,3 +162,9 @@ LOGOUT_REDIRECT_URL = '/'  # Para onde ir após o LOGOUT
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+# Em core/settings.py, no final do arquivo
+
+# Configurações do Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
