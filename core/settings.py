@@ -138,6 +138,15 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Onde o Django procura seus arquivos estáticos
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+# Onde o Django vai COLETAR todos os arquivos estáticos para produção
+# ADICIONE ESTA LINHA:
+STATIC_ROOT = BASE_DIR / 'static_root'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -157,13 +166,6 @@ WAGTAILADMIN_BASE_URL = 'http://localhost:8000'
 # Redirecionamentos de Autenticação
 LOGIN_REDIRECT_URL = '/'   # Para onde ir após o LOGIN
 LOGOUT_REDIRECT_URL = '/'  # Para onde ir após o LOGOUT
-
-# Em core/settings.py
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
-
-# Em core/settings.py, no final do arquivo
 
 # Configurações do Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
