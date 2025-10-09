@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    {# Esta parte mostra o conteúdo principal que você escreveu para a HomePage #}
+    <div class="mb-5">
+        {{ page.body|richtext }}
+    </div>
+
+    <hr>
+
+    {# Aqui começa a nossa lista de artigos dinâmica #}
+    <h2>Últimas Análises</h2>
+    <div class="list-group mt-3">
+        {% for article in articles %}
+            <a href="{% pageurl article %}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ article.title }}</h5>
+                    <small>{{ article.publication_date|date:"d/m/Y" }}</small>
+                </div>
+                <p class="mb-1">{{ article.introduction }}</p>
+            </a>
+        {% empty %}
+            <p>Nenhum artigo publicado ainda.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

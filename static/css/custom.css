@@ -1,0 +1,42 @@
+/* Em static/css/custom.css */
+
+/* Importa as fontes do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap');
+
+/* Nossas customizações de estilo "The Economist" */
+body {
+    background-color: #F9F5F0;
+    color: #111111;
+    font-family: 'Merriweather', serif;
+}
+
+h1, h2, h3, h4, h5, h6, .navbar-brand {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Regra para os TÍTULOS dos artigos na lista da home.
+Esta regra é específica e vai sobrescrever o Bootstrap.
+*/
+.list-group-item-action h5 {
+    color: #E3120B;
+    transition: color 0.2s ease-in-out; /* Efeito suave na cor */
+}
+
+/* Faz o título ficar um pouco mais escuro ao passar o mouse */
+.list-group-item-action:hover h5 {
+    color: #a80e08;
+}
+
+/* Links gerais dentro do corpo dos artigos (agora ficam vermelhos) */
+.article-body a {
+    color: #E3120B;
+    text-decoration: underline;
+}
+
+/* Ajuste para que o link de logout na navbar não fique vermelho */
+.navbar-dark .navbar-nav .nav-link.btn-link {
+    color: rgba(255, 255, 255, 0.55);
+}
+.navbar-dark .navbar-nav .nav-link.btn-link:hover {
+    color: rgba(255, 255, 255, 0.75);
+}

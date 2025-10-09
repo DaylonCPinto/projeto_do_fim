@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ page.title }}</h1>
+    <p class="text-muted">Publicado em: {{ page.publication_date|date:"d/m/Y" }}</p>
+
+    {# A introdução é sempre visível para todos #}
+    <p class="lead">{{ page.introduction }}</p>
+    <hr>
+
+    {# AQUI COMEÇA A LÓGICA DO PAYWALL #}
+    {% if page.is_premium %}
+        {# Se o artigo for premium, verificamos se o usuário é um ASSINANTE #}
+        {% if user.userprofile.is_subscriber %}
+            <div class="article-body"> 
+                {{ page.body|richtext }}
+            </div>
+        {% else %}
+            <div class="alert alert-warning" role="alert">
+                <h4 class="alert-heading">Conteúdo Exclusivo</h4>
+                <p>Esta é uma análise aprofundada disponível apenas para assinantes. Para ler o conteúdo completo, por favor, faça login ou considere se tornar um assinante.</p>
+                <hr>
+                <a href="{% url 'login' %}" class="btn btn-primary">Fazer Login</a>
+                <a href="#" class="btn btn-success">Assinar Agora</a>
+            </div>
+        {% endif %}
+    {% else %}
+        {# Se o artigo NÃO for premium, mostramos o corpo para todos #}
+        <div class="article-body">
+            {{ page.body|richtext }}
+        </div>
+    {% endif %}
+
+    <a href="{{ page.get_parent.url }}" class="btn btn-secondary mt-4">Voltar</a>
+{% endblock %}
