@@ -1,3 +1,5 @@
+import os # Adicione esta importação no topo
+import dj_database_url
 from pathlib import Path
 from decouple import config
 
@@ -80,14 +82,21 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+
+if 'DATABASE_URL' in os.environ:
+    # Se estiver no servidor (onde a DATABASE_URL existe no .env)
+    DATABASES = {
+        'default': config('DATABASE_URL', cast=dj_database_url.parse)
     }
-}
-
-
+else:
+    # Se estiver no seu PC local (sem DATABASE_URL no .env)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+    
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
@@ -136,4 +145,3 @@ LOGOUT_REDIRECT_URL = '/'
 # Crispy Forms settings
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
-
