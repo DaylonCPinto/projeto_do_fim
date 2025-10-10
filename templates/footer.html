@@ -1,0 +1,64 @@
+{% load static %}
+
+<!-- 
+======================================
+RODAPÉ MODERNO (FOOTER) 
+- Fundo escuro, links organizados e direitos autorais.
+======================================
+-->
+<footer class="bg-dark text-white pt-5 pb-3 mt-5">
+    <div class="container">
+        <div class="row">
+            <!-- Coluna 1: Nome do Site e Descrição -->
+            <div class="col-md-4 mb-4">
+                <h5 class="fw-bold">{{ WAGTAIL_SITE_NAME }}</h5>
+                <p class="text-white-50 small">Análise de notícias globais com profundidade e rigor editorial.</p>
+            </div>
+
+            <!-- Coluna 2: Navegação Rápida -->
+            <div class="col-6 col-md-2 mb-4">
+                <h6 class="text-uppercase fw-bold mb-3">Seções</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-white-50 text-decoration-none small">Política</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none small">Economia</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none small">Tecnologia</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none small">Opinião</a></li>
+                </ul>
+            </div>
+
+            <!-- Coluna 3: Links Úteis -->
+            <div class="col-6 col-md-2 mb-4">
+                <h6 class="text-uppercase fw-bold mb-3">Informação</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-white-50 text-decoration-none small">Sobre Nós</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none small">Contato</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none small">Termos de Uso</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none small">Privacidade</a></li>
+                </ul>
+            </div>
+
+            <!-- Coluna 4: Assinatura e Mídias Sociais -->
+            <div class="col-md-4 mb-4">
+                <h6 class="text-uppercase fw-bold mb-3">Receba Notícias</h6>
+                <form>
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control form-control-sm" placeholder="Seu email" aria-label="Seu email">
+                        <button class="btn btn-primary btn-sm" type="button">Assinar</button>
+                    </div>
+                </form>
+                <p class="text-white-50 small">Siga-nos:</p>
+                <!-- Mídias sociais mock (substituir por ícones se for usar FontAwesome) -->
+                <span class="me-3 text-white">X</span>
+                <span class="me-3 text-white">F</span>
+                <span class="me-3 text-white">L</span>
+            </div>
+        </div>
+
+        <hr class="text-secondary my-4">
+        
+        <!-- Direitos Autorais -->
+        <div class="text-center pt-2">
+            <p class="text-white-50 small mb-0">&copy; {% now "Y" %} {{ WAGTAIL_SITE_NAME }}. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</footer>

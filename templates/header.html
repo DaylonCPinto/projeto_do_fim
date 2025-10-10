@@ -1,0 +1,70 @@
+{% load static navigation_tags wagtailcore_tags %}
+
+<!-- 
+======================================
+CABEÇALHO MODERNO (HEADER & NAVBAR) 
+- Fixo no topo (sticky-top), fundo branco e sombra suave.
+======================================
+-->
+<header class="shadow-sm sticky-top bg-white border-bottom">
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container py-2">
+            <!-- Brand/Logo (Nome do Site em destaque) -->
+            <a class="navbar-brand fw-bold fs-4 text-dark" href="/">{{ WAGTAIL_SITE_NAME }}</a>
+            
+            <!-- Toggler (Mobile) -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" 
+                    aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                
+                <!-- Menu de Tópicos (Tag Personalizada) -->
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    {% get_topics as topics %}
+                    {% for topic in topics %}
+                        <li class="nav-item">
+                            <!-- pageurl requer o carregamento de 'wagtailcore_tags' -->
+                            <a class="nav-link text-uppercase fw-medium" href="{% pageurl topic %}">{{ topic.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                
+                <!-- Links de Autenticação -->
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><span class="nav-link text-dark">Olá, **{{ user.username }}**</span></li>
+                        <li class="nav-item">
+                            <form class="d-inline" method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <!-- Botão de Logout estilizado -->
+                                <button type="submit" class="nav-link btn btn-sm btn-outline-dark rounded-pill px-3">Logout</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                        <li class="nav-item">
+                            <!-- Botão Registrar em destaque -->
+                            <a class="nav-link btn btn-primary rounded-pill text-white px-3 ms-lg-2" href="{% url 'signup' %}">
+                                Registrar
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Sub-navegação estática (Mantida, mas escondida em mobile para limpar o header) -->
+<div class="bg-light border-bottom mb-4 d-none d-lg-block">
+    <div class="container">
+        <nav class="nav nav-pills nav-fill py-2">
+            <a class="nav-link text-dark small" href="#">Weekly edition</a>
+            <a class="nav-link text-dark small" href="#">The world in brief</a>
+            <a class="nav-link text-dark small" href="#">Business</a>
+            <a class="nav-link text-dark small" href="#">Finance & economics</a>
+        </nav>
+    </div>
+</div>
