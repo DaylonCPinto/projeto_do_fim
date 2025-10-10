@@ -2,63 +2,50 @@
 
 <!-- 
 ======================================
-RODAPÉ MODERNO (FOOTER) 
+RODAPÉ COMPACTO (FOOTER) 
 - Fundo escuro, links organizados e direitos autorais.
+- Versão otimizada com menos espaçamento
 ======================================
 -->
-<footer class="bg-dark text-white pt-5 pb-3 mt-5">
+<footer class="bg-dark text-white py-3 mt-5">
     <div class="container">
-        <div class="row">
-            <!-- Coluna 1: Nome do Site e Descrição -->
-            <div class="col-md-4 mb-4">
-                <h5 class="fw-bold">{{ WAGTAIL_SITE_NAME }}</h5>
-                <p class="text-white-50 small">Análise de notícias globais com profundidade e rigor editorial.</p>
+        <div class="row align-items-center">
+            <!-- Coluna 1: Nome do Site -->
+            <div class="col-md-3 mb-2 mb-md-0">
+                <h6 class="fw-bold mb-0">{{ WAGTAIL_SITE_NAME }}</h6>
+                <p class="text-white-50 small mb-0">Análise de notícias com rigor editorial.</p>
             </div>
 
             <!-- Coluna 2: Navegação Rápida -->
-            <div class="col-6 col-md-2 mb-4">
-                <h6 class="text-uppercase fw-bold mb-3">Seções</h6>
-                <ul class="list-unstyled">
-                    <li><a href="#" class="text-white-50 text-decoration-none small">Política</a></li>
-                    <li><a href="#" class="text-white-50 text-decoration-none small">Economia</a></li>
-                    <li><a href="#" class="text-white-50 text-decoration-none small">Tecnologia</a></li>
-                    <li><a href="#" class="text-white-50 text-decoration-none small">Opinião</a></li>
+            <div class="col-6 col-md-2 mb-2 mb-md-0">
+                <h6 class="text-uppercase fw-bold mb-1 small">Seções</h6>
+                <ul class="list-unstyled mb-0 small">
+                    <li><a href="#" class="text-white-50 text-decoration-none">Política</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none">Economia</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none">Tecnologia</a></li>
                 </ul>
             </div>
 
             <!-- Coluna 3: Links Úteis -->
-            <div class="col-6 col-md-2 mb-4">
-                <h6 class="text-uppercase fw-bold mb-3">Informação</h6>
-                <ul class="list-unstyled">
-                    <li><a href="#" class="text-white-50 text-decoration-none small">Sobre Nós</a></li>
-                    <li><a href="#" class="text-white-50 text-decoration-none small">Contato</a></li>
-                    <li><a href="#" class="text-white-50 text-decoration-none small">Termos de Uso</a></li>
-                    <li><a href="#" class="text-white-50 text-decoration-none small">Privacidade</a></li>
+            <div class="col-6 col-md-2 mb-2 mb-md-0">
+                <h6 class="text-uppercase fw-bold mb-1 small">Informação</h6>
+                <ul class="list-unstyled mb-0 small">
+                    <li><a href="#" class="text-white-50 text-decoration-none">Sobre Nós</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none">Contato</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none">Privacidade</a></li>
                 </ul>
             </div>
 
-            <!-- Coluna 4: Assinatura e Mídias Sociais -->
-            <div class="col-md-4 mb-4">
-                <h6 class="text-uppercase fw-bold mb-3">Receba Notícias</h6>
-                <form>
-                    <div class="input-group mb-3">
-                        <input type="email" class="form-control form-control-sm" placeholder="Seu email" aria-label="Seu email">
-                        <button class="btn btn-primary btn-sm" type="button">Assinar</button>
-                    </div>
-                </form>
-                <p class="text-white-50 small">Siga-nos:</p>
-                <!-- Mídias sociais mock (substituir por ícones se for usar FontAwesome) -->
-                <span class="me-3 text-white">X</span>
-                <span class="me-3 text-white">F</span>
-                <span class="me-3 text-white">L</span>
+            <!-- Coluna 4: Mídias Sociais e Copyright -->
+            <div class="col-md-5 mb-2 mb-md-0 text-md-end">
+                <div class="mb-1">
+                    <span class="text-white-50 small me-2">Siga-nos:</span>
+                    <span class="me-2 text-white">X</span>
+                    <span class="me-2 text-white">F</span>
+                    <span class="text-white">L</span>
+                </div>
+                <p class="text-white-50 small mb-0">&copy; {% now "Y" %} {{ WAGTAIL_SITE_NAME }}. Todos os direitos reservados.</p>
             </div>
-        </div>
-
-        <hr class="text-secondary my-4">
-        
-        <!-- Direitos Autorais -->
-        <div class="text-center pt-2">
-            <p class="text-white-50 small mb-0">&copy; {% now "Y" %} {{ WAGTAIL_SITE_NAME }}. Todos os direitos reservados.</p>
         </div>
     </div>
 </footer>
