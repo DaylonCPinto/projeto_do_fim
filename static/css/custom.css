@@ -3,44 +3,288 @@
 /* Importa as fontes do Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Roboto:wght@400;500;700&display=swap');
 
+/* =======================================
+   ESTILO "THE ECONOMIST" - MODERNIZADO
+   ======================================= */
+
 /* Nossas customizações de estilo "The Economist" */
 body {
     background-color: #F9F5F0;
     color: #111111;
     font-family: 'Merriweather', serif;
+    line-height: 1.7;
 }
 
 h1, h2, h3, h4, h5, h6, .navbar-brand {
     font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
 }
 
-/* Regra para os TÍTULOS dos artigos na lista da home.
-Esta regra é específica e vai sobrescrever o Bootstrap.
-*/
-.list-group-item-action h5 {
+/* =======================================
+   PREMIUM BADGES E INDICADORES
+   ======================================= */
+.premium-badge {
+    display: inline-block;
+    background-color: #E3120B;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+.subscriber-status {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.subscriber-status.active {
+    background-color: #E3120B;
+    color: white;
+}
+
+.subscriber-status.inactive {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* =======================================
+   ARTICLE CARDS - MODERNIZADOS
+   ======================================= */
+.article-card {
+    transition: all 0.3s ease;
+    border: none;
+    background-color: transparent;
+}
+
+.article-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.article-card .card-img-top {
+    transition: opacity 0.3s ease;
+}
+
+.article-card:hover .card-img-top {
+    opacity: 0.9;
+}
+
+.article-card-title {
+    color: #111111;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s ease;
+}
+
+.article-card:hover .article-card-title {
     color: #E3120B;
-    transition: color 0.2s ease-in-out; /* Efeito suave na cor */
 }
 
-/* Faz o título ficar um pouco mais escuro ao passar o mouse */
-.list-group-item-action:hover h5 {
-    color: #a80e08;
+/* Featured Article */
+.featured-article {
+    border-bottom: 3px solid #E3120B;
+    padding-bottom: 2rem;
+    margin-bottom: 3rem;
 }
 
-/* Links gerais dentro do corpo dos artigos (agora ficam vermelhos) */
+.featured-article h1 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+.featured-article .lead {
+    font-size: 1.25rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+/* =======================================
+   NAVIGATION & HEADER
+   ======================================= */
+.nav-pills .nav-link {
+    color: #666;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nav-pills .nav-link:hover {
+    color: #E3120B;
+    background-color: transparent;
+}
+
+/* =======================================
+   ARTICLE PAGE - MELHORIAS
+   ======================================= */
+.article-header {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.article-meta {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.article-body {
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+.article-body p {
+    margin-bottom: 1.5rem;
+}
+
+.article-body h2, .article-body h3 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+/* Links gerais dentro do corpo dos artigos */
 .article-body a {
     color: #E3120B;
     text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.article-body a:hover {
+    color: #a80e08;
+}
+
+/* =======================================
+   PAYWALL - DESIGN MELHORADO
+   ======================================= */
+.paywall-overlay {
+    background: linear-gradient(to bottom, 
+                transparent 0%, 
+                rgba(249, 245, 240, 0.8) 30%,
+                rgba(249, 245, 240, 0.95) 60%,
+                #F9F5F0 100%);
+    padding: 3rem 2rem;
+    margin-top: -4rem;
+    position: relative;
+    text-align: center;
+}
+
+.paywall-message {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border-left: 4px solid #E3120B;
+}
+
+.paywall-message h4 {
+    color: #E3120B;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.paywall-message p {
+    color: #333;
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+.btn-subscribe {
+    background-color: #E3120B;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.3s ease;
+}
+
+.btn-subscribe:hover {
+    background-color: #a80e08;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(227, 18, 11, 0.3);
+}
+
+/* =======================================
+   CATEGORY SECTIONS
+   ======================================= */
+.category-section {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.category-header {
+    border-left: 4px solid #E3120B;
+    padding-left: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.category-header h2 {
+    font-size: 1.5rem;
+    color: #111111;
+    margin-bottom: 0;
+}
+
+/* =======================================
+   RESPONSIVE IMPROVEMENTS
+   ======================================= */
+@media (max-width: 768px) {
+    .featured-article h1 {
+        font-size: 1.75rem;
+    }
+    
+    .featured-article .lead {
+        font-size: 1rem;
+    }
+    
+    .paywall-message {
+        padding: 1.5rem;
+    }
+}
+
+/* =======================================
+   UTILITY CLASSES
+   ======================================= */
+.text-economist-red {
+    color: #E3120B;
+}
+
+.bg-economist-red {
+    background-color: #E3120B;
+}
+
+.border-economist-red {
+    border-color: #E3120B;
+}
+
+.mt-header-fixo {
+    margin-top: 65px;
 }
 
 /* Ajuste para que o link de logout na navbar não fique vermelho */
 .navbar-dark .navbar-nav .nav-link.btn-link {
     color: rgba(255, 255, 255, 0.55);
 }
+
 .navbar-dark .navbar-nav .nav-link.btn-link:hover {
     color: rgba(255, 255, 255, 0.75);
-}
-
-.mt-header-fixo {
-  margin-top: 65px;
 }
