@@ -117,6 +117,39 @@ python manage.py collectstatic --noinput
 python manage.py createsuperuser
 ```
 
+### Migração de Dados do SQLite Local
+
+Se você já tem dados no SQLite local e quer migrá-los para o PostgreSQL:
+
+1. **Localmente, faça backup dos dados:**
+   ```bash
+   python manage.py dumpdata --natural-foreign --natural-primary \
+       --exclude=contenttypes --exclude=auth.permission \
+       --exclude=sessions --exclude=admin.logentry \
+       --indent=2 > backup_data.json
+   ```
+
+2. **Faça commit e push do arquivo:**
+   ```bash
+   git add backup_data.json
+   git commit -m "Add data backup for migration"
+   git push
+   ```
+
+3. **No Azure (via SSH), carregue os dados:**
+   ```bash
+   python manage.py loaddata backup_data.json
+   ```
+
+4. **Remova o arquivo do repositório após migração:**
+   ```bash
+   git rm backup_data.json
+   git commit -m "Remove data backup"
+   git push
+   ```
+
+**Consulte `MIGRATION_GUIDE.md` para instruções detalhadas.**
+
 ## Passo 6: Configurar Arquivos Estáticos (Opcional - para Azure Storage)
 
 Para usar Azure Blob Storage para arquivos estáticos e mídia:

@@ -4,6 +4,9 @@ from django.db import models
 from wagtail.models import Page
 from wagtail.fields import RichTextField
 from wagtail.admin.panels import FieldPanel
+from modelcluster.fields import ParentalKey
+from modelcluster.contrib.taggit import ClusterTaggableManager
+from taggit.models import TaggedItemBase
 
 class HomePage(Page):
     body = RichTextField(blank=True, verbose_name="Corpo da Página")
@@ -30,6 +33,17 @@ class HomePage(Page):
     # --- FIM DA ALTERAÇÃO ---
 
 
+class ArticlePageTag(TaggedItemBase):
+    """
+    Modelo intermediário para tags de artigos.
+    """
+    content_object = ParentalKey(
+        'ArticlePage',
+        related_name='tagged_items',
+        on_delete=models.CASCADE
+    )
+
+
 class ArticlePage(Page):
     publication_date = models.DateField(verbose_name="Data de Publicação")
     introduction = models.CharField(max_length=250, verbose_name="Introdução")
@@ -45,6 +59,9 @@ class ArticlePage(Page):
     )
 
     body = RichTextField(blank=True, verbose_name="Corpo do Artigo")
+    
+    # Tags para categorização
+    tags = ClusterTaggableManager(through=ArticlePageTag, blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel('publication_date'),
@@ -52,4 +69,5 @@ class ArticlePage(Page):
         FieldPanel('is_premium'),
         FieldPanel('featured_image'), 
         FieldPanel('body'),
+        FieldPanel('tags'),
     ]

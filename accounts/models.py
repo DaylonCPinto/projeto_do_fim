@@ -15,6 +15,13 @@ class UserProfile(models.Model):
         on_delete=models.CASCADE,
         related_name='userprofile'
     )
+    cpf = models.CharField(
+        max_length=14,
+        blank=True,
+        null=True,
+        verbose_name="CPF",
+        help_text="CPF no formato: XXX.XXX.XXX-XX"
+    )
     is_subscriber = models.BooleanField(
         default=False,
         verbose_name="Assinante Ativo?"

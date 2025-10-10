@@ -10,7 +10,7 @@ class UserProfileInline(admin.StackedInline):
     model = UserProfile
     can_delete = False
     verbose_name_plural = 'Perfil do Assinante'
-    fields = ('is_subscriber', 'subscription_date')
+    fields = ('cpf', 'is_subscriber', 'subscription_date')
     readonly_fields = ('subscription_date',)
 
 # Personalizando o admin do User para incluir o UserProfile inline
@@ -77,14 +77,14 @@ class CustomUserAdmin(BaseUserAdmin):
 # Admin personalizado para UserProfile
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'get_email', 'subscriber_status_badge', 'get_date_joined')
+    list_display = ('user', 'get_email', 'cpf', 'subscriber_status_badge', 'get_date_joined')
     list_filter = ('is_subscriber',)
-    search_fields = ('user__username', 'user__email', 'user__first_name', 'user__last_name')
+    search_fields = ('user__username', 'user__email', 'user__first_name', 'user__last_name', 'cpf')
     readonly_fields = ('user', 'get_date_joined', 'get_last_login')
     
     fieldsets = (
         ('Informações do Usuário', {
-            'fields': ('user', 'get_date_joined', 'get_last_login')
+            'fields': ('user', 'cpf', 'get_date_joined', 'get_last_login')
         }),
         ('Status de Assinatura', {
             'fields': ('is_subscriber',),

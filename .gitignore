@@ -12,6 +12,10 @@ env/
 # Banco de Dados SQLite
 *.sqlite3
 db.sqlite3
+*.sqlite3.backup.*
+
+# Backups de dados
+backup_data.json
 
 # Arquivos de mídia e estáticos coletados
 /media/
