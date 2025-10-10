@@ -1,12 +1,57 @@
 {% extends "base.html" %}
 {% load wagtailcore_tags wagtailimages_tags %}
 
+{% block title %}{{ page.title }}{% endblock %}
+
 {% block content %}
     {# Corpo principal da Homepage, se houver #}
     {% if page.body %}
         <div class="mb-5 text-center">
-            {{ page.body|richtext }} </div>
+            {{ page.body|richtext }}
+        </div>
         <hr class="mb-5">
     {% endif %}
 
-    {% endblock %}
+    {% if featured_article %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <a href="{% pageurl featured_article %}" class="text-decoration-none text-dark">
+                {% if featured_article.specific.featured_image %}
+                    {% image featured_article.specific.featured_image original as img %}
+                    <img src="{{ img.url }}" class="img-fluid rounded mb-3" alt="{{ img.alt }}">
+                {% endif %}
+                <h1 class="display-5">{{ featured_article.title }}</h1>
+                <p class="lead">{{ featured_article.specific.introduction }}</p>
+                <p class="text-muted small">
+                    Publicado há {{ featured_article.specific.publication_date|timesince }}
+                </p>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if articles %}
+    <div class="row">
+        {% for article in articles %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-0 bg-transparent">
+                <a href="{% pageurl article %}">
+                    {% if article.specific.featured_image %}
+                        {% image article.specific.featured_image fill-400x250 class="card-img-top rounded" %}
+                    {% endif %}
+                </a>
+                <div class="card-body px-0">
+                    <h5 class="card-title">
+                        <a href="{% pageurl article %}" class="text-decoration-none">{{ article.title }}</a>
+                    </h5>
+                    <p class="card-text text-muted small">
+                        Publicado há {{ article.specific.publication_date|timesince }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+{% endblock %}

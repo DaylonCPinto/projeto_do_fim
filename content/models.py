@@ -5,6 +5,10 @@ from wagtail.models import Page
 from wagtail.fields import RichTextField
 from wagtail.admin.panels import FieldPanel
 
+# Em content/models.py
+
+# ... (suas importações no topo do arquivo continuam iguais) ...
+
 class HomePage(Page):
     body = RichTextField(blank=True, verbose_name="Corpo da Página")
 
@@ -12,25 +16,16 @@ class HomePage(Page):
         FieldPanel('body'),
     ]
 
-    # ===============================================================
-    # O MÉTODO QUE ESTAVA FALTANDO E CAUSOU O PROBLEMA
-    # ===============================================================
-# Em content/models.py, dentro da classe HomePage
+    # O método get_context DEVE estar indentado para pertencer à classe
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
 
-# Em content/models.py, dentro da classe HomePage
+        # Usando a versão SIMPLES que sabemos que funciona
+        all_articles = ArticlePage.objects.descendant_of(self).live().order_by('-publication_date')
+        context['articles'] = all_articles
 
-def get_context(self, request, *args, **kwargs):
-    # A CORREÇÃO ESTÁ AQUI: super().get_context (e não get_toc_context)
-    context = super().get_context(request, *args, **kwargs)
+        return context
 
-    # O resto do código continua igual e está correto
-    all_articles = ArticlePage.objects.descendant_of(self).live().order_by('-publication_date')
-
-    context['featured_article'] = all_articles.first()
-    context['articles'] = all_articles[1:]
-
-    return context
-    # ===============================================================
 
 class ArticlePage(Page):
     publication_date = models.DateField(verbose_name="Data de Publicação")
