@@ -1,29 +1,52 @@
 {% load static wagtailcore_tags navigation_tags %}
 
-<!-- HEADER FIXO DO USUÁRIO (20% menor na vertical) -->
+<!-- HEADER FIXO DO USUÁRIO -->
 <header class="shadow-sm fixed-top bg-white border-bottom" style="z-index:1050; min-height:39px;">
     <nav class="navbar navbar-expand-lg navbar-light" style="padding-top: 0.2rem; padding-bottom: 0.2rem;">
         <div class="container py-0" style="min-height:39px;">
             <!-- Brand/Logo -->
-            <a class="navbar-brand fw-bold fs-4 text-dark" href="/">{{ WAGTAIL_SITE_NAME }}</a>
+            <a class="navbar-brand fw-bold fs-4 text-economist-red" href="/">
+                <i class="bi bi-newspaper"></i> {{ WAGTAIL_SITE_NAME }}
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNavbar" 
                 aria-controls="userNavbar" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="userNavbar">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
                     {% if user.is_authenticated %}
-                        <li class="nav-item"><span class="nav-link text-dark">Olá, <b>{{ user.username }}</b></span></li>
+                        <li class="nav-item me-2">
+                            <span class="nav-link text-dark">
+                                Olá, <b>{{ user.username }}</b>
+                                {% if user.userprofile.is_subscriber %}
+                                    <span class="subscriber-status active ms-2">
+                                        <i class="bi bi-star-fill"></i> Premium
+                                    </span>
+                                {% else %}
+                                    <span class="subscriber-status inactive ms-2">
+                                        <i class="bi bi-star"></i> Gratuito
+                                    </span>
+                                {% endif %}
+                            </span>
+                        </li>
                         <li class="nav-item">
                             <form class="d-inline" method="post" action="{% url 'logout' %}">
                                 {% csrf_token %}
-                                <button type="submit" class="nav-link btn btn-sm btn-outline-dark rounded-pill px-3">Logout</button>
+                                <button type="submit" class="nav-link btn btn-sm btn-outline-dark rounded-pill px-3">
+                                    <i class="bi bi-box-arrow-right"></i> Logout
+                                </button>
                             </form>
                         </li>
                     {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
                         <li class="nav-item">
-                            <a class="nav-link btn btn-primary rounded-pill text-white px-3 ms-lg-2" href="{% url 'signup' %}">Registrar</a>
+                            <a class="nav-link" href="{% url 'login' %}">
+                                <i class="bi bi-person"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn bg-economist-red rounded-pill text-white px-3 ms-lg-2" href="{% url 'signup' %}">
+                                <i class="bi bi-star"></i> Assinar
+                            </a>
                         </li>
                     {% endif %}
                 </ul>
@@ -32,17 +55,28 @@
     </nav>
 </header>
 
-<!-- Espaço para compensar o header fixo (20% menor) -->
+<!-- Espaço para compensar o header fixo -->
 <div style="height: 52px;"></div>
 
-<!-- SUBNAVEGAÇÃO ESTÁTICA (agora deslocada para baixo do header) -->
-<div class="bg-light border-bottom mb-2 d-none d-lg-block">
+<!-- SUBNAVEGAÇÃO ESTÁTICA -->
+<div class="bg-light border-bottom mb-4 d-none d-lg-block">
     <div class="container">
-        <nav class="nav nav-pills nav-fill py-1">
-            <a class="nav-link text-dark small" href="#">Weekly edition</a>
-            <a class="nav-link text-dark small" href="#">The world in brief</a>
-            <a class="nav-link text-dark small" href="#">Business</a>
-            <a class="nav-link text-dark small" href="#">Finance & economics</a>
+        <nav class="nav nav-pills nav-fill py-2">
+            <a class="nav-link text-dark small" href="/">
+                <i class="bi bi-house-door"></i> Home
+            </a>
+            <a class="nav-link text-dark small" href="#">
+                <i class="bi bi-globe"></i> The world in brief
+            </a>
+            <a class="nav-link text-dark small" href="#">
+                <i class="bi bi-briefcase"></i> Business
+            </a>
+            <a class="nav-link text-dark small" href="#">
+                <i class="bi bi-graph-up"></i> Finance & economics
+            </a>
+            <a class="nav-link text-dark small" href="#">
+                <i class="bi bi-cpu"></i> Technology
+            </a>
         </nav>
     </div>
 </div>

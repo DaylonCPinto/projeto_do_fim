@@ -6,45 +6,65 @@
 {% block content %}
     <!-- SEÇÃO DO ARTIGO EM DESTAQUE -->
     {% if featured_article %}
-    <div class="row mb-5 pb-4 border-bottom">
-        <div class="col-12">
-            <a href="{% pageurl featured_article %}" class="text-decoration-none text-dark">
-                {% if featured_article.specific.featured_image %}
-                    {% image featured_article.specific.featured_image original as img %}
-                    <img src="{{ img.url }}" class="img-fluid rounded mb-3" alt="{{ img.alt }}">
-                {% endif %}
-                <h1 class="display-5 fw-bold">{{ featured_article.title }}</h1>
-                <p class="lead fs-4">{{ featured_article.specific.introduction }}</p>
-                <p class="text-muted small">
-                    Publicado há {{ featured_article.specific.publication_date|timesince }}
-                </p>
-            </a>
+    <div class="featured-article mb-5">
+        <div class="row">
+            <div class="col-12">
+                <a href="{% pageurl featured_article %}" class="text-decoration-none text-dark">
+                    {% if featured_article.specific.featured_image %}
+                        {% image featured_article.specific.featured_image original as img %}
+                        <img src="{{ img.url }}" class="img-fluid rounded mb-3" alt="{{ img.alt }}">
+                    {% endif %}
+                    <h1>
+                        {{ featured_article.title }}
+                        {% if featured_article.specific.is_premium %}
+                            <span class="premium-badge">Premium</span>
+                        {% endif %}
+                    </h1>
+                    <p class="lead">{{ featured_article.specific.introduction }}</p>
+                    <p class="text-muted small">
+                        <i class="bi bi-clock"></i> Publicado há {{ featured_article.specific.publication_date|timesince }}
+                    </p>
+                </a>
+            </div>
         </div>
     </div>
     {% endif %}
 
-    <!-- SEÇÃO DA GRADE DE ARTIGOS SECUNDÁRIOS -->
+    <!-- SEÇÃO PRINCIPAL DE ARTIGOS -->
     {% if articles %}
-    <div class="row">
-        {% for article in articles %}
-        <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100 border-0 bg-transparent">
-                <a href="{% pageurl article %}">
-                    {% if article.specific.featured_image %}
-                        {% image article.specific.featured_image fill-400x250 class="card-img-top rounded" %}
-                    {% endif %}
-                </a>
-                <div class="card-body px-0">
-                    <h5 class="card-title fw-bold">
-                        <a href="{% pageurl article %}" class="text-decoration-none">{{ article.title }}</a>
-                    </h5>
-                    <p class="card-text text-muted small">
-                        Publicado há {{ article.specific.publication_date|timesince }}
-                    </p>
+    <div class="category-section">
+        <div class="category-header">
+            <h2>Análises Recentes</h2>
+        </div>
+        <div class="row">
+            {% for article in articles %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card article-card h-100">
+                    <a href="{% pageurl article %}">
+                        {% if article.specific.featured_image %}
+                            {% image article.specific.featured_image fill-400x250 class="card-img-top rounded" %}
+                        {% endif %}
+                    </a>
+                    <div class="card-body px-0">
+                        <h5 class="article-card-title">
+                            <a href="{% pageurl article %}" class="text-decoration-none">
+                                {{ article.title }}
+                                {% if article.specific.is_premium %}
+                                    <span class="premium-badge">Premium</span>
+                                {% endif %}
+                            </a>
+                        </h5>
+                        <p class="card-text text-muted small mb-2">
+                            {{ article.specific.introduction|truncatewords:15 }}
+                        </p>
+                        <p class="card-text text-muted small">
+                            <i class="bi bi-clock"></i> {{ article.specific.publication_date|date:"d/m/Y" }}
+                        </p>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
     {% endif %}
 
