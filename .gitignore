@@ -5,7 +5,9 @@ __pycache__/
 
 # Ambiente Virtual
 venv/
+env/
 .env
+.venv
 
 # Banco de Dados SQLite
 *.sqlite3
@@ -14,6 +16,11 @@ db.sqlite3
 # Arquivos de mídia e estáticos coletados
 /media/
 /static_root/
+/staticfiles/
+
+# Logs
+*.log
+django.log
 
 # Arquivos do VSCode
 .vscode/
@@ -21,3 +28,14 @@ db.sqlite3
 # Arquivos de sistema operacional
 .DS_Store
 Thumbs.db
+
+# PyCharm
+.idea/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# pytest
+.pytest_cache/
