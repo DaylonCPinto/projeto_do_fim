@@ -28,12 +28,16 @@ def timesince_brasilia(value):
     if not value:
         return ''
     
+    from datetime import date
+    
     # Se for um DateField, converte para datetime no início do dia
     if isinstance(value, datetime):
         date_obj = value
-    else:
-        # É uma date, converte para datetime
+    elif isinstance(value, date):
+        # É uma date, converte para datetime no início do dia
         date_obj = datetime.combine(value, datetime.min.time())
+    else:
+        return ''
     
     # Define o timezone de Brasília usando zoneinfo (Python 3.9+)
     try:
@@ -45,12 +49,19 @@ def timesince_brasilia(value):
     # Se a data não tem timezone, assume que está em Brasília
     if timezone.is_naive(date_obj):
         date_obj = date_obj.replace(tzinfo=brasilia_tz)
+    else:
+        # Converte para o timezone de Brasília
+        date_obj = date_obj.astimezone(brasilia_tz)
     
     # Obtém a data/hora atual em Brasília
     now_brasilia = timezone.now().astimezone(brasilia_tz)
     
     # Calcula a diferença
     diff = now_brasilia - date_obj
+    
+    # Previne diferenças negativas (datas futuras)
+    if diff.total_seconds() < 0:
+        return 'agora'
     
     if diff.days == 0:
         hours = diff.seconds // 3600

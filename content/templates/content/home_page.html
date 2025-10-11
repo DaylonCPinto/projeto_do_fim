@@ -13,7 +13,10 @@
         <div class="row g-4">
             <div class="col-lg-7">
                 <a href="{% pageurl featured_article %}" class="text-decoration-none">
-                    {% if featured_article.specific.featured_image %}
+                    {% if featured_article.specific.external_image_url %}
+                        <img src="{{ featured_article.specific.external_image_url }}" class="img-fluid rounded shadow-sm mb-3" 
+                             alt="{{ featured_article.title }}" style="width: 100%; height: auto;">
+                    {% elif featured_article.specific.featured_image %}
                         {% image featured_article.specific.featured_image original as img %}
                         <img src="{{ img.url }}" class="img-fluid rounded shadow-sm mb-3" 
                              alt="{{ img.alt }}" style="width: 100%; height: auto;">
