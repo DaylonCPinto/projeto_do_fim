@@ -7,6 +7,8 @@ Portal de análise de conteúdo com sistema de paywall para conteúdo premium, c
 - Sistema de autenticação de usuários
 - Paywall para conteúdo premium
 - CMS Wagtail para gerenciamento de conteúdo
+- **Seções Temáticas**: Geopolítica, Economia, Clima, Tecnologia, Escatologia
+- **Suporte a Imagens Externas**: URLs de imagens em artigos e no StreamField
 - Sistema de perfis de usuários com assinaturas
 - Interface responsiva com Bootstrap 5
 - Suporte para PostgreSQL em produção

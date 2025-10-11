@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block title %}{{ page.title }} - {{ WAGTAIL_SITE_NAME }}{% endblock %}
+
+{% block content %}
+    <div class="section-header mb-5">
+        <h1 class="display-4 fw-bold text-economist-red">
+            {{ page.title }}
+        </h1>
+        {% if page.introduction %}
+            <p class="lead text-muted">{{ page.introduction }}</p>
+        {% endif %}
+    </div>
+
+    {% if articles %}
+        <div class="row">
+            {% for article in articles %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card article-card h-100">
+                    <a href="{% pageurl article %}">
+                        {% if article.external_image_url %}
+                            <img src="{{ article.external_image_url }}" class="card-img-top rounded" 
+                                 alt="{{ article.title }}" style="height: 250px; object-fit: cover;">
+                        {% elif article.featured_image %}
+                            {% image article.featured_image fill-400x250 class="card-img-top rounded" %}
+                        {% else %}
+                            <img src="https://picsum.photos/400/250" class="card-img-top rounded" 
+                                 alt="{{ article.title }}" style="height: 250px; object-fit: cover;">
+                        {% endif %}
+                    </a>
+                    <div class="card-body px-0">
+                        <h5 class="article-card-title">
+                            <a href="{% pageurl article %}" class="text-decoration-none">
+                                {{ article.title }}
+                                {% if article.is_premium %}
+                                    <span class="premium-badge">Premium</span>
+                                {% endif %}
+                            </a>
+                        </h5>
+                        <p class="card-text text-muted small mb-2">
+                            {{ article.introduction|truncatewords:15 }}
+                        </p>
+                        <p class="card-text text-muted small">
+                            <i class="bi bi-clock"></i> {{ article.publication_date|date:"d/m/Y" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            Ainda não há artigos nesta seção.
+        </div>
+    {% endif %}
+{% endblock %}

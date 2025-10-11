@@ -13,6 +13,33 @@ from modelcluster.fields import ParentalKey
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from taggit.models import TaggedItemBase
 
+
+# Custom block for images with URL support
+class ImageBlock(blocks.StructBlock):
+    """Block that supports both uploaded images and external URLs"""
+    image = ImageChooserBlock(
+        required=False,
+        label="Imagem (Upload)"
+    )
+    image_url = blocks.URLBlock(
+        required=False,
+        label="URL da Imagem",
+        help_text="Ou use uma URL de imagem externa"
+    )
+    caption = blocks.CharBlock(
+        required=False,
+        label="Legenda"
+    )
+    credit = blocks.CharBlock(
+        required=False,
+        label="Crédito"
+    )
+    
+    class Meta:
+        icon = "image"
+        label = "Imagem (Upload ou URL)"
+        template = "content/blocks/image_block.html"
+
 class HomePage(Page):
     body = RichTextField(blank=True, verbose_name="Corpo da Página")
 
@@ -59,9 +86,28 @@ class ArticlePageTag(TaggedItemBase):
 
 
 class ArticlePage(Page):
+    # Section choices
+    SECTION_CHOICES = [
+        ('em-alta', 'Em Alta'),
+        ('geopolitica', 'Geopolítica'),
+        ('economia', 'Economia'),
+        ('clima', 'Clima'),
+        ('tecnologia', 'Tecnologia'),
+        ('escatologia', 'Escatologia'),
+    ]
+    
     publication_date = models.DateTimeField(verbose_name="Data de Publicação", default=timezone.now)
     introduction = models.CharField(max_length=250, verbose_name="Introdução")
     is_premium = models.BooleanField(default=False, verbose_name="Conteúdo Exclusivo?")
+    
+    # Section field
+    section = models.CharField(
+        max_length=50,
+        choices=SECTION_CHOICES,
+        default='em-alta',
+        verbose_name="Seção",
+        help_text="Escolha a seção deste artigo"
+    )
     
     featured_image = models.ForeignKey(
         'wagtailimages.Image',
@@ -95,14 +141,10 @@ class ArticlePage(Page):
             help_text="Adicione um título de seção"
         )),
         ('image', ImageChooserBlock(
-            label="Imagem",
-            help_text="Insira uma imagem no artigo"
+            label="Imagem (Somente Upload)",
+            help_text="Insira uma imagem do banco de dados"
         )),
-        ('image_with_caption', blocks.StructBlock([
-            ('image', ImageChooserBlock(label="Imagem")),
-            ('caption', blocks.CharBlock(required=False, label="Legenda")),
-            ('credit', blocks.CharBlock(required=False, label="Crédito")),
-        ], label="Imagem com Legenda", icon="image")),
+        ('image_url', ImageBlock()),
         ('video', EmbedBlock(
             label="Vídeo (YouTube, Vimeo, etc.)",
             help_text="Cole o link do vídeo do YouTube, Vimeo ou outra plataforma"
@@ -133,6 +175,7 @@ class ArticlePage(Page):
     content_panels = Page.content_panels + [
         FieldPanel('publication_date'),
         FieldPanel('introduction'),
+        FieldPanel('section'),
         FieldPanel('is_premium'),
         MultiFieldPanel([
             FieldPanel('featured_image'),
@@ -228,6 +271,45 @@ class VideoShort(models.Model):
         elif self.thumbnail_image:
             return self.thumbnail_image.file.url
         return 'https://via.placeholder.com/400x700/E3120B/FFFFFF?text=Video'
+
+
+class SectionPage(Page):
+    """Página de seção para listar artigos de uma categoria específica"""
+    section_key = models.CharField(
+        max_length=50,
+        choices=ArticlePage.SECTION_CHOICES,
+        unique=True,
+        verbose_name="Seção",
+        help_text="Chave da seção que esta página representa"
+    )
+    
+    introduction = models.TextField(
+        blank=True,
+        verbose_name="Introdução da Seção",
+        help_text="Texto introdutório para esta seção"
+    )
+    
+    content_panels = Page.content_panels + [
+        FieldPanel('section_key'),
+        FieldPanel('introduction'),
+    ]
+    
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        
+        # Get all articles in this section
+        articles = ArticlePage.objects.filter(
+            section=self.section_key
+        ).live().order_by('-publication_date')
+        
+        context['articles'] = articles
+        context['section_name'] = dict(ArticlePage.SECTION_CHOICES).get(self.section_key)
+        
+        return context
+    
+    class Meta:
+        verbose_name = "Página de Seção"
+        verbose_name_plural = "Páginas de Seção"
 
 
 @register_snippet

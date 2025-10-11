@@ -15,11 +15,14 @@
                 <a href="{% pageurl featured_article %}" class="text-decoration-none">
                     {% if featured_article.specific.external_image_url %}
                         <img src="{{ featured_article.specific.external_image_url }}" class="img-fluid rounded shadow-sm mb-3" 
-                             alt="{{ featured_article.title }}" style="width: 100%; height: auto;">
+                             alt="{{ featured_article.title }}" style="width: 100%; height: auto; max-height: 500px; object-fit: cover;">
                     {% elif featured_article.specific.featured_image %}
                         {% image featured_article.specific.featured_image original as img %}
                         <img src="{{ img.url }}" class="img-fluid rounded shadow-sm mb-3" 
-                             alt="{{ img.alt }}" style="width: 100%; height: auto;">
+                             alt="{{ img.alt }}" style="width: 100%; height: auto; max-height: 500px; object-fit: cover;">
+                    {% else %}
+                        <img src="https://picsum.photos/800/400" class="img-fluid rounded shadow-sm mb-3" 
+                             alt="{{ featured_article.title }}" style="width: 100%; height: auto; max-height: 500px; object-fit: cover;">
                     {% endif %}
                 </a>
             </div>
@@ -95,8 +98,15 @@
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card article-card h-100">
                     <a href="{% pageurl article %}">
-                        {% if article.specific.featured_image %}
+                        {% if article.specific.external_image_url %}
+                            <img src="{{ article.specific.external_image_url }}" class="card-img-top rounded" 
+                                 alt="{{ article.title }}" style="height: 250px; object-fit: cover;">
+                        {% elif article.specific.featured_image %}
                             {% image article.specific.featured_image fill-400x250 class="card-img-top rounded" %}
+                        {% else %}
+                            <img src="https://picsum.photos/400/250?random={{ forloop.counter }}" 
+                                 class="card-img-top rounded" alt="{{ article.title }}" 
+                                 style="height: 250px; object-fit: cover;">
                         {% endif %}
                     </a>
                     <div class="card-body px-0">
