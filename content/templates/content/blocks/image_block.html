@@ -1,0 +1,19 @@
+{% load wagtailimages_tags %}
+
+<figure class="image-block my-4">
+    {% if value.image %}
+        {% image value.image original as img %}
+        <img src="{{ img.url }}" alt="{{ img.alt }}" class="img-fluid rounded">
+    {% elif value.image_url %}
+        <img src="{{ value.image_url }}" alt="Imagem do artigo" class="img-fluid rounded">
+    {% endif %}
+    
+    {% if value.caption %}
+        <figcaption class="figure-caption text-center mt-2">
+            {{ value.caption }}
+            {% if value.credit %}
+                <span class="text-muted"> | {{ value.credit }}</span>
+            {% endif %}
+        </figcaption>
+    {% endif %}
+</figure>
