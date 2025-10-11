@@ -2,49 +2,136 @@
 
 <!-- 
 ======================================
-RODAPÉ COMPACTO (FOOTER) 
-- Fundo escuro, links organizados e direitos autorais.
-- Versão otimizada com menos espaçamento
+RODAPÉ MODERNIZADO (FOOTER) 
+- Design elegante com melhor organização
+- Links de redes sociais com ícones
+- Informações completas e newsletter
 ======================================
 -->
-<footer class="bg-dark text-white py-3 mt-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <!-- Coluna 1: Nome do Site -->
-            <div class="col-md-3 mb-2 mb-md-0">
-                <h6 class="fw-bold mb-0">{{ WAGTAIL_SITE_NAME }}</h6>
-                <p class="text-white-50 small mb-0">Análise de notícias com rigor editorial.</p>
-            </div>
-
-            <!-- Coluna 2: Navegação Rápida -->
-            <div class="col-6 col-md-2 mb-2 mb-md-0">
-                <h6 class="text-uppercase fw-bold mb-1 small">Seções</h6>
-                <ul class="list-unstyled mb-0 small">
-                    <li><a href="#" class="text-white-50 text-decoration-none">Política</a></li>
-                    <li><a href="#" class="text-white-50 text-decoration-none">Economia</a></li>
-                    <li><a href="#" class="text-white-50 text-decoration-none">Tecnologia</a></li>
-                </ul>
-            </div>
-
-            <!-- Coluna 3: Links Úteis -->
-            <div class="col-6 col-md-2 mb-2 mb-md-0">
-                <h6 class="text-uppercase fw-bold mb-1 small">Informação</h6>
-                <ul class="list-unstyled mb-0 small">
-                    <li><a href="#" class="text-white-50 text-decoration-none">Sobre Nós</a></li>
-                    <li><a href="#" class="text-white-50 text-decoration-none">Contato</a></li>
-                    <li><a href="#" class="text-white-50 text-decoration-none">Privacidade</a></li>
-                </ul>
-            </div>
-
-            <!-- Coluna 4: Mídias Sociais e Copyright -->
-            <div class="col-md-5 mb-2 mb-md-0 text-md-end">
-                <div class="mb-1">
-                    <span class="text-white-50 small me-2">Siga-nos:</span>
-                    <span class="me-2 text-white">X</span>
-                    <span class="me-2 text-white">F</span>
-                    <span class="text-white">L</span>
+<footer class="modern-footer bg-dark text-white mt-5">
+    <!-- Newsletter Section -->
+    <div class="footer-newsletter bg-economist-red py-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <h5 class="mb-1">
+                        <i class="bi bi-envelope-fill me-2"></i>Newsletter
+                    </h5>
+                    <p class="mb-0 small">Receba as melhores análises direto no seu e-mail</p>
                 </div>
-                <p class="text-white-50 small mb-0">&copy; {% now "Y" %} {{ WAGTAIL_SITE_NAME }}. Todos os direitos reservados.</p>
+                <div class="col-md-6">
+                    <form class="d-flex gap-2" onsubmit="return false;">
+                        <input type="email" class="form-control" placeholder="Seu e-mail" 
+                               aria-label="Email para newsletter">
+                        <button class="btn btn-light text-economist-red fw-bold" type="submit">
+                            Inscrever
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Footer Content -->
+    <div class="footer-content py-4">
+        <div class="container">
+            <div class="row g-4">
+                <!-- Coluna 1: Sobre -->
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold text-uppercase mb-3 text-economist-red">
+                        <i class="bi bi-newspaper me-2"></i>{{ WAGTAIL_SITE_NAME }}
+                    </h6>
+                    <p class="text-white-50 small mb-3">
+                        Análise de notícias com rigor editorial e jornalismo de qualidade. 
+                        Cobertura aprofundada dos principais acontecimentos.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon me-2" title="Twitter/X">
+                            <i class="bi bi-twitter-x"></i>
+                        </a>
+                        <a href="#" class="social-icon me-2" title="Facebook">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                        <a href="#" class="social-icon me-2" title="LinkedIn">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                        <a href="#" class="social-icon me-2" title="Instagram">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                        <a href="#" class="social-icon" title="YouTube">
+                            <i class="bi bi-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Coluna 2: Seções -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-uppercase fw-bold mb-3">Seções</h6>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Brasil</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Mundo</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Política</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Economia</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Tecnologia</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Ciência</a></li>
+                    </ul>
+                </div>
+
+                <!-- Coluna 3: Sobre Nós -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-uppercase fw-bold mb-3">Informação</h6>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Sobre Nós</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Equipe</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Contato</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Anuncie</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Trabalhe Conosco</a></li>
+                    </ul>
+                </div>
+
+                <!-- Coluna 4: Legal -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-uppercase fw-bold mb-3">Legal</h6>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Termos de Uso</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Privacidade</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Cookies</a></li>
+                        <li><a href="#"><i class="bi bi-chevron-right"></i> Código de Ética</a></li>
+                    </ul>
+                </div>
+
+                <!-- Coluna 5: Assinatura -->
+                <div class="col-lg-3 col-md-12">
+                    <h6 class="text-uppercase fw-bold mb-3">Assinatura Premium</h6>
+                    <p class="text-white-50 small mb-3">
+                        Acesso ilimitado a todo o conteúdo exclusivo
+                    </p>
+                    <a href="{% url 'signup' %}" class="btn btn-outline-light rounded-pill w-100 mb-2">
+                        <i class="bi bi-star"></i> Assinar Agora
+                    </a>
+                    <p class="text-white-50 small mb-0 text-center">
+                        <i class="bi bi-shield-check"></i> Cancele quando quiser
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="footer-bottom border-top border-secondary py-3">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                    <p class="text-white-50 small mb-0">
+                        &copy; {% now "Y" %} {{ WAGTAIL_SITE_NAME }}. Todos os direitos reservados.
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="text-white-50 small mb-0">
+                        <i class="bi bi-code-slash"></i> Desenvolvido com 
+                        <i class="bi bi-heart-fill text-danger"></i> por Daylon C. Pinto
+                    </p>
+                </div>
             </div>
         </div>
     </div>
