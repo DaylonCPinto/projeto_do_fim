@@ -1,6 +1,7 @@
 # Em content/models.py
 
 from django.db import models
+from django.utils import timezone
 from wagtail.models import Page
 from wagtail.fields import RichTextField, StreamField
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
@@ -58,7 +59,7 @@ class ArticlePageTag(TaggedItemBase):
 
 
 class ArticlePage(Page):
-    publication_date = models.DateField(verbose_name="Data de Publicação")
+    publication_date = models.DateTimeField(verbose_name="Data de Publicação", default=timezone.now)
     introduction = models.CharField(max_length=250, verbose_name="Introdução")
     is_premium = models.BooleanField(default=False, verbose_name="Conteúdo Exclusivo?")
     

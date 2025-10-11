@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags wagtailimages_tags navigation_tags %}
 
 {% block title %}{{ page.title }}{% endblock %}
 
@@ -14,9 +14,13 @@
                 {% endif %}
             </h1>
             <div class="article-meta">
-                <i class="bi bi-calendar3"></i> Publicado em: {{ page.publication_date|date:"d/m/Y" }}
+                <i class="bi bi-calendar3"></i> Publicado em: {{ page.publication_date|date:"d/m/Y H:i" }}
                 <span class="mx-2">•</span>
-                <i class="bi bi-clock"></i> {{ page.publication_date|timesince }} atrás
+                <i class="bi bi-clock"></i> há {{ page.publication_date|timesince_brasilia }}
+                {% if page.last_published_at and page.first_published_at and page.last_published_at != page.first_published_at %}
+                    <span class="mx-2">•</span>
+                    <i class="bi bi-pencil"></i> <span class="text-muted">editado há {{ page.last_published_at|timesince_brasilia }}</span>
+                {% endif %}
             </div>
         </div>
 
