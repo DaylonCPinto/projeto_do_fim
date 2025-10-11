@@ -1,26 +1,26 @@
-import os
-import dj_database_url
 from pathlib import Path
-from decouple import config
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-dev-key-change-this-in-production')
+# Substitua a linha da SECRET_KEY por esta:
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # Hosts permitidos - importante para segurança
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # CSRF Trusted Origins para Azure e domínios personalizados
-CSRF_TRUSTED_ORIGINS = config(
-    'CSRF_TRUSTED_ORIGINS',
-    default='http://127.0.0.1:8000,http://localhost:8000'
-).split(',')
+CSRF_TRUSTED_ORIGINS = CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
 
 
 # Application definition
@@ -68,10 +68,10 @@ MIDDLEWARE = [
 
 # Security Settings for Production
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = False
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+   # SESSION_COOKIE_SECURE = True
+   # CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000  # 1 ano
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
@@ -102,25 +102,18 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if 'DATABASE_URL' in os.environ:
-    # Produção: PostgreSQL no Azure ou outro serviço
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=config('DATABASE_URL'),
-            conn_max_age=600,
-            conn_health_checks=True,
-            ssl_require=True
-        )
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
-else:
-    # Desenvolvimento: SQLite local
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-    
+}
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
@@ -158,7 +151,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Wagtail settings
 WAGTAIL_SITE_NAME = 'Portal de Análise'
-WAGTAILADMIN_BASE_URL = config('WAGTAILADMIN_BASE_URL', default='http://localhost:8000')
+WAGTAILADMIN_BASE_URL = os.getenv('WAGTAILADMIN_BASE_URL')
 
 # Authentication settings
 LOGIN_REDIRECT_URL = '/'
