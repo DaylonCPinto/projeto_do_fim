@@ -111,26 +111,37 @@ projeto_do_fim/
 
 ## 🌐 Deploy no Azure
 
-Veja o guia completo em [AZURE_DEPLOYMENT.md](AZURE_DEPLOYMENT.md).
+### Guias Disponíveis:
 
-### Resumo Rápido:
+**Se você já tem 2 VMs Azure prontas (Web + Database):**
+- 📘 **[GUIA_RAPIDO_AZURE.md](GUIA_RAPIDO_AZURE.md)** - Início rápido com comandos objetivos
+- 📗 **[AZURE_VM_SETUP_COMPLETO.md](AZURE_VM_SETUP_COMPLETO.md)** - Guia completo e detalhado
+- 🔧 **[TROUBLESHOOTING_NGINX_GUNICORN.md](TROUBLESHOOTING_NGINX_GUNICORN.md)** - Resolução de problemas
+- 🤖 **[scripts/](scripts/)** - Scripts de automação
 
-1. Criar PostgreSQL no Azure
-2. Criar App Service
-3. Configurar variáveis de ambiente
-4. Deploy via Git
-5. Executar migrações
+**Para criar VMs do zero:**
+- 📙 **[AZURE_DEPLOYMENT_VM.md](AZURE_DEPLOYMENT_VM.md)** - Criação de infraestrutura com Azure CLI
+
+**Para usar Azure App Service (PaaS):**
+- 📕 **[AZURE_DEPLOYMENT.md](AZURE_DEPLOYMENT.md)** - Deploy em App Service
+
+### Resumo Rápido (VMs já existentes):
 
 ```bash
-# Exemplo de configuração de variáveis no Azure
-az webapp config appsettings set \
-  --resource-group meu-projeto-rg \
-  --name meu-projeto-webapp \
-  --settings \
-    SECRET_KEY='sua-secret-key' \
-    DEBUG='False' \
-    ALLOWED_HOSTS='meu-projeto.azurewebsites.net' \
-    DATABASE_URL='postgres://...'
+# 1. Configurar NSG (no seu computador)
+./scripts/configure_azure_nsg.sh
+
+# 2. Configurar VM Database (via SSH)
+ssh -J azureuser@IP_WEB azureuser@IP_DB
+sudo ./scripts/setup_database.sh
+
+# 3. Configurar VM Web (via SSH)
+ssh azureuser@IP_WEB
+sudo ./scripts/setup_web.sh
+# Depois: configurar .env, executar migrações, iniciar serviços
+
+# 4. Testar conectividade
+./scripts/test_connectivity.sh
 ```
 
 ## 🧪 Testes

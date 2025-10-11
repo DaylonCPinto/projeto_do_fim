@@ -2,6 +2,19 @@
 
 Este documento descreve como fazer o deploy desta aplicação Django/Wagtail em máquinas virtuais isoladas no Azure com PostgreSQL.
 
+## 🆕 NOVOS GUIAS DISPONÍVEIS
+
+**Se você já tem 2 VMs prontas (Web + Database)**, use os novos guias simplificados:
+
+- 📘 **[GUIA_RAPIDO_AZURE.md](GUIA_RAPIDO_AZURE.md)** - Guia rápido e objetivo
+- 📗 **[AZURE_VM_SETUP_COMPLETO.md](AZURE_VM_SETUP_COMPLETO.md)** - Guia completo passo a passo
+- 🔧 **[TROUBLESHOOTING_NGINX_GUNICORN.md](TROUBLESHOOTING_NGINX_GUNICORN.md)** - Soluções para problemas comuns
+- 🤖 **[scripts/](scripts/)** - Scripts de automação para facilitar o deploy
+
+**Este guia abaixo é para criar VMs do zero usando Azure CLI.**
+
+---
+
 ## 📋 Visão Geral da Arquitetura
 
 Esta configuração cria:
