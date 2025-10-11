@@ -1,17 +1,13 @@
-# Framework Principal
+anyascii==0.3.3
+asgiref==3.10.0
+beautifulsoup4==4.14.2
+certifi==2025.10.5
+charset-normalizer==3.4.3
+crispy-bootstrap5==2025.6
+defusedxml==0.7.1
+dj-database-url==3.0.1
 Django==5.2.7
-wagtail==7.1.1
-
-# Servidor de Aplicação para Produção
-gunicorn
-
-# Servir Arquivos Estáticos em Produção
-whitenoise
-
-# Conector do Banco de Dados PostgreSQL
-psycopg2-binary
-
-# Ferramentas do Wagtail
+django-crispy-forms==2.4
 django-filter==25.2
 django-modelcluster==6.4
 django-permissionedforms==0.1
@@ -20,35 +16,27 @@ django-taggit==6.1.0
 django-tasks==0.8.1
 django-treebeard==4.7.1
 djangorestframework==3.16.1
-Pillow==11.3.0
-Willow==1.11.0
-
-# Ferramentas de Formulário
-django-crispy-forms
-crispy-bootstrap5
-
-# Gerenciamento de Configurações
-python-decouple
-dj-database-url
-
-# Outras dependências
-anyascii==0.3.3
-asgiref==3.10.0
-beautifulsoup4==4.14.2
-certifi==2025.10.5
-charset-normalizer==3.4.3
-defusedxml==0.7.1
 draftjs_exporter==5.1.0
 et_xmlfile==2.0.0
 filetype==1.2.0
+gunicorn==23.0.0
 idna==3.10
 laces==0.1.2
 openpyxl==3.1.5
+packaging==25.0
+pillow==11.3.0
 pillow_heif==1.1.1
+psycopg2-binary==2.9.11
+python-decouple==3.8
+python-dotenv==1.1.1
 requests==2.32.5
+setuptools==80.9.0
 soupsieve==2.8
 sqlparse==0.5.3
 telepath==0.3.1
 typing_extensions==4.15.0
 tzdata==2025.2
 urllib3==2.5.0
+wagtail==7.1.1
+whitenoise==6.11.0
+Willow==1.11.0
