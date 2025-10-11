@@ -23,7 +23,13 @@
     <!-- Inclui o Rodapé (Footer) -->
     {% include "footer.html" %}
 
-
+    <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    <!-- Block for additional page-specific JavaScript -->
+    {% block extra_js %}{% endblock %}
   </body>
 </html>
