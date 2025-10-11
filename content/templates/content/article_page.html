@@ -5,9 +5,9 @@
 
 {% block content %}
     <!-- HEADER DO ARTIGO -->
-    <article>
+    <article class="modern-article">
         <div class="article-header">
-            <h1>
+            <h1 class="article-title">
                 {{ page.title }}
                 {% if page.is_premium %}
                     <span class="premium-badge">Premium</span>
@@ -21,25 +21,91 @@
         </div>
 
         <!-- IMAGEM DE DESTAQUE -->
-        {% if page.featured_image %}
-        <div class="mb-4">
-            {% image page.featured_image original class="img-fluid rounded" %}
+        {% if page.featured_image or page.external_image_url %}
+        <div class="featured-image-container mb-4">
+            {% if page.external_image_url %}
+                <img src="{{ page.external_image_url }}" alt="{{ page.title }}" class="img-fluid rounded">
+            {% elif page.featured_image %}
+                {% image page.featured_image original class="img-fluid rounded" %}
+            {% endif %}
         </div>
         {% endif %}
 
         <!-- INTRODUÇÃO - SEMPRE VISÍVEL -->
-        <div class="lead mb-4" style="font-size: 1.2rem; color: #333;">
+        <div class="article-introduction lead mb-4">
             {{ page.introduction }}
         </div>
 
-        <hr class="my-4">
+        <hr class="article-divider my-4">
 
         <!-- LÓGICA DO PAYWALL -->
         {% if page.is_premium %}
             {% if user.is_authenticated and user.userprofile.is_subscriber %}
                 <!-- CONTEÚDO COMPLETO PARA ASSINANTES -->
                 <div class="article-body">
-                    {{ page.body|richtext }}
+                    {% if page.content_blocks %}
+                        {% for block in page.content_blocks %}
+                            {% if block.block_type == 'paragraph' %}
+                                <div class="content-block paragraph-block">
+                                    {{ block.value|richtext }}
+                                </div>
+                            {% elif block.block_type == 'heading' %}
+                                <div class="content-block heading-block">
+                                    <h2 class="content-heading">{{ block.value }}</h2>
+                                </div>
+                            {% elif block.block_type == 'image' %}
+                                <div class="content-block image-block">
+                                    {% image block.value original class="img-fluid rounded" %}
+                                </div>
+                            {% elif block.block_type == 'image_with_caption' %}
+                                <div class="content-block image-with-caption-block">
+                                    <figure class="figure w-100">
+                                        {% image block.value.image original class="figure-img img-fluid rounded" %}
+                                        {% if block.value.caption or block.value.credit %}
+                                        <figcaption class="figure-caption">
+                                            {% if block.value.caption %}{{ block.value.caption }}{% endif %}
+                                            {% if block.value.credit %}<span class="text-muted"> — Foto: {{ block.value.credit }}</span>{% endif %}
+                                        </figcaption>
+                                        {% endif %}
+                                    </figure>
+                                </div>
+                            {% elif block.block_type == 'video' %}
+                                <div class="content-block video-block">
+                                    <div class="ratio ratio-16x9">
+                                        {{ block.value }}
+                                    </div>
+                                </div>
+                            {% elif block.block_type == 'quote' %}
+                                <div class="content-block quote-block">
+                                    <blockquote class="blockquote-modern">
+                                        <p>{{ block.value.text }}</p>
+                                        {% if block.value.author %}
+                                            <footer class="blockquote-footer">{{ block.value.author }}</footer>
+                                        {% endif %}
+                                    </blockquote>
+                                </div>
+                            {% elif block.block_type == 'list' %}
+                                <div class="content-block list-block">
+                                    <ul class="content-list">
+                                        {% for item in block.value %}
+                                            <li>{{ item }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% elif block.block_type == 'divider' %}
+                                <div class="content-block divider-block">
+                                    {{ block }}
+                                </div>
+                            {% elif block.block_type == 'html' %}
+                                <div class="content-block html-block">
+                                    {{ block.value|safe }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <!-- Fallback para artigos legados -->
+                        {{ page.body|richtext }}
+                    {% endif %}
                 </div>
                 
                 <!-- BADGE DE ACESSO PREMIUM -->
@@ -51,8 +117,20 @@
                 </div>
             {% else %}
                 <!-- PREVIEW DO CONTEÚDO (PRIMEIRAS LINHAS) -->
-                <div class="article-body" style="max-height: 200px; overflow: hidden; position: relative;">
-                    {{ page.body|richtext|truncatewords_html:50 }}
+                <div class="article-body article-preview">
+                    {% if page.content_blocks %}
+                        {% for block in page.content_blocks %}
+                            {% if forloop.counter <= 2 %}
+                                {% if block.block_type == 'paragraph' %}
+                                    <div class="content-block paragraph-block">
+                                        {{ block.value|richtext|truncatewords_html:30 }}
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {{ page.body|richtext|truncatewords_html:50 }}
+                    {% endif %}
                 </div>
                 
                 <!-- PAYWALL OVERLAY -->
@@ -75,7 +153,69 @@
         {% else %}
             <!-- ARTIGO GRATUITO - CONTEÚDO COMPLETO -->
             <div class="article-body">
-                {{ page.body|richtext }}
+                {% if page.content_blocks %}
+                    {% for block in page.content_blocks %}
+                        {% if block.block_type == 'paragraph' %}
+                            <div class="content-block paragraph-block">
+                                {{ block.value|richtext }}
+                            </div>
+                        {% elif block.block_type == 'heading' %}
+                            <div class="content-block heading-block">
+                                <h2 class="content-heading">{{ block.value }}</h2>
+                            </div>
+                        {% elif block.block_type == 'image' %}
+                            <div class="content-block image-block">
+                                {% image block.value original class="img-fluid rounded" %}
+                            </div>
+                        {% elif block.block_type == 'image_with_caption' %}
+                            <div class="content-block image-with-caption-block">
+                                <figure class="figure w-100">
+                                    {% image block.value.image original class="figure-img img-fluid rounded" %}
+                                    {% if block.value.caption or block.value.credit %}
+                                    <figcaption class="figure-caption">
+                                        {% if block.value.caption %}{{ block.value.caption }}{% endif %}
+                                        {% if block.value.credit %}<span class="text-muted"> — Foto: {{ block.value.credit }}</span>{% endif %}
+                                    </figcaption>
+                                    {% endif %}
+                                </figure>
+                            </div>
+                        {% elif block.block_type == 'video' %}
+                            <div class="content-block video-block">
+                                <div class="ratio ratio-16x9">
+                                    {{ block.value }}
+                                </div>
+                            </div>
+                        {% elif block.block_type == 'quote' %}
+                            <div class="content-block quote-block">
+                                <blockquote class="blockquote-modern">
+                                    <p>{{ block.value.text }}</p>
+                                    {% if block.value.author %}
+                                        <footer class="blockquote-footer">{{ block.value.author }}</footer>
+                                    {% endif %}
+                                </blockquote>
+                            </div>
+                        {% elif block.block_type == 'list' %}
+                            <div class="content-block list-block">
+                                <ul class="content-list">
+                                    {% for item in block.value %}
+                                        <li>{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% elif block.block_type == 'divider' %}
+                            <div class="content-block divider-block">
+                                {{ block }}
+                            </div>
+                        {% elif block.block_type == 'html' %}
+                            <div class="content-block html-block">
+                                {{ block.value|safe }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <!-- Fallback para artigos legados -->
+                    {{ page.body|richtext }}
+                {% endif %}
             </div>
         {% endif %}
 
