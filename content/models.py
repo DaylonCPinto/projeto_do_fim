@@ -2,9 +2,12 @@
 
 from django.db import models
 from wagtail.models import Page
-from wagtail.fields import RichTextField
+from wagtail.fields import RichTextField, StreamField
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from wagtail.snippets.models import register_snippet
+from wagtail import blocks
+from wagtail.images.blocks import ImageChooserBlock
+from wagtail.embeds.blocks import EmbedBlock
 from modelcluster.fields import ParentalKey
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from taggit.models import TaggedItemBase
@@ -75,7 +78,53 @@ class ArticlePage(Page):
         help_text="Use uma URL de imagem externa para economizar espaço. Se preenchido, será usado ao invés da imagem local."
     )
 
-    body = RichTextField(blank=True, verbose_name="Corpo do Artigo")
+    # Campo legado - mantido para compatibilidade
+    body = RichTextField(blank=True, verbose_name="Corpo do Artigo (Legado)")
+    
+    # Novo campo StreamField para conteúdo moderno e flexível
+    content_blocks = StreamField([
+        ('paragraph', blocks.RichTextBlock(
+            label="Parágrafo",
+            features=['bold', 'italic', 'link', 'ol', 'ul'],
+            help_text="Adicione parágrafos de texto com formatação básica"
+        )),
+        ('heading', blocks.CharBlock(
+            label="Título/Subtítulo",
+            form_classname="title",
+            help_text="Adicione um título de seção"
+        )),
+        ('image', ImageChooserBlock(
+            label="Imagem",
+            help_text="Insira uma imagem no artigo"
+        )),
+        ('image_with_caption', blocks.StructBlock([
+            ('image', ImageChooserBlock(label="Imagem")),
+            ('caption', blocks.CharBlock(required=False, label="Legenda")),
+            ('credit', blocks.CharBlock(required=False, label="Crédito")),
+        ], label="Imagem com Legenda", icon="image")),
+        ('video', EmbedBlock(
+            label="Vídeo (YouTube, Vimeo, etc.)",
+            help_text="Cole o link do vídeo do YouTube, Vimeo ou outra plataforma"
+        )),
+        ('quote', blocks.StructBlock([
+            ('text', blocks.TextBlock(label="Texto da Citação")),
+            ('author', blocks.CharBlock(required=False, label="Autor")),
+        ], label="Citação", icon="openquote")),
+        ('list', blocks.ListBlock(
+            blocks.CharBlock(label="Item"),
+            label="Lista",
+            help_text="Adicione uma lista de itens"
+        )),
+        ('divider', blocks.StaticBlock(
+            label="Divisor",
+            admin_text="Uma linha horizontal para separar seções",
+            template="content/blocks/divider.html"
+        )),
+        ('html', blocks.RawHTMLBlock(
+            label="HTML Customizado",
+            help_text="Adicione HTML personalizado (use com cuidado)"
+        )),
+    ], blank=True, null=True, use_json_field=True, verbose_name="Conteúdo do Artigo")
     
     # Tags para categorização
     tags = ClusterTaggableManager(through=ArticlePageTag, blank=True)
@@ -88,7 +137,8 @@ class ArticlePage(Page):
             FieldPanel('featured_image'),
             FieldPanel('external_image_url'),
         ], heading="Imagem de Destaque (escolha uma opção)"),
-        FieldPanel('body'),
+        FieldPanel('content_blocks'),
+        FieldPanel('body'),  # Mantido para compatibilidade, mas escondido no final
         FieldPanel('tags'),
     ]
     
