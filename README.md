@@ -38,7 +38,47 @@ Veja [SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md) para mais detalhes.
 - PostgreSQL 14+ (para produção)
 - Conta no Azure (para deploy)
 
-## 🛠️ Instalação Local
+## 🛠️ Instalação e Configuração
+
+### Início Rápido
+
+```bash
+# 1. Clone o repositório
+git clone https://github.com/DaylonCPinto/projeto_do_fim.git
+cd projeto_do_fim
+
+# 2. Instale as dependências
+pip install -r requirements.txt
+
+# 3. Configure as variáveis de ambiente
+cp .env.example .env
+# Edite o arquivo .env com suas configurações
+
+# 4. Execute as migrações
+python manage.py migrate
+
+# 5. Crie um superusuário
+python manage.py createsuperuser
+
+# 6. Configure a estrutura do site (NOVO!)
+python manage.py setup_site
+
+# 7. Inicie o servidor
+python manage.py runserver
+```
+
+Acesse:
+- **Site:** http://localhost:8000/
+- **Admin:** http://localhost:8000/admin/
+
+### Documentação Completa
+
+Para instruções detalhadas de configuração, consulte:
+- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Guia completo de configuração passo a passo
+- **[FEATURES_GUIDE.md](FEATURES_GUIDE.md)** - Guia de funcionalidades
+- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Resumo técnico
+
+### Configuração Tradicional (Alternativa)
 
 1. Clone o repositório:
 ```bash

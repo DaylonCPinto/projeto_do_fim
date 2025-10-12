@@ -1,9 +1,10 @@
 {% extends "base.html" %}
-{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailcore_tags wagtailimages_tags navigation_tags %}
 
-{% block title %}{{ page.title }} - {{ WAGTAIL_SITE_NAME }}{% endblock %}
+{% block title %}{{ page.title }} - {{ section_name }}{% endblock %}
 
 {% block content %}
+    <!-- SECTION HEADER -->
     <div class="section-header mb-5">
         <h1 class="display-4 fw-bold text-economist-red">
             {{ page.title }}
@@ -13,7 +14,58 @@
         {% endif %}
     </div>
 
+    <!-- FEATURED ARTICLE FOR THIS SECTION -->
+    {% if featured_article %}
+    <div class="highlight-section mb-5">
+        <span class="highlight-badge">
+            <i class="bi bi-star-fill"></i> Destaque em {{ section_name }}
+        </span>
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <a href="{% pageurl featured_article %}" class="text-decoration-none">
+                    {% if featured_article.external_image_url %}
+                        <img src="{{ featured_article.external_image_url }}" class="img-fluid rounded shadow-sm mb-3" 
+                             alt="{{ featured_article.title }}" style="width: 100%; height: auto; max-height: 500px; object-fit: cover;">
+                    {% elif featured_article.featured_image %}
+                        {% image featured_article.featured_image original as img %}
+                        <img src="{{ img.url }}" class="img-fluid rounded shadow-sm mb-3" 
+                             alt="{{ img.alt }}" style="width: 100%; height: auto; max-height: 500px; object-fit: cover;">
+                    {% else %}
+                        <img src="https://picsum.photos/800/400" class="img-fluid rounded shadow-sm mb-3" 
+                             alt="{{ featured_article.title }}" style="width: 100%; height: auto; max-height: 500px; object-fit: cover;">
+                    {% endif %}
+                </a>
+            </div>
+            <div class="col-lg-5 d-flex flex-column justify-content-center">
+                <a href="{% pageurl featured_article %}" class="text-decoration-none text-dark">
+                    <h1 class="display-5 fw-bold mb-3" style="line-height: 1.2;">
+                        {{ featured_article.title }}
+                        {% if featured_article.is_premium %}
+                            <span class="premium-badge">Premium</span>
+                        {% endif %}
+                    </h1>
+                    <p class="lead text-muted mb-3">{{ featured_article.introduction }}</p>
+                    <div class="d-flex align-items-center text-muted">
+                        <i class="bi bi-clock me-2"></i>
+                        <span>{{ featured_article.publication_date|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="mt-3">
+                        <span class="btn btn-economist-red text-white">
+                            Ler Análise Completa <i class="bi bi-arrow-right ms-2"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- SECTION ARTICLES GRID -->
     {% if articles %}
+    <div class="category-section">
+        <div class="category-header">
+            <h2>Mais em {{ section_name }}</h2>
+        </div>
         <div class="row">
             {% for article in articles %}
             <div class="col-md-6 col-lg-4 mb-4">
@@ -25,8 +77,9 @@
                         {% elif article.featured_image %}
                             {% image article.featured_image fill-400x250 class="card-img-top rounded" %}
                         {% else %}
-                            <img src="https://picsum.photos/400/250" class="card-img-top rounded" 
-                                 alt="{{ article.title }}" style="height: 250px; object-fit: cover;">
+                            <img src="https://picsum.photos/400/250?random={{ forloop.counter }}" 
+                                 class="card-img-top rounded" alt="{{ article.title }}" 
+                                 style="height: 250px; object-fit: cover;">
                         {% endif %}
                     </a>
                     <div class="card-body px-0">
@@ -49,10 +102,13 @@
             </div>
             {% endfor %}
         </div>
+    </div>
     {% else %}
+        {% if not featured_article %}
         <div class="alert alert-info">
             <i class="bi bi-info-circle"></i>
             Ainda não há artigos nesta seção.
         </div>
+        {% endif %}
     {% endif %}
 {% endblock %}

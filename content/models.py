@@ -46,6 +46,9 @@ class HomePage(Page):
     content_panels = Page.content_panels + [
         FieldPanel('body'),
     ]
+    
+    # Define what types of pages can be children of HomePage
+    subpage_types = ['content.SectionPage', 'content.ArticlePage']
 
     # --- INÍCIO DA ALTERAÇÃO ---
     # Este método agora separa o artigo mais recente dos demais e inclui vídeos.
@@ -171,6 +174,9 @@ class ArticlePage(Page):
     
     # Tags para categorização
     tags = ClusterTaggableManager(through=ArticlePageTag, blank=True)
+    
+    # Define what pages can be parents of ArticlePage
+    parent_page_types = ['content.HomePage', 'content.SectionPage']
 
     content_panels = Page.content_panels + [
         FieldPanel('publication_date'),
@@ -294,16 +300,31 @@ class SectionPage(Page):
         FieldPanel('introduction'),
     ]
     
+    # Define parent and child page types
+    parent_page_types = ['content.HomePage']
+    subpage_types = ['content.ArticlePage']
+    
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         
-        # Get all articles in this section
-        articles = ArticlePage.objects.filter(
+        # Get all articles in this section, regardless of parent page
+        all_articles = ArticlePage.objects.filter(
             section=self.section_key
         ).live().order_by('-publication_date')
         
-        context['articles'] = articles
+        # The first and most recent article is our featured article
+        context['featured_article'] = all_articles.first()
+        
+        # The rest of the articles (from second onwards) go to the grid
+        context['articles'] = all_articles[1:]
+        
         context['section_name'] = dict(ArticlePage.SECTION_CHOICES).get(self.section_key)
+        
+        # Fetch site customizations
+        try:
+            context['site_customization'] = SiteCustomization.objects.first()
+        except:
+            context['site_customization'] = None
         
         return context
     
