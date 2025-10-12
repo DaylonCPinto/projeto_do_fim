@@ -89,20 +89,25 @@ class Command(BaseCommand):
             
             if existing_section:
                 self.stdout.write(self.style.WARNING(
-                    f'SectionPage already exists: {existing_section.title}'
+                    f'SectionPage already exists: {existing_section.title} (key={section_data["key"]})'
                 ))
             else:
-                section_page = SectionPage(
-                    title=section_data['title'],
-                    slug=section_data['slug'],
-                    section_key=section_data['key'],
-                    introduction=section_data['intro']
-                )
-                home_page.add_child(instance=section_page)
-                section_page.save_revision().publish()
-                self.stdout.write(self.style.SUCCESS(
-                    f'Created SectionPage: {section_page.title} ({section_page.url})'
-                ))
+                try:
+                    section_page = SectionPage(
+                        title=section_data['title'],
+                        slug=section_data['slug'],
+                        section_key=section_data['key'],
+                        introduction=section_data['intro']
+                    )
+                    home_page.add_child(instance=section_page)
+                    section_page.save_revision().publish()
+                    self.stdout.write(self.style.SUCCESS(
+                        f'Created SectionPage: {section_page.title} ({section_page.url})'
+                    ))
+                except Exception as e:
+                    self.stdout.write(self.style.ERROR(
+                        f'Error creating SectionPage for {section_data["key"]}: {str(e)}'
+                    ))
         
         self.stdout.write(self.style.SUCCESS('\n✅ Site setup complete!'))
         self.stdout.write(self.style.SUCCESS(f'Home page URL: {home_page.url}'))

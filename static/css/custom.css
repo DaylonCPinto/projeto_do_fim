@@ -126,6 +126,12 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     background-color: transparent;
 }
 
+/* Section header spacing to prevent fixed header from covering content */
+.section-header {
+    padding-top: 2rem;
+    margin-top: 1rem;
+}
+
 /* =======================================
    ARTICLE PAGE - MELHORIAS
    ======================================= */
