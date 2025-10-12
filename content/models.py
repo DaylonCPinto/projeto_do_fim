@@ -40,6 +40,69 @@ class ImageBlock(blocks.StructBlock):
         label = "Imagem (Upload ou URL)"
         template = "content/blocks/image_block.html"
 
+
+# Custom block for GIFs
+class GifBlock(blocks.StructBlock):
+    """Block for GIF animations"""
+    gif_url = blocks.URLBlock(
+        label="URL do GIF",
+        help_text="Cole a URL do GIF (ex: de um serviço como Giphy, Tenor, ou seu próprio servidor)"
+    )
+    caption = blocks.CharBlock(
+        required=False,
+        label="Legenda"
+    )
+    
+    class Meta:
+        icon = "media"
+        label = "GIF Animado"
+        template = "content/blocks/gif_block.html"
+
+
+# Custom block for Audio/Podcast
+class AudioBlock(blocks.StructBlock):
+    """Block for audio player (podcast style)"""
+    audio_url = blocks.URLBlock(
+        label="URL do Áudio",
+        help_text="Cole a URL do arquivo de áudio (MP3, WAV, etc.)"
+    )
+    title = blocks.CharBlock(
+        required=False,
+        label="Título do Áudio"
+    )
+    description = blocks.TextBlock(
+        required=False,
+        label="Descrição"
+    )
+    
+    class Meta:
+        icon = "media"
+        label = "Áudio/Podcast"
+        template = "content/blocks/audio_block.html"
+
+
+# Custom block for PDF Download
+class PDFDownloadBlock(blocks.StructBlock):
+    """Block for PDF download with icon"""
+    pdf_url = blocks.URLBlock(
+        label="URL do PDF",
+        help_text="Cole a URL do arquivo PDF para download"
+    )
+    title = blocks.CharBlock(
+        label="Título do Documento",
+        default="Baixar PDF"
+    )
+    description = blocks.CharBlock(
+        required=False,
+        label="Descrição",
+        help_text="Descrição opcional do documento"
+    )
+    
+    class Meta:
+        icon = "doc-full"
+        label = "Download PDF"
+        template = "content/blocks/pdf_block.html"
+
 class HomePage(Page):
     body = RichTextField(blank=True, verbose_name="Corpo da Página")
 
@@ -48,7 +111,7 @@ class HomePage(Page):
     ]
     
     # Define what types of pages can be children of HomePage
-    subpage_types = ['content.SectionPage', 'content.ArticlePage']
+    subpage_types = ['content.SectionPage', 'content.ArticlePage', 'content.VideosPage']
 
     # --- INÍCIO DA ALTERAÇÃO ---
     # Este método agora separa o artigo mais recente dos demais e inclui vídeos.
@@ -194,6 +257,9 @@ class ArticlePage(Page):
             help_text="Insira uma imagem do banco de dados"
         )),
         ('image_url', ImageBlock()),
+        ('gif', GifBlock()),
+        ('audio', AudioBlock()),
+        ('pdf_download', PDFDownloadBlock()),
         ('video', EmbedBlock(
             label="Vídeo (YouTube, Vimeo, etc.)",
             help_text="Cole o link do vídeo do YouTube, Vimeo ou outra plataforma"
@@ -393,6 +459,35 @@ class SectionPage(Page):
     class Meta:
         verbose_name = "Página de Seção"
         verbose_name_plural = "Páginas de Seção"
+
+
+class VideosPage(Page):
+    """Página dedicada para exibir vídeos curtos (shorts)"""
+    introduction = RichTextField(
+        blank=True,
+        verbose_name="Introdução",
+        help_text="Texto introdutório para a página de vídeos"
+    )
+    
+    content_panels = Page.content_panels + [
+        FieldPanel('introduction'),
+    ]
+    
+    # Define parent page types
+    parent_page_types = ['content.HomePage']
+    subpage_types = []
+    
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        
+        # Get all video shorts ordered by priority and date
+        context['videos'] = VideoShort.objects.all()
+        
+        return context
+    
+    class Meta:
+        verbose_name = "Página de Vídeos"
+        verbose_name_plural = "Páginas de Vídeos"
 
 
 @register_snippet

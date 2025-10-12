@@ -39,8 +39,8 @@
         <div class="container">
             <!-- Brand/Logo -->
             <a class="navbar-brand fw-bold fs-3 text-economist-red d-flex align-items-center" href="/">
-                <i class="bi bi-newspaper me-2"></i>
-                <span class="brand-text">{{ WAGTAIL_SITE_NAME }}</span>
+                <i class="bi bi-house-door-fill me-2"></i>
+                <span class="brand-text">Início</span>
             </a>
             
             <!-- Mobile Menu Toggle -->
@@ -53,12 +53,7 @@
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">
-                            <i class="bi bi-house-door"></i> Início
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#videos-section">
+                        <a class="nav-link" href="/videos/">
                             <i class="bi bi-play-circle"></i> Vídeos
                         </a>
                     </li>
@@ -94,9 +89,6 @@
     <div class="category-nav bg-light border-top d-none d-lg-block" style="padding: 0.5rem 0;">
         <div class="container">
             <nav class="nav nav-pills justify-content-center">
-                <a class="nav-link category-pill {% if request.path == '/' %}active{% endif %}" href="/">
-                    <i class="bi bi-fire"></i> Em Alta
-                </a>
                 <a class="nav-link category-pill" href="/geopolitica/">
                     <i class="bi bi-globe"></i> Geopolítica
                 </a>

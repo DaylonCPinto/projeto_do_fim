@@ -30,9 +30,6 @@
                         {% image featured_article.featured_image original as img %}
                         <img src="{{ img.url }}" class="img-fluid rounded shadow-sm mb-3" 
                              alt="{{ img.alt }}" style="width: 100%; height: auto; max-height: 500px; object-fit: cover;">
-                    {% else %}
-                        <img src="https://picsum.photos/800/400" class="img-fluid rounded shadow-sm mb-3" 
-                             alt="{{ featured_article.title }}" style="width: 100%; height: auto; max-height: 500px; object-fit: cover;">
                     {% endif %}
                 </a>
             </div>
@@ -70,18 +67,16 @@
             {% for article in articles %}
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card article-card h-100">
+                    {% if article.external_image_url or article.featured_image %}
                     <a href="{% pageurl article %}">
                         {% if article.external_image_url %}
                             <img src="{{ article.external_image_url }}" class="card-img-top rounded" 
                                  alt="{{ article.title }}" style="height: 250px; object-fit: cover;">
                         {% elif article.featured_image %}
                             {% image article.featured_image fill-400x250 class="card-img-top rounded" %}
-                        {% else %}
-                            <img src="https://picsum.photos/400/250?random={{ forloop.counter }}" 
-                                 class="card-img-top rounded" alt="{{ article.title }}" 
-                                 style="height: 250px; object-fit: cover;">
                         {% endif %}
                     </a>
+                    {% endif %}
                     <div class="card-body px-0">
                         <h5 class="article-card-title">
                             <a href="{% pageurl article %}" class="text-decoration-none">

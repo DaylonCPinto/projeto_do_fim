@@ -1,0 +1,10 @@
+<figure class="gif-block my-4">
+    <div class="text-center">
+        <img src="{{ value.gif_url }}" alt="GIF Animado" class="img-fluid rounded">
+    </div>
+    {% if value.caption %}
+        <figcaption class="figure-caption text-center mt-2">
+            {{ value.caption }}
+        </figcaption>
+    {% endif %}
+</figure>
