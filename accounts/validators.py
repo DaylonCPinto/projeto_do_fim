@@ -42,12 +42,12 @@ def validate_allowed_email_domains(email):
     """
     Valida se o email usa um dos domínios permitidos.
     """
-    allowed_domains = ['@gmail.com', '@outlook.com', '@outlook.com.br', '@hotmail.com']
+    allowed_domains = ['@gmail.com', '@outlook.com', '@hotmail.com']
     email_lower = email.lower()
     
     if not any(email_lower.endswith(domain) for domain in allowed_domains):
         raise ValidationError(
-            'Somente e-mails com os domínios @gmail.com, @outlook.com, @outlook.com.br e @hotmail.com são aceitos.'
+            'Somente e-mails com os domínios @gmail.com, @outlook.com e @hotmail.com são aceitos.'
         )
     
     return email

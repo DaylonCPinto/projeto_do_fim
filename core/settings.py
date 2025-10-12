@@ -188,9 +188,9 @@ WAGTAILADMIN_RICH_TEXT_EDITORS = {
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Custom authentication backends - allows login with email or username
+# Custom authentication backends - allows login with email only
 AUTHENTICATION_BACKENDS = [
-    'accounts.backends.EmailOrUsernameModelBackend',
+    'accounts.backends.EmailAuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 

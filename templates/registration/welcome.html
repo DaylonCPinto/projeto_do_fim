@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Bem-vindo - Portal de Análise{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <!-- Welcome Card -->
+            <div class="card shadow-lg border-0" style="border-radius: 15px; overflow: hidden;">
+                <!-- Card Header with Brand Colors -->
+                <div class="card-header text-white text-center py-5" style="background: linear-gradient(135deg, #E3120B 0%, #a80e08 100%);">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <h2 class="mb-0 fw-bold">
+                        Conta Criada com Sucesso!
+                    </h2>
+                    <p class="mb-0 mt-2" style="opacity: 0.9; font-size: 1.1rem;">
+                        Bem-vindo(a) ao Portal de Análise
+                    </p>
+                </div>
+                
+                <!-- Card Body -->
+                <div class="card-body p-4 p-md-5">
+                    <!-- Welcome Message -->
+                    <div class="text-center mb-4">
+                        <h4 class="fw-bold mb-3">Olá, {{ user.username }}!</h4>
+                        <p class="text-muted mb-4">
+                            Sua conta foi criada com sucesso. Agora você tem acesso a análises e conteúdos exclusivos do Portal de Análise.
+                        </p>
+                    </div>
+                    
+                    <!-- Features List -->
+                    <div class="mb-4">
+                        <h5 class="fw-bold mb-3 text-center">O que você pode fazer agora:</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <strong>Acessar conteúdos exclusivos</strong> - Artigos, análises e relatórios especiais
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <strong>Personalizar sua experiência</strong> - Configure suas preferências e interesses
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <strong>Interagir com a comunidade</strong> - Comente e participe das discussões
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'home' %}" class="btn btn-economist-red btn-lg py-3" style="border-radius: 10px; font-weight: 600; letter-spacing: 0.5px;">
+                            <i class="bi bi-house-door-fill me-2"></i>
+                            Ir para a Página Inicial
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Card Footer -->
+                <div class="card-footer text-center py-4 bg-light border-0">
+                    <small class="text-muted">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Seus dados estão seguros e protegidos conosco
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Additional Info Card -->
+            <div class="card border-0 mt-4 shadow-sm" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-radius: 15px;">
+                <div class="card-body p-4 text-center">
+                    <i class="bi bi-star-fill text-economist-red" style="font-size: 2rem;"></i>
+                    <h5 class="mt-3 mb-2 fw-bold">Deseja mais recursos?</h5>
+                    <p class="text-muted mb-3">
+                        Considere fazer upgrade para nossa versão Premium e desbloquear ainda mais conteúdo.
+                    </p>
+                    <a href="#" class="btn btn-sm btn-outline-economist-red" style="border-radius: 20px; padding: 0.5rem 1.5rem;">
+                        Conhecer Planos Premium
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Styles -->
+<style>
+    /* Animation for check icon */
+    @keyframes checkAnimation {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.2);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    .bi-check-circle-fill {
+        animation: checkAnimation 0.6s ease-out;
+    }
+    
+    /* Hover effects */
+    .btn-economist-red:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(227, 18, 11, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-economist-red:hover {
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+    }
+    
+    /* List items hover */
+    .list-unstyled li {
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: background-color 0.2s ease;
+    }
+    
+    .list-unstyled li:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock %}

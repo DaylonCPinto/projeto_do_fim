@@ -13,6 +13,29 @@ import re
 import bleach
 
 
+class EmailAuthenticationForm(AuthenticationForm):
+    """
+    Formulário de autenticação customizado que usa e-mail ao invés de username.
+    """
+    username = forms.EmailField(
+        label='E-mail*',
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'seu@email.com',
+            'autofocus': True
+        })
+    )
+    
+    password = forms.CharField(
+        label='Senha*',
+        strip=False,
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Digite sua senha'
+        })
+    )
+
+
 class SignUpForm(UserCreationForm):
     """
     Formulário de registro com validação de email, CPF e campos obrigatórios.
@@ -31,7 +54,7 @@ class SignUpForm(UserCreationForm):
         max_length=14,
         required=True,
         label='CPF*',
-        help_text='Informe seu CPF',
+        help_text='000.000.000-00',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': '000.000.000-00',
@@ -63,7 +86,7 @@ class SignUpForm(UserCreationForm):
         self.fields['username'].label = 'Nome de usuário*'
         self.fields['username'].help_text = 'Mínimo 8 caracteres. Apenas letras e números.'
         self.fields['password1'].label = 'Senha*'
-        self.fields['password1'].help_text = 'Sua senha deve ter no mínimo 8 caracteres e conter números, letras e símbolos.'
+        self.fields['password1'].help_text = 'Sua senha deve ter no mínimo 8 caracteres e conter números e letras.'
         self.fields['password2'].label = 'Confirme a senha*'
         self.fields['password2'].help_text = 'Informe a mesma senha informada anteriormente.'
     
@@ -95,7 +118,10 @@ class SignUpForm(UserCreationForm):
             
             # Verifica se o CPF já está em uso
             if UserProfile.objects.filter(cpf=cpf).exists():
-                raise forms.ValidationError('Este CPF já está cadastrado.')
+                raise forms.ValidationError(
+                    'Este CPF já está cadastrado. '
+                    'Você pode fazer login ou recuperar sua conta.'
+                )
         
         return cpf
     
