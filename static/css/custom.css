@@ -7,6 +7,12 @@
    ESTILO "THE ECONOMIST" - MODERNIZADO
    ======================================= */
 
+/* Global scroll behavior for fixed header */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 160px; /* Account for fixed header height */
+}
+
 /* Nossas customizações de estilo "The Economist" */
 body {
     background-color: #F9F5F0;
@@ -128,8 +134,9 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
 
 /* Section header spacing to prevent fixed header from covering content */
 .section-header {
-    padding-top: 2rem;
-    margin-top: 1rem;
+    padding-top: 3rem;
+    margin-top: 2rem;
+    scroll-margin-top: 160px; /* Ensures proper scroll positioning for anchor links */
 }
 
 /* =======================================
