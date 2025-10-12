@@ -40,3 +40,4 @@ urllib3==2.5.0
 wagtail==7.1.1
 whitenoise==6.11.0
 Willow==1.11.0
+bleach==6.2.0

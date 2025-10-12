@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}Criar Conta - Portal de Análise{% endblock %}
 
@@ -116,5 +117,22 @@
     .btn-outline-economist-red:hover {
         transform: translateY(-2px);
     }
+    
+    /* Validation message styling */
+    .validation-message {
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Invalid field styling */
+    .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+    
+    .form-control.is-valid {
+        border-color: #28a745;
+    }
 </style>
+
+<script src="{% static 'js/form-validation.js' %}"></script>
 {% endblock %}

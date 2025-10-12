@@ -1,9 +1,16 @@
 # Em accounts/forms.py
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from .models import UserProfile
+from .validators import (
+    validate_cpf, 
+    validate_allowed_email_domains, 
+    validate_username_format,
+    validate_email_characters
+)
 import re
+import bleach
 
 
 class SignUpForm(UserCreationForm):
@@ -12,19 +19,24 @@ class SignUpForm(UserCreationForm):
     """
     email = forms.EmailField(
         required=True,
-        label='E-mail',
-        help_text='Obrigatório. Informe um endereço de email válido.',
-        widget=forms.EmailInput(attrs={'class': 'form-control'})
+        label='E-mail*',
+        help_text='',
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'id': 'id_email'
+        })
     )
     
     cpf = forms.CharField(
         max_length=14,
         required=True,
-        label='CPF',
-        help_text='Informe o CPF no formato: XXX.XXX.XXX-XX',
+        label='CPF*',
+        help_text='Informe seu CPF',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': '000.000.000-00'
+            'placeholder': '000.000.000-00',
+            'id': 'id_cpf',
+            'maxlength': '14'
         })
     )
     
@@ -32,33 +44,54 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('username', 'email', 'cpf', 'password1', 'password2')
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'username': forms.TextInput(attrs={
+                'class': 'form-control',
+                'id': 'id_username'
+            }),
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['password1'].widget.attrs['class'] = 'form-control'
-        self.fields['password2'].widget.attrs['class'] = 'form-control'
-        self.fields['username'].label = 'Nome de usuário'
-        self.fields['password1'].label = 'Senha'
-        self.fields['password2'].label = 'Confirme a senha'
+        self.fields['password1'].widget.attrs.update({
+            'class': 'form-control',
+            'id': 'id_password1'
+        })
+        self.fields['password2'].widget.attrs.update({
+            'class': 'form-control',
+            'id': 'id_password2'
+        })
+        self.fields['username'].label = 'Nome de usuário*'
+        self.fields['username'].help_text = 'Mínimo 8 caracteres. Apenas letras e números.'
+        self.fields['password1'].label = 'Senha*'
+        self.fields['password1'].help_text = 'Sua senha deve ter no mínimo 8 caracteres e conter números, letras e símbolos.'
+        self.fields['password2'].label = 'Confirme a senha*'
+        self.fields['password2'].help_text = 'Informe a mesma senha informada anteriormente.'
+    
+    def clean_username(self):
+        """
+        Valida e sanitiza o nome de usuário.
+        """
+        username = self.cleaned_data.get('username')
+        if username:
+            # Sanitiza o username
+            username = bleach.clean(username, tags=[], strip=True)
+            # Valida o formato
+            validate_username_format(username)
+        return username
     
     def clean_cpf(self):
         """
-        Valida o formato do CPF.
+        Valida e sanitiza o CPF.
         """
         cpf = self.cleaned_data.get('cpf')
         if cpf:
-            # Remove caracteres não numéricos
+            # Sanitiza o CPF
+            cpf = bleach.clean(cpf, tags=[], strip=True)
+            # Remove caracteres não numéricos para validação
             cpf_numbers = re.sub(r'[^\d]', '', cpf)
             
-            # Verifica se tem 11 dígitos
-            if len(cpf_numbers) != 11:
-                raise forms.ValidationError('CPF deve conter 11 dígitos.')
-            
-            # Verifica se não é uma sequência repetida
-            if cpf_numbers == cpf_numbers[0] * 11:
-                raise forms.ValidationError('CPF inválido.')
+            # Valida usando o algoritmo de CPF
+            validate_cpf(cpf)
             
             # Verifica se o CPF já está em uso
             if UserProfile.objects.filter(cpf=cpf).exists():
@@ -68,11 +101,22 @@ class SignUpForm(UserCreationForm):
     
     def clean_email(self):
         """
-        Valida que o email não está sendo usado por outro usuário.
+        Valida e sanitiza o email.
         """
         email = self.cleaned_data.get('email')
-        if email and User.objects.filter(email=email).exists():
-            raise forms.ValidationError('Este email já está sendo usado.')
+        if email:
+            # Sanitiza o email
+            email = bleach.clean(email, tags=[], strip=True).lower()
+            # Valida caracteres permitidos
+            validate_email_characters(email)
+            # Valida domínios permitidos
+            validate_allowed_email_domains(email)
+            # Verifica se já está em uso
+            if User.objects.filter(email=email).exists():
+                raise forms.ValidationError(
+                    'Este e-mail já está cadastrado. '
+                    'Você pode fazer login ou recuperar sua conta.'
+                )
         return email
     
     def save(self, commit=True):
