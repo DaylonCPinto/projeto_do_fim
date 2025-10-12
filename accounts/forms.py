@@ -18,7 +18,7 @@ class EmailAuthenticationForm(AuthenticationForm):
     Formulário de autenticação customizado que usa e-mail ao invés de username.
     """
     username = forms.EmailField(
-        label='E-mail*',
+        label='E-mail',
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
             'placeholder': 'seu@email.com',
@@ -27,7 +27,7 @@ class EmailAuthenticationForm(AuthenticationForm):
     )
     
     password = forms.CharField(
-        label='Senha*',
+        label='Senha',
         strip=False,
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
@@ -42,7 +42,7 @@ class SignUpForm(UserCreationForm):
     """
     email = forms.EmailField(
         required=True,
-        label='E-mail*',
+        label='E-mail',
         help_text='',
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
@@ -53,7 +53,7 @@ class SignUpForm(UserCreationForm):
     cpf = forms.CharField(
         max_length=14,
         required=True,
-        label='CPF*',
+        label='CPF',
         help_text='000.000.000-00',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
@@ -83,11 +83,11 @@ class SignUpForm(UserCreationForm):
             'class': 'form-control',
             'id': 'id_password2'
         })
-        self.fields['username'].label = 'Nome de usuário*'
+        self.fields['username'].label = 'Nome de usuário'
         self.fields['username'].help_text = 'Mínimo 8 caracteres. Apenas letras e números.'
-        self.fields['password1'].label = 'Senha*'
+        self.fields['password1'].label = 'Senha'
         self.fields['password1'].help_text = 'Sua senha deve ter no mínimo 8 caracteres e conter números e letras.'
-        self.fields['password2'].label = 'Confirme a senha*'
+        self.fields['password2'].label = 'Confirme a senha'
         self.fields['password2'].help_text = 'Informe a mesma senha informada anteriormente.'
     
     def clean_username(self):

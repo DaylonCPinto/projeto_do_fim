@@ -22,8 +22,8 @@ def signup(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Login automático após registro
-            login(request, user)
+            # Login automático após registro - specify backend
+            login(request, user, backend='accounts.backends.EmailAuthenticationBackend')
             messages.success(request, 'Conta criada com sucesso! Bem-vindo!')
             return redirect('welcome')
         else:
