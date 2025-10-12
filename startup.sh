@@ -3,6 +3,10 @@
 
 echo "===== Iniciando aplicação Django/Wagtail ====="
 
+# Instalar/atualizar dependências
+echo "Instalando dependências..."
+pip install -r requirements.txt --quiet
+
 # Executar migrações
 echo "Executando migrações do banco de dados..."
 python manage.py migrate --noinput
