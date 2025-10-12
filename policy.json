@@ -1,0 +1,23 @@
+{
+  "Version": "2012-10-17",
+  "Id": "Policy1488390343949",
+  "Statement": [
+    {
+      "Sid": "DenyPublicReadUnlessFromMyWebsite",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::thenewworld/media/*",
+      "Condition": {
+        "StringNotLikeIfExists": {
+          "aws:Referer": [
+            "https://bemaventurado.shop/*",
+            "http://bemaventurado.shop/*",
+            "https://www.bemaventurado.shop/*",
+            "http://www.bemaventurado.shop/*"
+          ]
+        }
+      }
+    }
+  ]
+}
