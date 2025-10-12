@@ -4,15 +4,33 @@ Portal de análise de conteúdo com sistema de paywall para conteúdo premium, c
 
 ## 🚀 Características
 
-- Sistema de autenticação de usuários
-- Paywall para conteúdo premium
-- CMS Wagtail para gerenciamento de conteúdo
+### Sistema de Conteúdo
+- CMS Wagtail moderno e flexível para gerenciamento de conteúdo
+- **Editor de Rich Text completo** com formatação avançada (títulos, listas, código, blockquotes, etc.)
+- **Fontes customizáveis** para títulos de artigos (8 opções do Google Fonts)
+- **Introdução com formatação** - suporte a rich text
+- **Sistema de destaque** - marque artigos importantes independente da data
 - **Seções Temáticas**: Geopolítica, Economia, Clima, Tecnologia, Escatologia
 - **Suporte a Imagens Externas**: URLs de imagens em artigos e no StreamField
+- Sistema de tags para organização de conteúdo
+
+### Sistema de Usuários
+- Sistema de autenticação moderno e estilizado
+- Paywall para conteúdo premium
 - Sistema de perfis de usuários com assinaturas
+- Gestão manual de assinantes premium via admin
+- Páginas de login e registro com design "The Economist"
+
+### Frontend
 - Interface responsiva com Bootstrap 5
+- Design inspirado em "The Economist"
+- Estilo limpo e profissional
+- Otimizado para mobile
+
+### Infraestrutura
 - Suporte para PostgreSQL em produção
 - Deploy otimizado para Azure
+- Sistema de cache e otimização de assets
 
 ## 🔒 Segurança
 
