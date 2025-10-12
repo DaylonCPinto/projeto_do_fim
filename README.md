@@ -263,6 +263,22 @@ python manage.py clearsessions
 
 ## 🐛 Troubleshooting
 
+### 🚨 Erro Comum: ModuleNotFoundError após git pull
+
+Se você vir este erro após fazer `git pull`:
+```
+ModuleNotFoundError: No module named 'bleach'
+```
+
+**Solução rápida:**
+```bash
+pip install -r requirements.txt
+```
+
+📖 **[Ver guia completo: FIX_BLEACH_ERROR.md](FIX_BLEACH_ERROR.md)**
+
+### Outros Problemas
+
 ### Erro de SECRET_KEY
 Certifique-se de que a SECRET_KEY está definida no arquivo `.env`.
 

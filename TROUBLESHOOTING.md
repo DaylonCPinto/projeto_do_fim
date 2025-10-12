@@ -90,6 +90,52 @@ python manage.py fix_geopolitica
 
 ## 🐛 Problemas Comuns e Soluções
 
+### Problema: ModuleNotFoundError após git pull
+
+**Sintoma:**
+```
+ModuleNotFoundError: No module named 'bleach'
+```
+ou erros similares ao executar `python manage.py makemigrations`, `migrate`, ou iniciar o servidor.
+
+**Causa:** Novas dependências foram adicionadas ao `requirements.txt` mas não foram instaladas no ambiente.
+
+**Solução:**
+
+1. **Ative seu ambiente virtual** (se estiver usando):
+   ```bash
+   source .venv/bin/activate  # Linux/Mac
+   # OU
+   .venv\Scripts\activate  # Windows
+   ```
+
+2. **Instale as dependências atualizadas:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Verifique se a instalação foi bem-sucedida:**
+   ```bash
+   python -c "import bleach; print('✓ bleach instalado com sucesso')"
+   ```
+
+4. **Execute as migrações (se necessário):**
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+   ```
+
+5. **Reinicie o servidor:**
+   ```bash
+   # Desenvolvimento local:
+   python manage.py runserver
+   
+   # Produção (Azure/servidor):
+   sudo systemctl restart gunicorn nginx
+   ```
+
+**Prevenção:** Sempre execute `pip install -r requirements.txt` após fazer `git pull` para garantir que todas as dependências estejam atualizadas.
+
 ### Problema: Seção existe mas não aparece
 
 **Diagnóstico:**
@@ -148,32 +194,38 @@ sudo systemctl restart gunicorn nginx
 git pull origin main
 ```
 
-### Passo 2: Executar migrações (se houver)
+### Passo 2: Instalar/Atualizar dependências
+```bash
+pip install -r requirements.txt
+```
+**⚠️ IMPORTANTE:** Sempre execute este comando após `git pull` para instalar novas dependências.
+
+### Passo 3: Executar migrações (se houver)
 ```bash
 python manage.py migrate
 ```
 
-### Passo 3: Coletar arquivos estáticos
+### Passo 4: Coletar arquivos estáticos
 ```bash
 python manage.py collectstatic --noinput
 ```
 
-### Passo 4: Verificar seções
+### Passo 5: Verificar seções
 ```bash
 python manage.py check_sections
 ```
 
-### Passo 5: Corrigir geopolítica (se necessário)
+### Passo 6: Corrigir geopolítica (se necessário)
 ```bash
 python manage.py fix_geopolitica
 ```
 
-### Passo 6: Reiniciar serviços
+### Passo 7: Reiniciar serviços
 ```bash
 sudo systemctl restart gunicorn nginx
 ```
 
-### Passo 7: Testar
+### Passo 8: Testar
 Acesse as URLs:
 - `/` - Home (deve mostrar Em Alta)
 - `/geopolitica/` - Geopolítica
