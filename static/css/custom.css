@@ -621,18 +621,21 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
 }
 
 .category-pill {
-    color: #666 !important;
+    color: #666;
     font-size: 0.9rem;
     font-weight: 500;
     padding: 0.4rem 1rem;
     margin: 0 0.2rem;
     transition: all 0.3s ease;
     border-radius: 20px;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .category-pill:hover, .category-pill.active {
-    background-color: #E3120B !important;
-    color: white !important;
+    background-color: #E3120B;
+    color: white;
+    text-decoration: none;
     transform: translateY(-2px);
 }
 

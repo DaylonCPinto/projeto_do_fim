@@ -55,12 +55,16 @@
     color: white !important;
 }
 
-/* Links */
-a {
+/* Links - More specific selectors to avoid affecting all links */
+.w-header a,
+.sidebar-nav a,
+.page-editor a.standalone-link {
     color: var(--economist-red) !important;
 }
 
-a:hover {
+.w-header a:hover,
+.sidebar-nav a:hover,
+.page-editor a.standalone-link:hover {
     color: var(--economist-dark-red) !important;
 }
 

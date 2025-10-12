@@ -55,14 +55,22 @@ class HomePage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
 
-        # Busca todos os artigos descendentes, ordenados por data de publicação
-        all_articles = ArticlePage.objects.descendant_of(self).live().order_by('-publication_date')
-
-        # O primeiro e mais recente artigo é o nosso destaque
-        context['featured_article'] = all_articles.first()
-
-        # O resto dos artigos (do segundo em diante) vai para a grade
-        context['articles'] = all_articles[1:]
+        # Busca todos os artigos descendentes
+        all_articles = ArticlePage.objects.descendant_of(self).live()
+        
+        # Prioriza artigos marcados como "Alto Impacto" para o destaque
+        featured_highlight = all_articles.filter(is_featured_highlight=True).order_by('-publication_date').first()
+        
+        if featured_highlight:
+            # Se existe um artigo de alto impacto, ele é o destaque
+            context['featured_article'] = featured_highlight
+            # Exclui o artigo de destaque da lista de artigos
+            context['articles'] = all_articles.exclude(id=featured_highlight.id).order_by('-publication_date')
+        else:
+            # Caso contrário, o artigo mais recente é o destaque
+            all_articles_ordered = all_articles.order_by('-publication_date')
+            context['featured_article'] = all_articles_ordered.first()
+            context['articles'] = all_articles_ordered[1:]
         
         # Busca vídeos curtos destacados
         context['featured_videos'] = VideoShort.objects.filter(is_featured=True)[:4]
@@ -100,8 +108,42 @@ class ArticlePage(Page):
     ]
     
     publication_date = models.DateTimeField(verbose_name="Data de Publicação", default=timezone.now)
-    introduction = models.CharField(max_length=250, verbose_name="Introdução")
+    
+    # Font choices for title display
+    FONT_CHOICES = [
+        ('Roboto', 'Roboto (Padrão)'),
+        ('Playfair Display', 'Playfair Display (Elegante)'),
+        ('Merriweather', 'Merriweather (Clássico)'),
+        ('Montserrat', 'Montserrat (Moderno)'),
+        ('Lora', 'Lora (Serifa)'),
+        ('Open Sans', 'Open Sans (Clean)'),
+        ('PT Serif', 'PT Serif (Jornal)'),
+        ('Georgia', 'Georgia (Tradicional)'),
+    ]
+    
+    title_font = models.CharField(
+        max_length=100,
+        choices=FONT_CHOICES,
+        default='Roboto',
+        verbose_name="Fonte do Título",
+        help_text="Escolha a fonte para o título deste artigo"
+    )
+    
+    introduction = RichTextField(
+        max_length=500, 
+        verbose_name="Introdução",
+        features=['bold', 'italic', 'link'],
+        help_text="Introdução do artigo (até 500 caracteres) com formatação básica"
+    )
+    
     is_premium = models.BooleanField(default=False, verbose_name="Conteúdo Exclusivo?")
+    
+    # Featured article flag - for high-impact articles
+    is_featured_highlight = models.BooleanField(
+        default=False,
+        verbose_name="Artigo de Alto Impacto?",
+        help_text="Marque para destacar este artigo independente da data de publicação"
+    )
     
     # Section field
     section = models.CharField(
@@ -128,15 +170,19 @@ class ArticlePage(Page):
         help_text="Use uma URL de imagem externa para economizar espaço. Se preenchido, será usado ao invés da imagem local."
     )
 
-    # Campo legado - mantido para compatibilidade
-    body = RichTextField(blank=True, verbose_name="Corpo do Artigo (Legado)")
+    # Campo legado com recursos completos de edição
+    body = RichTextField(
+        blank=True, 
+        verbose_name="Corpo do Artigo (Legado)",
+        features=['h2', 'h3', 'h4', 'bold', 'italic', 'ol', 'ul', 'hr', 'link', 'document-link', 'image', 'embed', 'code', 'superscript', 'subscript', 'blockquote']
+    )
     
     # Novo campo StreamField para conteúdo moderno e flexível
     content_blocks = StreamField([
         ('paragraph', blocks.RichTextBlock(
             label="Parágrafo",
-            features=['bold', 'italic', 'link', 'ol', 'ul'],
-            help_text="Adicione parágrafos de texto com formatação básica"
+            features=['h2', 'h3', 'h4', 'bold', 'italic', 'ol', 'ul', 'hr', 'link', 'document-link', 'code', 'superscript', 'subscript', 'blockquote'],
+            help_text="Adicione parágrafos de texto com formatação completa"
         )),
         ('heading', blocks.CharBlock(
             label="Título/Subtítulo",
@@ -179,16 +225,24 @@ class ArticlePage(Page):
     parent_page_types = ['content.HomePage', 'content.SectionPage']
 
     content_panels = Page.content_panels + [
-        FieldPanel('publication_date'),
-        FieldPanel('introduction'),
-        FieldPanel('section'),
-        FieldPanel('is_premium'),
+        MultiFieldPanel([
+            FieldPanel('publication_date'),
+            FieldPanel('section'),
+            FieldPanel('is_premium'),
+            FieldPanel('is_featured_highlight'),
+        ], heading="Configurações do Artigo"),
+        MultiFieldPanel([
+            FieldPanel('title_font'),
+        ], heading="Estilo do Título"),
+        MultiFieldPanel([
+            FieldPanel('introduction'),
+        ], heading="Introdução do Artigo"),
         MultiFieldPanel([
             FieldPanel('featured_image'),
             FieldPanel('external_image_url'),
         ], heading="Imagem de Destaque (escolha uma opção)"),
         FieldPanel('content_blocks'),
-        FieldPanel('body'),  # Mantido para compatibilidade, mas escondido no final
+        FieldPanel('body'),  # Campo legado com recursos completos
         FieldPanel('tags'),
     ]
     
@@ -307,16 +361,24 @@ class SectionPage(Page):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         
-        # Get all articles in this section, regardless of parent page
+        # Get all articles in this section
         all_articles = ArticlePage.objects.filter(
             section=self.section_key
-        ).live().order_by('-publication_date')
+        ).live()
         
-        # The first and most recent article is our featured article
-        context['featured_article'] = all_articles.first()
+        # Prioriza artigos marcados como "Alto Impacto" para o destaque
+        featured_highlight = all_articles.filter(is_featured_highlight=True).order_by('-publication_date').first()
         
-        # The rest of the articles (from second onwards) go to the grid
-        context['articles'] = all_articles[1:]
+        if featured_highlight:
+            # Se existe um artigo de alto impacto, ele é o destaque
+            context['featured_article'] = featured_highlight
+            # Exclui o artigo de destaque da lista de artigos
+            context['articles'] = all_articles.exclude(id=featured_highlight.id).order_by('-publication_date')
+        else:
+            # Caso contrário, o artigo mais recente é o destaque
+            all_articles_ordered = all_articles.order_by('-publication_date')
+            context['featured_article'] = all_articles_ordered.first()
+            context['articles'] = all_articles_ordered[1:]
         
         context['section_name'] = dict(ArticlePage.SECTION_CHOICES).get(self.section_key)
         
