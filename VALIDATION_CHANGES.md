@@ -1,21 +1,5 @@
 # Alterações no Sistema de Validação de Formulários
 
-## 🚨 ATENÇÃO: Após Fazer git pull
-
-**VOCÊ PRECISA INSTALAR AS NOVAS DEPENDÊNCIAS:**
-```bash
-pip install -r requirements.txt
-```
-
-Se você ver este erro:
-```
-ModuleNotFoundError: No module named 'bleach'
-```
-
-É porque você esqueceu de executar o comando acima. Veja a seção [6. Sanitização de Dados](#6-sanitização-de-dados) para mais detalhes.
-
----
-
 ## Resumo das Mudanças
 
 Este documento descreve as alterações implementadas no sistema de registro e login do Portal de Análise, conforme especificado nos requisitos.
@@ -109,17 +93,6 @@ Apenas os seguintes domínios são aceitos:
 ### Biblioteca
 - **bleach**: Adicionada ao `requirements.txt`
 - Sanitiza todos os campos antes da validação
-
-### ⚠️ IMPORTANTE: Instalação
-Após fazer `git pull`, **você deve instalar** a nova dependência:
-```bash
-pip install -r requirements.txt
-```
-
-Se você não instalar, verá o erro:
-```
-ModuleNotFoundError: No module named 'bleach'
-```
 
 ### Campos Sanitizados
 - Username
