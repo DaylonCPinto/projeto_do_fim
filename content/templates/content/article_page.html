@@ -61,6 +61,22 @@
                                 <div class="content-block image-block">
                                     {% image block.value original class="img-fluid rounded" %}
                                 </div>
+                            {% elif block.block_type == 'image_url' %}
+                                <div class="content-block image-url-block">
+                                    {{ block }}
+                                </div>
+                            {% elif block.block_type == 'gif' %}
+                                <div class="content-block gif-block">
+                                    {{ block }}
+                                </div>
+                            {% elif block.block_type == 'audio' %}
+                                <div class="content-block audio-block">
+                                    {{ block }}
+                                </div>
+                            {% elif block.block_type == 'pdf_download' %}
+                                <div class="content-block pdf-download-block">
+                                    {{ block }}
+                                </div>
                             {% elif block.block_type == 'image_with_caption' %}
                                 <div class="content-block image-with-caption-block">
                                     <figure class="figure w-100">
@@ -170,6 +186,22 @@
                         {% elif block.block_type == 'image' %}
                             <div class="content-block image-block">
                                 {% image block.value original class="img-fluid rounded" %}
+                            </div>
+                        {% elif block.block_type == 'image_url' %}
+                            <div class="content-block image-url-block">
+                                {{ block }}
+                            </div>
+                        {% elif block.block_type == 'gif' %}
+                            <div class="content-block gif-block">
+                                {{ block }}
+                            </div>
+                        {% elif block.block_type == 'audio' %}
+                            <div class="content-block audio-block">
+                                {{ block }}
+                            </div>
+                        {% elif block.block_type == 'pdf_download' %}
+                            <div class="content-block pdf-download-block">
+                                {{ block }}
                             </div>
                         {% elif block.block_type == 'image_with_caption' %}
                             <div class="content-block image-with-caption-block">

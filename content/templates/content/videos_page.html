@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags navigation_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    <!-- PAGE HEADER -->
+    <div class="page-header mb-5">
+        <h1 class="display-4 fw-bold text-economist-red">
+            <i class="bi bi-play-circle-fill me-3"></i>{{ page.title }}
+        </h1>
+        {% if page.introduction %}
+            <div class="lead text-muted mt-3">
+                {{ page.introduction|richtext }}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- VIDEOS GRID -->
+    {% if videos %}
+    <div class="videos-grid">
+        <div class="row g-4">
+            {% for video in videos %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="video-short-card" onclick="window.open('{{ video.video_url }}', '_blank')" style="cursor: pointer;">
+                    <div class="video-short-thumbnail position-relative">
+                        <img src="{{ video.get_thumbnail_url }}" alt="{{ video.title }}" class="img-fluid rounded" style="width: 100%; height: 400px; object-fit: cover;">
+                        <div class="video-play-overlay position-absolute top-50 start-50 translate-middle">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size: 4rem; opacity: 0.9;"></i>
+                        </div>
+                        <div class="video-short-info position-absolute bottom-0 start-0 w-100 p-3" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                            <div class="video-short-title text-white fw-bold mb-1">{{ video.title }}</div>
+                            {% if video.description %}
+                                <div class="video-short-description text-white-50 small mb-2">{{ video.description|truncatewords:10 }}</div>
+                            {% endif %}
+                            <div class="video-short-duration text-white small">
+                                <i class="bi bi-clock"></i> {{ video.duration }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> Nenhum vídeo disponível no momento.
+    </div>
+    {% endif %}
+
+    <!-- BACK BUTTON -->
+    <div class="mt-5 pt-4 border-top">
+        <a href="/" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar para a página inicial
+        </a>
+    </div>
+{% endblock %}

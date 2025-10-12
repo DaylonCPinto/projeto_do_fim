@@ -1,0 +1,20 @@
+<div class="pdf-download-block my-4">
+    <div class="card border-economist-red">
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <i class="bi bi-file-earmark-pdf-fill text-danger" style="font-size: 3rem;"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="card-title mb-1">{{ value.title }}</h6>
+                    {% if value.description %}
+                        <p class="card-text text-muted small mb-2">{{ value.description }}</p>
+                    {% endif %}
+                    <a href="{{ value.pdf_url }}" class="btn btn-sm btn-economist-red" download target="_blank">
+                        <i class="bi bi-download"></i> Baixar PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
