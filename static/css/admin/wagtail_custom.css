@@ -55,13 +55,38 @@
     color: white !important;
 }
 
-/* Links */
-a {
+/* Links - More specific selectors to avoid affecting all links */
+.w-header a:not(.button),
+.sidebar-nav a:not(.button),
+.page-editor a.standalone-link {
     color: var(--economist-red) !important;
 }
 
-a:hover {
+.w-header a:not(.button):hover,
+.sidebar-nav a:not(.button):hover,
+.page-editor a.standalone-link:hover {
     color: var(--economist-dark-red) !important;
+}
+
+/* Ensure image chooser buttons don't get affected by global styles */
+.image-chooser button,
+.image-chooser .button,
+.chooser button,
+.chooser .button,
+button[data-chooser-modal-url],
+a[data-chooser-modal-url] {
+    background-color: var(--economist-red) !important;
+    color: white !important;
+}
+
+.image-chooser button:hover,
+.image-chooser .button:hover,
+.chooser button:hover,
+.chooser .button:hover,
+button[data-chooser-modal-url]:hover,
+a[data-chooser-modal-url]:hover {
+    background-color: var(--economist-dark-red) !important;
+    color: white !important;
 }
 
 /* Page Editor Enhancements */

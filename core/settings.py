@@ -20,7 +20,7 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # CSRF Trusted Origins para Azure e domínios personalizados
-CSRF_TRUSTED_ORIGINS = CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
+CSRF_TRUSTED_ORIGINS = [origin for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if origin]
 
 
 # Application definition
@@ -163,6 +163,27 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Wagtail settings
 WAGTAIL_SITE_NAME = 'Portal de Análise'
 WAGTAILADMIN_BASE_URL = os.getenv('WAGTAILADMIN_BASE_URL')
+
+# Wagtail Rich Text Editor Configuration - Enhanced Features
+# This enables a comprehensive set of formatting options in the admin
+WAGTAILADMIN_RICH_TEXT_EDITORS = {
+    'default': {
+        'WIDGET': 'wagtail.admin.rich_text.DraftailRichTextArea',
+        'OPTIONS': {
+            'features': [
+                'h2', 'h3', 'h4', 
+                'bold', 'italic', 
+                'ol', 'ul', 
+                'hr',
+                'link', 'document-link', 
+                'image', 'embed',
+                'code', 
+                'superscript', 'subscript', 
+                'blockquote',
+            ]
+        }
+    },
+}
 
 # Authentication settings
 LOGIN_REDIRECT_URL = '/'

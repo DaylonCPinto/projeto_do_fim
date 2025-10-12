@@ -7,7 +7,7 @@
     <!-- HEADER DO ARTIGO -->
     <article class="modern-article">
         <div class="article-header">
-            <h1 class="article-title">
+            <h1 class="article-title" style="font-family: '{{ page.title_font }}', sans-serif;">
                 {{ page.title }}
                 {% if page.is_premium %}
                     <span class="premium-badge">Premium</span>
@@ -37,7 +37,7 @@
 
         <!-- INTRODUÇÃO - SEMPRE VISÍVEL -->
         <div class="article-introduction lead mb-4">
-            {{ page.introduction }}
+            {{ page.introduction|richtext }}
         </div>
 
         <hr class="article-divider my-4">
