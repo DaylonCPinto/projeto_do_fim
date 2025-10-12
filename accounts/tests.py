@@ -54,12 +54,10 @@ class EmailValidatorTest(TestCase):
         except ValidationError:
             self.fail('validate_allowed_email_domains raised ValidationError unexpectedly!')
     
-    def test_valid_outlook_br(self):
-        """Test valid Outlook.com.br address"""
-        try:
+    def test_invalid_outlook_br(self):
+        """Test that Outlook.com.br is no longer accepted"""
+        with self.assertRaises(ValidationError):
             validate_allowed_email_domains('user@outlook.com.br')
-        except ValidationError:
-            self.fail('validate_allowed_email_domains raised ValidationError unexpectedly!')
     
     def test_valid_hotmail(self):
         """Test valid Hotmail address"""
@@ -121,8 +119,8 @@ class SignUpFormTest(TestCase):
             'username': 'testuser123',
             'email': 'test@gmail.com',
             'cpf': '111.444.777-35',
-            'password1': 'TestPass123!',
-            'password2': 'TestPass123!',
+            'password1': 'SecurePass456',
+            'password2': 'SecurePass456',
         }
         form = SignUpForm(data=form_data)
         self.assertTrue(form.is_valid(), form.errors)
@@ -133,8 +131,8 @@ class SignUpFormTest(TestCase):
             'username': 'testuser123',
             'email': 'test@yahoo.com',
             'cpf': '111.444.777-35',
-            'password1': 'TestPass123!',
-            'password2': 'TestPass123!',
+            'password1': 'SecurePass456',
+            'password2': 'SecurePass456',
         }
         form = SignUpForm(data=form_data)
         self.assertFalse(form.is_valid())
@@ -146,8 +144,8 @@ class SignUpFormTest(TestCase):
             'username': 'test',
             'email': 'test@gmail.com',
             'cpf': '111.444.777-35',
-            'password1': 'TestPass123!',
-            'password2': 'TestPass123!',
+            'password1': 'SecurePass456',
+            'password2': 'SecurePass456',
         }
         form = SignUpForm(data=form_data)
         self.assertFalse(form.is_valid())
@@ -159,25 +157,24 @@ class SignUpFormTest(TestCase):
             'username': 'testuser123',
             'email': 'test@gmail.com',
             'cpf': '123.456.789-00',
-            'password1': 'TestPass123!',
-            'password2': 'TestPass123!',
+            'password1': 'SecurePass456',
+            'password2': 'SecurePass456',
         }
         form = SignUpForm(data=form_data)
         self.assertFalse(form.is_valid())
         self.assertIn('cpf', form.errors)
     
-    def test_form_password_no_symbol(self):
-        """Test form with password without symbol"""
+    def test_form_password_valid_without_symbol(self):
+        """Test form with password without symbol (now valid)"""
         form_data = {
-            'username': 'testuser123',
+            'username': 'johnsmith99',
             'email': 'test@gmail.com',
             'cpf': '111.444.777-35',
-            'password1': 'TestPass123',
-            'password2': 'TestPass123',
+            'password1': 'ValidPass456',
+            'password2': 'ValidPass456',
         }
         form = SignUpForm(data=form_data)
-        self.assertFalse(form.is_valid())
-        self.assertIn('password2', form.errors)
+        self.assertTrue(form.is_valid(), form.errors)
     
     def test_form_duplicate_email(self):
         """Test form with duplicate email"""
@@ -185,15 +182,15 @@ class SignUpFormTest(TestCase):
         User.objects.create_user(
             username='existinguser',
             email='test@gmail.com',
-            password='TestPass123!'
+            password='SecurePass456'
         )
         
         form_data = {
             'username': 'testuser123',
             'email': 'test@gmail.com',
             'cpf': '111.444.777-35',
-            'password1': 'TestPass123!',
-            'password2': 'TestPass123!',
+            'password1': 'SecurePass456',
+            'password2': 'SecurePass456',
         }
         form = SignUpForm(data=form_data)
         self.assertFalse(form.is_valid())
