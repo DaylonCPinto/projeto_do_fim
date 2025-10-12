@@ -52,7 +52,7 @@
 
     // Email Domain Validation
     function validateEmailDomain(email) {
-        const allowedDomains = ['@gmail.com', '@outlook.com', '@outlook.com.br', '@hotmail.com'];
+        const allowedDomains = ['@gmail.com', '@outlook.com', '@hotmail.com'];
         const emailLower = email.toLowerCase();
         return allowedDomains.some(domain => emailLower.endsWith(domain));
     }
@@ -77,7 +77,6 @@
         if (password.length < 8) return false;
         if (!/[a-zA-Z]/.test(password)) return false;
         if (!/\d/.test(password)) return false;
-        if (!/[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;/`~]/.test(password)) return false;
         return true;
     }
 
@@ -144,7 +143,7 @@
                         e.target.classList.add('is-invalid');
                         e.target.classList.remove('is-valid');
                     } else if (!validateEmailDomain(email)) {
-                        showValidationMessage(e.target, 'Somente e-mails com os domínios @gmail.com, @outlook.com, @outlook.com.br e @hotmail.com são aceitos.', true);
+                        showValidationMessage(e.target, 'Somente e-mails com os domínios @gmail.com, @outlook.com e @hotmail.com são aceitos.', true);
                         e.target.classList.add('is-invalid');
                         e.target.classList.remove('is-valid');
                     } else {
@@ -204,7 +203,6 @@
                         if (password.length < 8) messages.push('mínimo 8 caracteres');
                         if (!/[a-zA-Z]/.test(password)) messages.push('pelo menos uma letra');
                         if (!/\d/.test(password)) messages.push('pelo menos um número');
-                        if (!/[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;/`~]/.test(password)) messages.push('pelo menos um símbolo');
                         
                         showValidationMessage(e.target, `A senha deve conter: ${messages.join(', ')}.`, true);
                         e.target.classList.add('is-invalid');

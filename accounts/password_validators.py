@@ -10,7 +10,6 @@ class CustomPasswordValidator:
     - Mínimo 8 caracteres
     - Pelo menos 1 letra (maiúscula OU minúscula)
     - Pelo menos 1 número
-    - Pelo menos 1 símbolo
     """
     
     def validate(self, password, user=None):
@@ -31,12 +30,6 @@ class CustomPasswordValidator:
                 'A senha deve conter pelo menos um número.',
                 code='password_no_number',
             )
-        
-        if not re.search(r'[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;/`~]', password):
-            raise ValidationError(
-                'A senha deve conter pelo menos um símbolo (!@#$%^&*(),.?":{}|<>_-+=[]\\;/`~).',
-                code='password_no_symbol',
-            )
     
     def get_help_text(self):
-        return 'Sua senha deve ter no mínimo 8 caracteres e conter números, letras e símbolos.'
+        return 'Sua senha deve ter no mínimo 8 caracteres e conter números e letras.'
