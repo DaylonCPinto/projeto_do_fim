@@ -32,6 +32,20 @@
             {% elif page.featured_image %}
                 {% image page.featured_image original class="img-fluid rounded" %}
             {% endif %}
+            
+            {% if page.featured_image_caption or page.featured_image_credit %}
+            <div class="featured-image-caption {{ page.featured_image_caption_position }}">
+                {% if page.featured_image_caption %}
+                    <span>{{ page.featured_image_caption }}</span>
+                {% endif %}
+                {% if page.featured_image_credit %}
+                    <span class="featured-image-credit">
+                        {% if page.featured_image_caption %} | {% endif %}
+                        Créditos: {{ page.featured_image_credit }}
+                    </span>
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
         {% endif %}
 
