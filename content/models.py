@@ -53,6 +53,17 @@ class ImageBlock(blocks.StructBlock):
         required=False,
         label="Crédito"
     )
+    caption_position = blocks.ChoiceBlock(
+        choices=[
+            ('text-start', 'Início (Esquerda)'),
+            ('text-center', 'Centro'),
+            ('text-end', 'Fim (Direita)'),
+        ],
+        default='text-start',
+        required=False,
+        label="Posição da Legenda",
+        help_text="Escolha onde a legenda e créditos devem aparecer"
+    )
     
     class Meta:
         icon = "image"
@@ -70,6 +81,21 @@ class GifBlock(blocks.StructBlock):
     caption = blocks.CharBlock(
         required=False,
         label="Legenda"
+    )
+    credit = blocks.CharBlock(
+        required=False,
+        label="Crédito"
+    )
+    caption_position = blocks.ChoiceBlock(
+        choices=[
+            ('text-start', 'Início (Esquerda)'),
+            ('text-center', 'Centro'),
+            ('text-end', 'Fim (Direita)'),
+        ],
+        default='text-start',
+        required=False,
+        label="Posição da Legenda",
+        help_text="Escolha onde a legenda e créditos devem aparecer"
     )
     
     class Meta:
@@ -304,6 +330,36 @@ class ArticlePage(Page):
         verbose_name="URL de Imagem Externa",
         help_text="Use uma URL de imagem externa para economizar espaço. Se preenchido, será usado ao invés da imagem local."
     )
+    
+    # Caption and credits for featured image
+    featured_image_caption = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Legenda da Imagem de Destaque",
+        help_text="Legenda descritiva para a imagem de destaque"
+    )
+    
+    featured_image_credit = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Créditos da Imagem de Destaque",
+        help_text="Créditos/fonte da imagem (ex: Foto de João Silva/Reuters)"
+    )
+    
+    # Caption position choices
+    CAPTION_POSITION_CHOICES = [
+        ('text-start', 'Início (Esquerda)'),
+        ('text-center', 'Centro'),
+        ('text-end', 'Fim (Direita)'),
+    ]
+    
+    featured_image_caption_position = models.CharField(
+        max_length=20,
+        choices=CAPTION_POSITION_CHOICES,
+        default='text-start',
+        verbose_name="Posição da Legenda",
+        help_text="Escolha onde a legenda e créditos devem aparecer"
+    )
 
     # Campo legado com recursos completos de edição
     body = RichTextField(
@@ -378,6 +434,9 @@ class ArticlePage(Page):
         MultiFieldPanel([
             FieldPanel('featured_image'),
             FieldPanel('external_image_url'),
+            FieldPanel('featured_image_caption'),
+            FieldPanel('featured_image_credit'),
+            FieldPanel('featured_image_caption_position'),
         ], heading="Imagem de Destaque (escolha uma opção)"),
         FieldPanel('content_blocks'),
         FieldPanel('body'),  # Campo legado com recursos completos
