@@ -90,7 +90,7 @@
                             </a>
                         </h5>
                         <p class="card-text text-muted small mb-2">
-                            {{ article.introduction|truncatewords:15 }}
+                            {{ article.introduction|richtext|striptags|truncatewords:15 }}
                         </p>
                         <p class="card-text text-muted small">
                             <i class="bi bi-clock"></i> {{ article.publication_date|date:"d/m/Y" }}
