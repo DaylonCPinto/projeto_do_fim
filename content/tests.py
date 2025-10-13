@@ -2,7 +2,66 @@ from django.test import TestCase
 from datetime import datetime, timedelta, date
 from django.utils import timezone
 import zoneinfo
-from content.templatetags.navigation_tags import timesince_brasilia
+from content.templatetags.navigation_tags import timesince_brasilia, get_support_sections
+from wagtail.models import Site, Page
+from content.models import HomePage, SupportSectionPage
+
+
+class SupportSectionNavigationTestCase(TestCase):
+    """Test cases for the support sections navigation"""
+    
+    def setUp(self):
+        """Set up test environment with a home page and support sections"""
+        # Get the root page
+        root_page = Page.objects.get(id=1)
+        
+        # Create a home page
+        self.home_page = HomePage(
+            title="Test Home",
+            slug="test-home",
+        )
+        root_page.add_child(instance=self.home_page)
+        
+        # Set up a site pointing to the home page
+        self.site = Site.objects.create(
+            hostname='testserver',
+            root_page=self.home_page,
+            is_default_site=True,
+            site_name='Test Site'
+        )
+        
+        # Create some support section pages
+        self.escatologia = SupportSectionPage(
+            title="Escatologia",
+            slug="escatologia",
+            introduction="Seção sobre escatologia",
+        )
+        self.home_page.add_child(instance=self.escatologia)
+        
+        self.teologia = SupportSectionPage(
+            title="Teologia",
+            slug="teologia",
+            introduction="Seção sobre teologia",
+        )
+        self.home_page.add_child(instance=self.teologia)
+    
+    def test_get_support_sections_returns_all_published(self):
+        """Test that get_support_sections returns all published support sections"""
+        sections = get_support_sections()
+        self.assertEqual(sections.count(), 2)
+        
+        section_titles = [section.title for section in sections]
+        self.assertIn("Escatologia", section_titles)
+        self.assertIn("Teologia", section_titles)
+    
+    def test_support_section_url_has_subsecao_prefix(self):
+        """Test that support section URLs have the /subsecao/ prefix"""
+        url_parts = self.escatologia.get_url_parts()
+        self.assertIsNotNone(url_parts)
+        
+        site_id, root_url, page_path = url_parts
+        self.assertTrue(page_path.startswith('/subsecao/'))
+        self.assertIn('escatologia', page_path)
 
 
 class TimesinceBrasiliaTestCase(TestCase):
