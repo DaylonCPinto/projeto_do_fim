@@ -133,11 +133,11 @@ Se você precisar ajustar o espaçamento do corpo da página ou das seções man
 - Diminua para menos espaço
 
 ### Espaçamento de Seções
-**Arquivo:** `static/css/custom.css`
+**Arquivo:** `static/css/custom.css` (atualizado em 2025-10-13)
 ```css
 .section-header {
-    padding-top: 2.1rem;  /* Ajuste este valor */
-    margin-top: 1.4rem;   /* Ajuste este valor */
+    padding-top: 4.6rem;  /* Aumentado ~15% - Ajuste este valor */
+    margin-top: 2.3rem;   /* Aumentado ~15% - Ajuste este valor */
 }
 ```
 

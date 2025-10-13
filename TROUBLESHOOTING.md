@@ -4,14 +4,14 @@
 
 ### 1. ✅ Header Cobrindo o Título das Seções
 
-**Problema:** O header fixo cobria parte do título nas páginas de seção.
+**Problema:** O header fixo cobria parte do título nas páginas de seção, especialmente no PC.
 
-**Solução:** Adicionado padding-top de 2rem à classe `.section-header` no arquivo `static/css/custom.css`.
+**Solução (atualizada em 2025-10-13):** Aumentado o espaçamento em ~15% para prevenir que o header cubra os títulos no PC.
 
 ```css
 .section-header {
-    padding-top: 2rem;
-    margin-top: 1rem;
+    padding-top: 4.6rem;  /* Aumentado ~15% */
+    margin-top: 2.3rem;   /* Aumentado ~15% */
 }
 ```
 
@@ -240,7 +240,9 @@ Acesse as URLs:
 O título das seções agora tem espaçamento adequado e não é coberto pelo header fixo.
 
 **Antes:** Título cortado pelo header
-**Depois:** Título visível com espaçamento de 2rem
+**Depois (atualizado 2025-10-13):** Título visível com espaçamento de 4.6rem (padding) + 2.3rem (margin) no desktop
+
+**Destaque Principal:** O destaque principal na home também foi ajustado com margem extra de 2.5rem no topo (PC)
 
 ## 🔍 Debug Adicional
 

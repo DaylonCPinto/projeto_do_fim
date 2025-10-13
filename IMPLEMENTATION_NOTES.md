@@ -107,11 +107,11 @@ Muito espaço em branco entre o header e o conteúdo, especialmente visível em 
 }
 ```
 
-**Depois:**
+**Depois (atualizado em 2025-10-13):**
 ```css
 .section-header {
-    padding-top: 2.1rem;  /* -30% */
-    margin-top: 1.4rem;   /* -30% */
+    padding-top: 4.6rem;  /* Aumentado em ~15% para evitar que o header cubra o título */
+    margin-top: 2.3rem;   /* Aumentado em ~15% para evitar que o header cubra o título */
     scroll-margin-top: 160px;
 }
 
@@ -124,9 +124,9 @@ Muito espaço em branco entre o header e o conteúdo, especialmente visível em 
 }
 ```
 
-**Redução total:**
-- Desktop: ~30% menos espaço
-- Mobile: ~40% menos espaço (ainda mais otimizado)
+**Ajuste realizado:**
+- Desktop: Aumentado ~15% para corrigir header cobrindo títulos no PC
+- Mobile: Mantido otimizado (1.5rem + 1rem)
 
 ### Benefícios Mensuráveis
 - **Desktop:** Conteúdo 45px mais próximo do header
@@ -423,11 +423,11 @@ tail -f /var/log/nginx/access.log
 ```
 
 #### Ajustar espaço de seções
-**Arquivo:** `static/css/custom.css`
+**Arquivo:** `static/css/custom.css` (atualizado em 2025-10-13)
 ```css
 .section-header {
-    padding-top: 2.1rem;  /* Ajuste aqui */
-    margin-top: 1.4rem;   /* Ajuste aqui */
+    padding-top: 4.6rem;  /* Aumentado ~15% - Ajuste aqui */
+    margin-top: 2.3rem;   /* Aumentado ~15% - Ajuste aqui */
 }
 ```
 
