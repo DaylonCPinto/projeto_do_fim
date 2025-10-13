@@ -78,8 +78,6 @@ class Command(BaseCommand):
              'intro': 'Mudanças climáticas, sustentabilidade e meio ambiente'},
             {'key': 'tecnologia', 'title': 'Tecnologia', 'slug': 'tecnologia',
              'intro': 'Inovação, tecnologia e transformação digital'},
-            {'key': 'escatologia', 'title': 'Escatologia', 'slug': 'escatologia',
-             'intro': 'Estudos sobre o fim dos tempos e profecias'},
         ]
         
         # Create section pages
