@@ -41,8 +41,8 @@ RODAPÉ MODERNIZADO (FOOTER)
                     <h6 class="fw-bold text-uppercase mb-3 text-economist-red">
                         <i class="bi bi-newspaper me-2"></i>{{ WAGTAIL_SITE_NAME }}
                     </h6>
-                    <p class="text-white-50 mb-3" style="font-size: 0.7rem;">
-                        Reconstruindo o sentido no fim da era antiga.
+                    <p class="text-white-50 mb-3" style="font-size: {% if home_page.footer_tagline_size %}{{ home_page.footer_tagline_size }}{% else %}0.7rem{% endif %};">
+                        {% if home_page.footer_tagline %}{{ home_page.footer_tagline }}{% else %}Reconstruindo o sentido no fim da era antiga.{% endif %}
                     </p>
                     <div class="social-links">
                         <a href="#" class="social-icon me-2" title="Twitter/X">

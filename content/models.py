@@ -104,18 +104,53 @@ class PDFDownloadBlock(blocks.StructBlock):
         template = "content/blocks/pdf_block.html"
 
 class HomePage(Page):
+    """Página inicial do site com configurações customizáveis"""
+    
     body = RichTextField(blank=True, verbose_name="Corpo da Página")
+    
+    # Footer tagline customization
+    footer_tagline = models.CharField(
+        max_length=200,
+        default="Reconstruindo o sentido no fim da era antiga.",
+        verbose_name="Frase do Rodapé",
+        help_text="Texto que aparece no rodapé do site"
+    )
+    
+    TAGLINE_SIZE_CHOICES = [
+        ('0.6rem', 'Muito Pequeno'),
+        ('0.7rem', 'Pequeno (Padrão)'),
+        ('0.8rem', 'Médio'),
+        ('0.9rem', 'Grande'),
+        ('1rem', 'Muito Grande'),
+        ('1.1rem', 'Extra Grande'),
+    ]
+    
+    footer_tagline_size = models.CharField(
+        max_length=20,
+        choices=TAGLINE_SIZE_CHOICES,
+        default='0.7rem',
+        verbose_name="Tamanho da Frase do Rodapé",
+        help_text="Escolha o tamanho da frase que aparece no rodapé"
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel('body'),
+        MultiFieldPanel([
+            FieldPanel('footer_tagline'),
+            FieldPanel('footer_tagline_size'),
+        ], heading="Configurações do Rodapé"),
     ]
     
     # Define what types of pages can be children of HomePage
     subpage_types = ['content.SectionPage', 'content.ArticlePage', 'content.VideosPage', 'content.SupportSectionPage']
 
-    # --- INÍCIO DA ALTERAÇÃO ---
-    # Este método agora separa o artigo mais recente dos demais e inclui vídeos.
     def get_context(self, request, *args, **kwargs):
+        """
+        Adiciona dados customizados ao contexto da página inicial.
+        
+        Returns:
+            dict: Contexto com artigos, vídeos e configurações do site
+        """
         context = super().get_context(request, *args, **kwargs)
 
         # Busca todos os artigos descendentes
@@ -141,11 +176,13 @@ class HomePage(Page):
         # Busca customizações do site
         try:
             context['site_customization'] = SiteCustomization.objects.first()
-        except:
+        except SiteCustomization.DoesNotExist:
             context['site_customization'] = None
+        
+        # Adiciona a home_page ao contexto para uso no footer
+        context['home_page'] = self
 
         return context
-    # --- FIM DA ALTERAÇÃO ---
 
 
 class ArticlePageTag(TaggedItemBase):
