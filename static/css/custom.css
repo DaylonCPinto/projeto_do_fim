@@ -7,10 +7,30 @@
    ESTILO "THE ECONOMIST" - MODERNIZADO
    ======================================= */
 
+/* =======================================
+   HEADER SPACING FIX
+   Dynamic padding based on actual header height
+   ======================================= */
+:root {
+    --site-header-height: 105px; /* Default fallback */
+    --calculated-padding: 131px; /* Default: 105px * 1.25 */
+}
+
 /* Global scroll behavior for fixed header */
 html {
     scroll-behavior: smooth;
-    scroll-padding-top: 160px; /* Account for fixed header height */
+    scroll-padding-top: var(--calculated-padding, 160px);
+}
+
+/* Apply dynamic padding to main content */
+main.container {
+    padding-top: var(--calculated-padding, 131px);
+    /* Fallback for browsers without CSS custom properties support */
+}
+
+/* No-JS fallback: ensure reasonable padding */
+.no-js main.container {
+    padding-top: 131px;
 }
 
 /* Nossas customizações de estilo "The Economist" */
