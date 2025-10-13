@@ -134,8 +134,8 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
 
 /* Section header spacing to prevent fixed header from covering content */
 .section-header {
-    padding-top: 4rem;  /* Reduzido de 3rem (~30% de redução) */
-    margin-top: 2rem;    /* Reduzido de 2rem (~30% de redução) */
+    padding-top: 4.6rem;  /* Aumentado em ~15% para evitar que o header cubra o título */
+    margin-top: 2.3rem;    /* Aumentado em ~15% para evitar que o header cubra o título */
     scroll-margin-top: 160px; /* Ensures proper scroll positioning for anchor links */
 }
 
@@ -820,9 +820,16 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
     border-left: 5px solid #E3120B;
     padding: 2rem;
-    margin: 2rem 0;
+    margin: 2.1rem 0;  /* Aumentado em ~5% para evitar que o header cubra o destaque principal */
     border-radius: 0 8px 8px 0;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+/* Desktop - adiciona margem extra no topo para destaque principal */
+@media (min-width: 769px) {
+    .highlight-section:first-child {
+        margin-top: 2.5rem;  /* ~25% mais espaço para o primeiro destaque no PC */
+    }
 }
 
 .highlight-badge {
