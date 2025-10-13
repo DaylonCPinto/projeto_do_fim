@@ -8,11 +8,16 @@
         <img src="{{ value.image_url }}" alt="Imagem do artigo" class="img-fluid rounded">
     {% endif %}
     
-    {% if value.caption %}
-        <figcaption class="figure-caption text-center mt-2">
-            {{ value.caption }}
+    {% if value.caption or value.credit %}
+        <figcaption class="figure-caption {{ value.caption_position|default:'text-start' }} mt-2">
+            {% if value.caption %}
+                {{ value.caption }}
+            {% endif %}
             {% if value.credit %}
-                <span class="text-muted"> | {{ value.credit }}</span>
+                <span class="text-muted">
+                    {% if value.caption %} | {% endif %}
+                    Créditos: {{ value.credit }}
+                </span>
             {% endif %}
         </figcaption>
     {% endif %}

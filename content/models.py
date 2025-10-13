@@ -53,6 +53,17 @@ class ImageBlock(blocks.StructBlock):
         required=False,
         label="Crédito"
     )
+    caption_position = blocks.ChoiceBlock(
+        choices=[
+            ('text-start', 'Início (Esquerda)'),
+            ('text-center', 'Centro'),
+            ('text-end', 'Fim (Direita)'),
+        ],
+        default='text-start',
+        required=False,
+        label="Posição da Legenda",
+        help_text="Escolha onde a legenda e créditos devem aparecer"
+    )
     
     class Meta:
         icon = "image"
@@ -70,6 +81,21 @@ class GifBlock(blocks.StructBlock):
     caption = blocks.CharBlock(
         required=False,
         label="Legenda"
+    )
+    credit = blocks.CharBlock(
+        required=False,
+        label="Crédito"
+    )
+    caption_position = blocks.ChoiceBlock(
+        choices=[
+            ('text-start', 'Início (Esquerda)'),
+            ('text-center', 'Centro'),
+            ('text-end', 'Fim (Direita)'),
+        ],
+        default='text-start',
+        required=False,
+        label="Posição da Legenda",
+        help_text="Escolha onde a legenda e créditos devem aparecer"
     )
     
     class Meta:
