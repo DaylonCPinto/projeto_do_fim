@@ -148,6 +148,27 @@ class PDFDownloadBlock(blocks.StructBlock):
         label = "Download PDF"
         template = "content/blocks/pdf_block.html"
 
+
+# Custom block for Source Link (Fonte com Link)
+class FonteLinkBlock(blocks.StructBlock):
+    """Block for displaying a source link with custom styled text"""
+    texto = blocks.CharBlock(
+        required=True,
+        label="Texto da Fonte",
+        help_text="Texto que aparecerá clicável (ex: CNN, Reuters, BBC)"
+    )
+    link = blocks.URLBlock(
+        required=True,
+        label="URL da Fonte",
+        help_text="Link completo para a fonte (ex: https://www.cnnbrasil.com.br/...)"
+    )
+    
+    class Meta:
+        icon = "link"
+        label = "Fonte com Link"
+        template = "content/blocks/fonte_link_block.html"
+
+
 class HomePage(Page):
     """Página inicial do site com configurações customizáveis"""
     
@@ -406,6 +427,7 @@ class ArticlePage(Page):
             admin_text="Uma linha horizontal para separar seções",
             template="content/blocks/divider.html"
         )),
+        ('fonte_link', FonteLinkBlock()),
         ('html', blocks.RawHTMLBlock(
             label="HTML Customizado",
             help_text="Adicione HTML personalizado (use com cuidado)"
