@@ -130,6 +130,10 @@
                                 <div class="content-block divider-block">
                                     {{ block }}
                                 </div>
+                            {% elif block.block_type == 'fonte_link' %}
+                                <div class="content-block fonte-link-block">
+                                    {{ block }}
+                                </div>
                             {% elif block.block_type == 'html' %}
                                 <div class="content-block html-block">
                                     {{ block.value|safe }}
@@ -254,6 +258,10 @@
                             </div>
                         {% elif block.block_type == 'divider' %}
                             <div class="content-block divider-block">
+                                {{ block }}
+                            </div>
+                        {% elif block.block_type == 'fonte_link' %}
+                            <div class="content-block fonte-link-block">
                                 {{ block }}
                             </div>
                         {% elif block.block_type == 'html' %}
