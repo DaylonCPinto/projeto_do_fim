@@ -4,15 +4,17 @@
 /* Brand Colors */
 :root {
     --economist-red: #E3120B;
+    --economist-light-red: #ff6b6b;
     --economist-dark-red: #a80e08;
-    --dark-bg: #111111;
+    --dark-bg: #2c3e50;
     --light-bg: #f8f9fa;
+    --hover-light: #ecf0f1;
 }
 
 /* Header Customization */
 .w-header {
-    background: linear-gradient(135deg, var(--economist-red) 0%, var(--economist-dark-red) 100%) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .w-logo {
@@ -25,47 +27,47 @@
 }
 
 .sidebar-nav__item--active {
-    background-color: var(--economist-red) !important;
+    background-color: #3498db !important;
 }
 
 .sidebar-nav__item:hover {
-    background-color: var(--economist-dark-red) !important;
+    background-color: #34495e !important;
 }
 
 /* Buttons */
 .button,
 .button-primary {
-    background-color: var(--economist-red) !important;
-    border-color: var(--economist-red) !important;
+    background-color: #3498db !important;
+    border-color: #3498db !important;
 }
 
 .button:hover,
 .button-primary:hover {
-    background-color: var(--economist-dark-red) !important;
-    border-color: var(--economist-dark-red) !important;
+    background-color: #2980b9 !important;
+    border-color: #2980b9 !important;
 }
 
 .button-secondary {
-    border-color: var(--economist-red) !important;
-    color: var(--economist-red) !important;
+    border-color: #3498db !important;
+    color: #3498db !important;
 }
 
 .button-secondary:hover {
-    background-color: var(--economist-red) !important;
-    color: white !important;
+    background-color: #ecf0f1 !important;
+    color: #2980b9 !important;
 }
 
 /* Links - More specific selectors to avoid affecting all links */
 .w-header a:not(.button),
 .sidebar-nav a:not(.button),
 .page-editor a.standalone-link {
-    color: var(--economist-red) !important;
+    color: #3498db !important;
 }
 
 .w-header a:not(.button):hover,
 .sidebar-nav a:not(.button):hover,
 .page-editor a.standalone-link:hover {
-    color: var(--economist-dark-red) !important;
+    color: #2980b9 !important;
 }
 
 /* Ensure image chooser buttons don't get affected by global styles */
@@ -75,7 +77,7 @@
 .chooser .button,
 button[data-chooser-modal-url],
 a[data-chooser-modal-url] {
-    background-color: var(--economist-red) !important;
+    background-color: #3498db !important;
     color: white !important;
 }
 
@@ -85,35 +87,34 @@ a[data-chooser-modal-url] {
 .chooser .button:hover,
 button[data-chooser-modal-url]:hover,
 a[data-chooser-modal-url]:hover {
-    background-color: var(--economist-dark-red) !important;
+    background-color: #2980b9 !important;
     color: white !important;
 }
 
 /* Page Editor Enhancements */
 .page-editor .tab-nav {
     background-color: var(--light-bg);
-    border-bottom: 2px solid var(--economist-red);
+    border-bottom: 2px solid #3498db;
 }
 
 .page-editor .tab-nav__link--active {
-    border-bottom-color: var(--economist-red) !important;
-    color: var(--economist-red) !important;
+    border-bottom-color: #3498db !important;
+    color: #3498db !important;
 }
 
 /* Dashboard Widgets */
 .panel {
-    border-left: 4px solid var(--economist-red);
+    border-left: 4px solid #3498db;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
 }
 
 .panel:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
 }
 
 .panel__title {
-    color: var(--economist-red) !important;
+    color: #2c3e50 !important;
     font-weight: 700;
 }
 
@@ -150,7 +151,7 @@ a[data-chooser-modal-url]:hover {
 .field input[type="date"],
 .field textarea,
 .field select {
-    border: 2px solid #dee2e6;
+    border: 1px solid #dee2e6;
     border-radius: 4px;
     transition: all 0.3s ease;
 }
@@ -162,42 +163,41 @@ a[data-chooser-modal-url]:hover {
 .field input[type="date"]:focus,
 .field textarea:focus,
 .field select:focus {
-    border-color: var(--economist-red) !important;
-    box-shadow: 0 0 0 0.2rem rgba(227, 18, 11, 0.25) !important;
+    border-color: #3498db !important;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25) !important;
 }
 
 /* Page Explorer */
 .explorer__item--active {
-    background-color: rgba(227, 18, 11, 0.1) !important;
-    border-left-color: var(--economist-red) !important;
+    background-color: rgba(52, 152, 219, 0.1) !important;
+    border-left-color: #3498db !important;
 }
 
 /* Image Gallery */
 .image-card:hover {
-    box-shadow: 0 4px 16px rgba(227, 18, 11, 0.2);
-    transform: scale(1.02);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Draftail Editor (Rich Text) */
 .Draftail-Toolbar {
     background-color: var(--light-bg) !important;
-    border-bottom: 2px solid var(--economist-red) !important;
+    border-bottom: 2px solid #dee2e6 !important;
 }
 
 .Draftail-ToolbarButton:hover {
-    background-color: var(--economist-red) !important;
-    color: white !important;
+    background-color: #ecf0f1 !important;
+    color: #2c3e50 !important;
 }
 
 /* Search Bar */
 .search-form input {
-    border: 2px solid #dee2e6;
+    border: 1px solid #dee2e6;
     transition: all 0.3s ease;
 }
 
 .search-form input:focus {
-    border-color: var(--economist-red) !important;
-    box-shadow: 0 0 0 0.2rem rgba(227, 18, 11, 0.25);
+    border-color: #3498db !important;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
 }
 
 /* Tabs */
@@ -206,19 +206,17 @@ a[data-chooser-modal-url]:hover {
 }
 
 .tab-nav__link:hover {
-    background-color: rgba(227, 18, 11, 0.1);
+    background-color: rgba(52, 152, 219, 0.1);
 }
 
 /* Action Buttons */
 .action-button {
-    background-color: var(--economist-red) !important;
+    background-color: #3498db !important;
     transition: all 0.3s ease;
 }
 
 .action-button:hover {
-    background-color: var(--economist-dark-red) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(227, 18, 11, 0.3);
+    background-color: #2980b9 !important;
 }
 
 /* Dropdown Menus */
@@ -234,7 +232,7 @@ a[data-chooser-modal-url]:hover {
 }
 
 .dashboard-panel__header {
-    background: linear-gradient(135deg, var(--economist-red) 0%, var(--economist-dark-red) 100%);
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
     color: white;
     padding: 1rem;
 }
@@ -261,13 +259,13 @@ a[data-chooser-modal-url]:hover {
 }
 
 .breadcrumb-item.active {
-    color: var(--economist-red);
+    color: #3498db;
     font-weight: 600;
 }
 
 /* Loading Spinner */
 .spinner {
-    border-top-color: var(--economist-red) !important;
+    border-top-color: #3498db !important;
 }
 
 /* Responsive Improvements */
@@ -284,7 +282,7 @@ a[data-chooser-modal-url]:hover {
 /* Premium Badge in Admin */
 .premium-indicator {
     display: inline-block;
-    background: linear-gradient(135deg, var(--economist-red) 0%, var(--economist-dark-red) 100%);
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
     color: white;
     padding: 0.25rem 0.75rem;
     border-radius: 12px;
@@ -303,21 +301,20 @@ a[data-chooser-modal-url]:hover {
 }
 
 .video-preview:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Color Picker Fields */
 input[type="color"] {
     height: 40px;
-    border: 2px solid #dee2e6;
+    border: 1px solid #dee2e6;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 input[type="color"]:hover {
-    border-color: var(--economist-red);
+    border-color: #3498db;
 }
 
 /* Success Messages Animation */
@@ -352,10 +349,10 @@ input[type="color"]:hover {
 }
 
 .card-modern__title {
-    color: var(--economist-red);
+    color: #2c3e50;
     font-size: 1.25rem;
     font-weight: 700;
     margin-bottom: 1rem;
-    border-bottom: 2px solid var(--economist-red);
+    border-bottom: 2px solid #3498db;
     padding-bottom: 0.5rem;
 }
