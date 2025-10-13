@@ -1,7 +1,21 @@
-# Em content/models.py
+"""
+Models do aplicativo de conteúdo.
+
+Este módulo contém os modelos principais do CMS, incluindo:
+- Blocos de conteúdo customizados (imagem, GIF, áudio, PDF)
+- Modelos de página (HomePage, ArticlePage, SectionPage, etc.)
+- Snippets (VideoShort, SiteCustomization)
+- Configurações de personalização do site
+
+Security Notes:
+- Todas as URLs externas são validadas pelo URLField do Django
+- RichTextField e StreamField utilizam sanitização automática do Wagtail
+- Apenas usuários com permissões de admin podem adicionar HTML customizado
+"""
 
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from wagtail.models import Page
 from wagtail.fields import RichTextField, StreamField
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
@@ -14,9 +28,14 @@ from modelcluster.contrib.taggit import ClusterTaggableManager
 from taggit.models import TaggedItemBase
 
 
-# Custom block for images with URL support
 class ImageBlock(blocks.StructBlock):
-    """Block that supports both uploaded images and external URLs"""
+    """
+    Bloco de imagem com suporte para upload ou URL externa.
+    
+    Permite ao editor escolher entre fazer upload de uma imagem
+    ou fornecer uma URL externa, oferecendo flexibilidade no
+    gerenciamento de imagens.
+    """
     image = ImageChooserBlock(
         required=False,
         label="Imagem (Upload)"
@@ -104,18 +123,70 @@ class PDFDownloadBlock(blocks.StructBlock):
         template = "content/blocks/pdf_block.html"
 
 class HomePage(Page):
+    """Página inicial do site com configurações customizáveis"""
+    
     body = RichTextField(blank=True, verbose_name="Corpo da Página")
+    
+    # Footer tagline customization
+    footer_tagline = models.CharField(
+        max_length=200,
+        default="Reconstruindo o sentido no fim da era antiga.",
+        verbose_name="Frase do Rodapé",
+        help_text="Texto que aparece no rodapé do site"
+    )
+    
+    TAGLINE_SIZE_CHOICES = [
+        ('0.6rem', 'Muito Pequeno'),
+        ('0.7rem', 'Pequeno (Padrão)'),
+        ('0.8rem', 'Médio'),
+        ('0.9rem', 'Grande'),
+        ('1rem', 'Muito Grande'),
+        ('1.1rem', 'Extra Grande'),
+    ]
+    
+    footer_tagline_size = models.CharField(
+        max_length=20,
+        choices=TAGLINE_SIZE_CHOICES,
+        default='0.7rem',
+        verbose_name="Tamanho da Frase do Rodapé",
+        help_text="Escolha o tamanho da frase que aparece no rodapé"
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel('body'),
+        MultiFieldPanel([
+            FieldPanel('footer_tagline'),
+            FieldPanel('footer_tagline_size'),
+        ], heading="Configurações do Rodapé"),
     ]
     
     # Define what types of pages can be children of HomePage
     subpage_types = ['content.SectionPage', 'content.ArticlePage', 'content.VideosPage', 'content.SupportSectionPage']
+    
+    def clean(self):
+        """
+        Validação customizada do modelo.
+        
+        Garante que a tagline do rodapé não esteja vazia e tenha
+        um tamanho razoável para exibição.
+        
+        Raises:
+            ValidationError: Se a validação falhar
+        """
+        super().clean()
+        
+        if self.footer_tagline and len(self.footer_tagline.strip()) < 10:
+            raise ValidationError({
+                'footer_tagline': 'A frase do rodapé deve ter pelo menos 10 caracteres.'
+            })
 
-    # --- INÍCIO DA ALTERAÇÃO ---
-    # Este método agora separa o artigo mais recente dos demais e inclui vídeos.
     def get_context(self, request, *args, **kwargs):
+        """
+        Adiciona dados customizados ao contexto da página inicial.
+        
+        Returns:
+            dict: Contexto com artigos, vídeos e configurações do site
+        """
         context = super().get_context(request, *args, **kwargs)
 
         # Busca todos os artigos descendentes
@@ -141,11 +212,13 @@ class HomePage(Page):
         # Busca customizações do site
         try:
             context['site_customization'] = SiteCustomization.objects.first()
-        except:
+        except SiteCustomization.DoesNotExist:
             context['site_customization'] = None
+        
+        # Adiciona a home_page ao contexto para uso no footer
+        context['home_page'] = self
 
         return context
-    # --- FIM DA ALTERAÇÃO ---
 
 
 class ArticlePageTag(TaggedItemBase):

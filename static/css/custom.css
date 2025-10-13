@@ -134,9 +134,17 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
 
 /* Section header spacing to prevent fixed header from covering content */
 .section-header {
-    padding-top: 3rem;
-    margin-top: 2rem;
+    padding-top: 2.1rem;  /* Reduzido de 3rem (~30% de redução) */
+    margin-top: 1.4rem;    /* Reduzido de 2rem (~30% de redução) */
     scroll-margin-top: 160px; /* Ensures proper scroll positioning for anchor links */
+}
+
+/* Ajustes responsivos para mobile - reduz ainda mais o espaçamento */
+@media (max-width: 768px) {
+    .section-header {
+        padding-top: 1.5rem;  /* Espaçamento menor em mobile */
+        margin-top: 1rem;
+    }
 }
 
 /* =======================================
