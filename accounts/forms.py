@@ -1,4 +1,17 @@
-# Em accounts/forms.py
+"""
+Formulários de autenticação e registro de usuários.
+
+Este módulo contém formulários com validação e sanitização robustas:
+- EmailAuthenticationForm: Login com e-mail
+- SignUpForm: Registro com validação de CPF, e-mail e username
+
+Security Features:
+- Sanitização com bleach para prevenir XSS
+- Validação de formato de CPF, e-mail e username
+- Verificação de duplicatas
+- Proteção contra injeção de código
+"""
+
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
@@ -16,6 +29,9 @@ import bleach
 class EmailAuthenticationForm(AuthenticationForm):
     """
     Formulário de autenticação customizado que usa e-mail ao invés de username.
+    
+    Facilita o login do usuário permitindo o uso do e-mail como identificador
+    principal ao invés do username tradicional.
     """
     username = forms.EmailField(
         label='E-mail',

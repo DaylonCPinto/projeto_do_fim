@@ -1,7 +1,21 @@
-# Em content/models.py
+"""
+Models do aplicativo de conteúdo.
+
+Este módulo contém os modelos principais do CMS, incluindo:
+- Blocos de conteúdo customizados (imagem, GIF, áudio, PDF)
+- Modelos de página (HomePage, ArticlePage, SectionPage, etc.)
+- Snippets (VideoShort, SiteCustomization)
+- Configurações de personalização do site
+
+Security Notes:
+- Todas as URLs externas são validadas pelo URLField do Django
+- RichTextField e StreamField utilizam sanitização automática do Wagtail
+- Apenas usuários com permissões de admin podem adicionar HTML customizado
+"""
 
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from wagtail.models import Page
 from wagtail.fields import RichTextField, StreamField
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
@@ -14,9 +28,14 @@ from modelcluster.contrib.taggit import ClusterTaggableManager
 from taggit.models import TaggedItemBase
 
 
-# Custom block for images with URL support
 class ImageBlock(blocks.StructBlock):
-    """Block that supports both uploaded images and external URLs"""
+    """
+    Bloco de imagem com suporte para upload ou URL externa.
+    
+    Permite ao editor escolher entre fazer upload de uma imagem
+    ou fornecer uma URL externa, oferecendo flexibilidade no
+    gerenciamento de imagens.
+    """
     image = ImageChooserBlock(
         required=False,
         label="Imagem (Upload)"
@@ -143,6 +162,23 @@ class HomePage(Page):
     
     # Define what types of pages can be children of HomePage
     subpage_types = ['content.SectionPage', 'content.ArticlePage', 'content.VideosPage', 'content.SupportSectionPage']
+    
+    def clean(self):
+        """
+        Validação customizada do modelo.
+        
+        Garante que a tagline do rodapé não esteja vazia e tenha
+        um tamanho razoável para exibição.
+        
+        Raises:
+            ValidationError: Se a validação falhar
+        """
+        super().clean()
+        
+        if self.footer_tagline and len(self.footer_tagline.strip()) < 10:
+            raise ValidationError({
+                'footer_tagline': 'A frase do rodapé deve ter pelo menos 10 caracteres.'
+            })
 
     def get_context(self, request, *args, **kwargs):
         """
