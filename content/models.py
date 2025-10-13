@@ -167,7 +167,6 @@ class ArticlePage(Page):
         ('economia', 'Economia'),
         ('clima', 'Clima'),
         ('tecnologia', 'Tecnologia'),
-        ('escatologia', 'Escatologia'),
     ]
     
     publication_date = models.DateTimeField(verbose_name="Data de Publicação", default=timezone.now)
@@ -415,9 +414,69 @@ class SectionPage(Page):
         help_text="Texto introdutório para esta seção"
     )
     
+    # Title customization
+    FONT_CHOICES = [
+        ('Roboto', 'Roboto (Padrão)'),
+        ('Playfair Display', 'Playfair Display (Elegante)'),
+        ('Merriweather', 'Merriweather (Clássico)'),
+        ('Montserrat', 'Montserrat (Moderno)'),
+        ('Lora', 'Lora (Serifa)'),
+        ('Open Sans', 'Open Sans (Clean)'),
+        ('PT Serif', 'PT Serif (Jornal)'),
+        ('Georgia', 'Georgia (Tradicional)'),
+    ]
+    
+    SIZE_CHOICES = [
+        ('2rem', 'Pequeno (2rem)'),
+        ('2.5rem', 'Médio (2.5rem)'),
+        ('3rem', 'Grande (3rem)'),
+        ('3.5rem', 'Extra Grande (3.5rem)'),
+        ('4rem', 'Muito Grande (4rem)'),
+    ]
+    
+    title_font = models.CharField(
+        max_length=100,
+        choices=FONT_CHOICES,
+        default='Roboto',
+        verbose_name="Fonte do Título",
+        help_text="Escolha a fonte para o título da seção"
+    )
+    
+    title_size = models.CharField(
+        max_length=20,
+        choices=SIZE_CHOICES,
+        default='3rem',
+        verbose_name="Tamanho do Título",
+        help_text="Escolha o tamanho do título da seção"
+    )
+    
+    subtitle_font = models.CharField(
+        max_length=100,
+        choices=FONT_CHOICES,
+        default='Merriweather',
+        verbose_name="Fonte do Subtítulo",
+        help_text="Escolha a fonte para o subtítulo/introdução da seção"
+    )
+    
+    subtitle_size = models.CharField(
+        max_length=20,
+        choices=SIZE_CHOICES,
+        default='2rem',
+        verbose_name="Tamanho do Subtítulo",
+        help_text="Escolha o tamanho do subtítulo/introdução da seção"
+    )
+    
     content_panels = Page.content_panels + [
         FieldPanel('section_key'),
         FieldPanel('introduction'),
+        MultiFieldPanel([
+            FieldPanel('title_font'),
+            FieldPanel('title_size'),
+        ], heading="Personalização do Título"),
+        MultiFieldPanel([
+            FieldPanel('subtitle_font'),
+            FieldPanel('subtitle_size'),
+        ], heading="Personalização do Subtítulo"),
     ]
     
     # Define parent and child page types
