@@ -6,11 +6,11 @@
 {% block content %}
     <!-- SECTION HEADER -->
     <div class="section-header mb-5">
-        <h1 class="display-4 fw-bold text-economist-red">
+        <h1 class="fw-bold text-economist-red" style="font-family: '{{ page.title_font }}', sans-serif; font-size: {{ page.title_size }};">
             {{ page.title }}
         </h1>
         {% if page.introduction %}
-            <p class="lead text-muted">{{ page.introduction }}</p>
+            <p class="lead text-muted" style="font-family: '{{ page.subtitle_font }}', sans-serif; font-size: {{ page.subtitle_size }};">{{ page.introduction }}</p>
         {% endif %}
     </div>
 
