@@ -4,6 +4,10 @@
 {% block title %}{{ page.title }}{% endblock %}
 
 {% block content %}
+    <!-- Apply layout preset class to content wrapper -->
+    <div class="layout-wrapper {{ layout_config.layout_class }} {% if layout_config.show_dividers %}show-dividers{% endif %}" 
+         style="--grid-gap: {{ layout_config.grid_gap }};">
+    
     <!-- SEÇÃO DO ARTIGO EM DESTAQUE MODERNIZADA -->
     {% if featured_article %}
     <div class="highlight-section mb-5">
@@ -85,15 +89,14 @@
     {% endif %}
 
     <!-- SEÇÃO DE NOTÍCIAS EM ALTA -->
-    {% if trending_articles %}
+    {% if trending_articles and layout_config.show_trending_section %}
     <div class="category-section">
         <div class="category-header">
             <h2>🔥 Em Alta</h2>
         </div>
-        <div class="row">
+        <div class="articles-grid cols-desktop-{{ layout_config.columns_desktop }} cols-mobile-{{ layout_config.columns_mobile }}">
             {% for article in trending_articles %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card article-card h-100">
+            <div class="article-card h-100 {% if article.specific.featured_image or article.specific.external_image_url %}has-image{% else %}no-image{% endif %}">
                     {% if article.specific.external_image_url or article.specific.featured_image %}
                     <a href="{% pageurl article %}" class="position-relative d-block">
                         {% if article.specific.external_image_url %}
@@ -122,7 +125,6 @@
                         </p>
                     </div>
                 </div>
-            </div>
             {% endfor %}
         </div>
     </div>
@@ -134,10 +136,9 @@
         <div class="category-header">
             <h2>Análises Recentes</h2>
         </div>
-        <div class="row">
+        <div class="articles-grid cols-desktop-{{ layout_config.columns_desktop }} cols-mobile-{{ layout_config.columns_mobile }}">
             {% for article in articles %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card article-card h-100">
+            <div class="article-card h-100 {% if article.specific.featured_image or article.specific.external_image_url %}has-image{% else %}no-image{% endif %}">
                     {% if article.specific.external_image_url or article.specific.featured_image %}
                     <a href="{% pageurl article %}">
                         {% if article.specific.external_image_url %}
@@ -166,10 +167,11 @@
                         </p>
                     </div>
                 </div>
-            </div>
             {% endfor %}
         </div>
     </div>
     {% endif %}
+    
+    </div><!-- End layout-wrapper -->
 
 {% endblock %}

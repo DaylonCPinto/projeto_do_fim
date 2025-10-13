@@ -7,10 +7,30 @@
    ESTILO "THE ECONOMIST" - MODERNIZADO
    ======================================= */
 
+/* =======================================
+   HEADER SPACING FIX
+   Dynamic padding based on actual header height
+   ======================================= */
+:root {
+    --site-header-height: 105px; /* Default fallback */
+    --calculated-padding: 131px; /* Default: 105px * 1.25 */
+}
+
 /* Global scroll behavior for fixed header */
 html {
     scroll-behavior: smooth;
-    scroll-padding-top: 160px; /* Account for fixed header height */
+    scroll-padding-top: var(--calculated-padding, 160px);
+}
+
+/* Apply dynamic padding to main content */
+main.container {
+    padding-top: var(--calculated-padding, 131px);
+    /* Fallback for browsers without CSS custom properties support */
+}
+
+/* No-JS fallback: ensure reasonable padding */
+.no-js main.container {
+    padding-top: 131px;
 }
 
 /* Nossas customizações de estilo "The Economist" */
@@ -974,5 +994,191 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     
     .highlight-section h3 {
         font-size: 1.4rem;
+    }
+}
+/* =======================================
+   HOMEPAGE CONFIGURABLE LAYOUTS
+   Dynamic layout system for flexible homepage design
+   ======================================= */
+
+/* Base grid system */
+.articles-grid {
+    display: grid;
+    gap: var(--grid-gap, 1rem);
+    margin-bottom: 2rem;
+}
+
+/* Column configurations for desktop */
+.articles-grid.cols-desktop-1 {
+    grid-template-columns: 1fr;
+}
+
+.articles-grid.cols-desktop-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.articles-grid.cols-desktop-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.articles-grid.cols-desktop-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* Column configurations for tablet */
+@media (max-width: 1024px) and (min-width: 768px) {
+    .articles-grid.cols-desktop-4 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .articles-grid.cols-desktop-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Column configurations for mobile */
+@media (max-width: 768px) {
+    .articles-grid.cols-mobile-1 {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .articles-grid.cols-mobile-2 {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* Layout Preset: Three Column Grid (Default) */
+.layout-three_column_grid .articles-grid {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 768px) {
+    .layout-three_column_grid .articles-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Layout Preset: Two Column Grid */
+.layout-two_column_grid .articles-grid {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 768px) {
+    .layout-two_column_grid .articles-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Layout Preset: List with Dividers */
+.layout-list_with_dividers .articles-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+}
+
+.layout-list_with_dividers .article-card {
+    border-bottom: 2px solid #e0e0e0;
+    padding: 1.5rem 0;
+    margin-bottom: 0;
+    border-radius: 0;
+}
+
+.layout-list_with_dividers .article-card:last-child {
+    border-bottom: none;
+}
+
+.layout-list_with_dividers .card-img-top {
+    max-width: 250px;
+    float: left;
+    margin-right: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Layout Preset: Feature Top + Grid */
+.layout-feature_top_grid .featured-highlight {
+    margin-bottom: 3rem;
+}
+
+.layout-feature_top_grid .articles-grid {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 768px) {
+    .layout-feature_top_grid .articles-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Layout Preset: Masonry Light (Pinterest-style) */
+.layout-masonry_light .articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-auto-rows: 10px;
+    gap: 1rem;
+}
+
+.layout-masonry_light .article-card {
+    grid-row-end: span var(--row-span, 30);
+}
+
+/* Calculate row span based on content height (approximation) */
+.layout-masonry_light .article-card.has-image {
+    --row-span: 45;
+}
+
+.layout-masonry_light .article-card.no-image {
+    --row-span: 25;
+}
+
+@media (max-width: 768px) {
+    .layout-masonry_light .articles-grid {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+    }
+    
+    .layout-masonry_light .article-card {
+        grid-row-end: auto;
+    }
+}
+
+/* Divider styling when enabled */
+.show-dividers .article-card {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.show-dividers .article-card:last-child {
+    border-bottom: none;
+}
+
+/* Enhanced article cards for grid layouts */
+.articles-grid .article-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.articles-grid .article-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive gap adjustments */
+@media (max-width: 768px) {
+    .articles-grid {
+        gap: 1rem;
+    }
+}
+
+/* Print styles for all layouts */
+@media print {
+    .articles-grid {
+        display: block;
+    }
+    
+    .article-card {
+        page-break-inside: avoid;
+        margin-bottom: 2rem;
     }
 }

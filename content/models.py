@@ -198,9 +198,82 @@ class HomePage(Page):
         verbose_name="Tamanho da Frase do Rodapé",
         help_text="Escolha o tamanho da frase que aparece no rodapé"
     )
+    
+    # Layout configuration for homepage
+    LAYOUT_PRESET_CHOICES = [
+        ('three_column_grid', 'Grade de 3 Colunas (Padrão)'),
+        ('two_column_grid', 'Grade de 2 Colunas'),
+        ('list_with_dividers', 'Lista com Divisores'),
+        ('feature_top_grid', 'Destaque no Topo + Grade'),
+        ('masonry_light', 'Masonry Leve (Pinterest-style)'),
+    ]
+    
+    home_layout_preset = models.CharField(
+        max_length=50,
+        choices=LAYOUT_PRESET_CHOICES,
+        default='three_column_grid',
+        verbose_name="Preset de Layout da Home",
+        help_text="Escolha o estilo de layout para a página inicial"
+    )
+    
+    COLUMN_CHOICES = [
+        (1, '1 Coluna'),
+        (2, '2 Colunas'),
+        (3, '3 Colunas'),
+        (4, '4 Colunas'),
+    ]
+    
+    columns_desktop = models.IntegerField(
+        choices=COLUMN_CHOICES,
+        default=3,
+        verbose_name="Colunas (Desktop)",
+        help_text="Número de colunas no desktop (>= 1024px)"
+    )
+    
+    columns_mobile = models.IntegerField(
+        choices=[(1, '1 Coluna'), (2, '2 Colunas')],
+        default=1,
+        verbose_name="Colunas (Mobile)",
+        help_text="Número de colunas no mobile (< 768px)"
+    )
+    
+    GAP_CHOICES = [
+        ('0.5rem', 'Pequeno (0.5rem)'),
+        ('1rem', 'Médio (1rem)'),
+        ('1.5rem', 'Grande (1.5rem)'),
+        ('2rem', 'Extra Grande (2rem)'),
+    ]
+    
+    grid_gap = models.CharField(
+        max_length=20,
+        choices=GAP_CHOICES,
+        default='1rem',
+        verbose_name="Espaçamento entre Cards",
+        help_text="Espaço entre os cards de artigos"
+    )
+    
+    show_dividers = models.BooleanField(
+        default=False,
+        verbose_name="Mostrar Divisores?",
+        help_text="Adiciona linhas divisórias entre artigos (melhor para layout de lista)"
+    )
+    
+    show_trending_section = models.BooleanField(
+        default=True,
+        verbose_name="Mostrar Seção 'Em Alta'?",
+        help_text="Exibe ou oculta a seção de artigos em alta"
+    )
 
     content_panels = Page.content_panels + [
         FieldPanel('body'),
+        MultiFieldPanel([
+            FieldPanel('home_layout_preset'),
+            FieldPanel('columns_desktop'),
+            FieldPanel('columns_mobile'),
+            FieldPanel('grid_gap'),
+            FieldPanel('show_dividers'),
+            FieldPanel('show_trending_section'),
+        ], heading="Configurações de Layout da Home"),
         MultiFieldPanel([
             FieldPanel('footer_tagline'),
             FieldPanel('footer_tagline_size'),
@@ -209,6 +282,24 @@ class HomePage(Page):
     
     # Define what types of pages can be children of HomePage
     subpage_types = ['content.SectionPage', 'content.ArticlePage', 'content.VideosPage', 'content.SupportSectionPage']
+    
+    def get_layout_config(self):
+        """
+        Returns a dictionary with layout configuration.
+        Used in templates to apply dynamic styling.
+        """
+        return {
+            'preset': self.home_layout_preset,
+            'columns_desktop': self.columns_desktop,
+            'columns_mobile': self.columns_mobile,
+            'grid_gap': self.grid_gap,
+            'show_dividers': self.show_dividers,
+            'show_trending_section': self.show_trending_section,
+            # CSS class helpers
+            'grid_cols_desktop': f'lg:grid-cols-{self.columns_desktop}',
+            'grid_cols_mobile': f'grid-cols-{self.columns_mobile}',
+            'layout_class': f'layout-{self.home_layout_preset}',
+        }
     
     def clean(self):
         """
@@ -289,6 +380,9 @@ class HomePage(Page):
         
         # Adiciona a home_page ao contexto para uso no footer
         context['home_page'] = self
+        
+        # Add layout configuration to context
+        context['layout_config'] = self.get_layout_config()
 
         return context
 
