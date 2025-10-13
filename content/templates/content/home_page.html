@@ -84,6 +84,50 @@
     </div>
     {% endif %}
 
+    <!-- SEÇÃO DE NOTÍCIAS EM ALTA -->
+    {% if trending_articles %}
+    <div class="category-section">
+        <div class="category-header">
+            <h2>🔥 Em Alta</h2>
+        </div>
+        <div class="row">
+            {% for article in trending_articles %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card article-card h-100">
+                    {% if article.specific.external_image_url or article.specific.featured_image %}
+                    <a href="{% pageurl article %}" class="position-relative d-block">
+                        {% if article.specific.external_image_url %}
+                            <img src="{{ article.specific.external_image_url }}" class="card-img-top rounded" 
+                                 alt="{{ article.title }}" style="height: 250px; object-fit: cover;">
+                        {% elif article.specific.featured_image %}
+                            {% image article.specific.featured_image fill-400x250 class="card-img-top rounded" %}
+                        {% endif %}
+                        <span class="trending-fire-badge">🔥</span>
+                    </a>
+                    {% endif %}
+                    <div class="card-body px-0">
+                        <h5 class="article-card-title trending-title">
+                            <a href="{% pageurl article %}" class="text-decoration-none">
+                                {{ article.title }}
+                                {% if article.specific.is_premium %}
+                                    <span class="premium-badge">Premium</span>
+                                {% endif %}
+                            </a>
+                        </h5>
+                        <p class="card-text text-muted small mb-2">
+                            {{ article.specific.introduction|richtext|striptags|truncatewords:15 }}
+                        </p>
+                        <p class="card-text text-muted small">
+                            <i class="bi bi-clock"></i> Postado há {{ article.specific.publication_date|timesince_brasilia }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <!-- SEÇÃO PRINCIPAL DE ARTIGOS -->
     {% if articles %}
     <div class="category-section">
@@ -105,8 +149,9 @@
                     </a>
                     {% endif %}
                     <div class="card-body px-0">
-                        <h5 class="article-card-title">
+                        <h5 class="article-card-title {% if article.specific.is_premium %}premium-article-title{% endif %}">
                             <a href="{% pageurl article %}" class="text-decoration-none">
+                                {% if article.specific.is_premium %}<span class="premium-star">⭐</span>{% endif %}
                                 {{ article.title }}
                                 {% if article.specific.is_premium %}
                                     <span class="premium-badge">Premium</span>
@@ -117,7 +162,7 @@
                             {{ article.specific.introduction|richtext|striptags|truncatewords:15 }}
                         </p>
                         <p class="card-text text-muted small">
-                            <i class="bi bi-clock"></i> {{ article.specific.publication_date|date:"d/m/Y" }}
+                            <i class="bi bi-clock"></i> Postado há {{ article.specific.publication_date|timesince_brasilia }}
                         </p>
                     </div>
                 </div>

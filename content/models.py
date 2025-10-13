@@ -239,19 +239,44 @@ class HomePage(Page):
         # Busca todos os artigos descendentes
         all_articles = ArticlePage.objects.descendant_of(self).live()
         
-        # Prioriza artigos marcados como "Alto Impacto" para o destaque
+        # 1. DESTAQUE PRINCIPAL (fixo manualmente)
         featured_highlight = all_articles.filter(is_featured_highlight=True).order_by('-publication_date').first()
+        context['featured_article'] = featured_highlight
         
-        if featured_highlight:
-            # Se existe um artigo de alto impacto, ele é o destaque
-            context['featured_article'] = featured_highlight
-            # Exclui o artigo de destaque da lista de artigos
-            context['articles'] = all_articles.exclude(id=featured_highlight.id).order_by('-publication_date')
-        else:
-            # Caso contrário, o artigo mais recente é o destaque
-            all_articles_ordered = all_articles.order_by('-publication_date')
-            context['featured_article'] = all_articles_ordered.first()
-            context['articles'] = all_articles_ordered[1:]
+        # Exclude featured article from other listings
+        remaining_articles = all_articles.exclude(id=featured_highlight.id) if featured_highlight else all_articles
+        
+        # 2. NOTÍCIAS "EM ALTA" (automáticas ou manuais)
+        # Filter articles that are currently trending
+        trending_articles = []
+        for article in remaining_articles:
+            if article.is_currently_trending():
+                trending_articles.append(article)
+        
+        # Sort trending by publication date (most recent first)
+        trending_articles = sorted(trending_articles, key=lambda x: x.publication_date, reverse=True)
+        context['trending_articles'] = trending_articles
+        
+        # Get IDs of articles already shown
+        shown_ids = [featured_highlight.id] if featured_highlight else []
+        shown_ids.extend([a.id for a in trending_articles])
+        
+        # 3. ARTIGOS REGULARES E PREMIUM (visíveis conforme grupo de usuário)
+        regular_articles = remaining_articles.exclude(id__in=shown_ids)
+        
+        # Check if user is authenticated and is a premium subscriber
+        user = request.user
+        is_premium_subscriber = (
+            user.is_authenticated and 
+            user.groups.filter(name="assinantes_premium").exists()
+        )
+        
+        if not is_premium_subscriber:
+            # Filter out premium articles for non-subscribers
+            regular_articles = regular_articles.exclude(is_premium=True)
+        
+        context['articles'] = regular_articles.order_by('-publication_date')
+        context['is_premium_subscriber'] = is_premium_subscriber
         
         # Busca vídeos curtos destacados
         context['featured_videos'] = VideoShort.objects.filter(is_featured=True)[:4]
@@ -325,6 +350,20 @@ class ArticlePage(Page):
         default=False,
         verbose_name="Artigo de Alto Impacto?",
         help_text="Marque para destacar este artigo independente da data de publicação"
+    )
+    
+    # Trending article flag
+    is_trending = models.BooleanField(
+        default=False,
+        verbose_name="Em Alta?",
+        help_text="Artigos marcados como 'Em Alta' aparecem com destaque e emoji de fogo. Novos artigos são automaticamente marcados por 3 horas."
+    )
+    
+    trending_until = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Em Alta Até",
+        help_text="Data/hora até quando o artigo permanecerá em alta (automático para novos artigos)"
     )
     
     # Section field
@@ -446,6 +485,8 @@ class ArticlePage(Page):
             FieldPanel('section'),
             FieldPanel('is_premium'),
             FieldPanel('is_featured_highlight'),
+            FieldPanel('is_trending'),
+            FieldPanel('trending_until'),
         ], heading="Configurações do Artigo"),
         MultiFieldPanel([
             FieldPanel('title_font'),
@@ -472,6 +513,34 @@ class ArticlePage(Page):
         elif self.featured_image:
             return self.featured_image.file.url
         return None
+    
+    def save(self, *args, **kwargs):
+        """Override save to automatically set trending for new articles"""
+        from datetime import timedelta
+        
+        # Check if this is a new article being published
+        is_new = self.pk is None
+        
+        # Call parent save first
+        super().save(*args, **kwargs)
+        
+        # If it's a new article, automatically set it as trending for 3 hours
+        if is_new and self.live:
+            self.is_trending = True
+            self.trending_until = timezone.now() + timedelta(hours=3)
+            # Save again to update trending fields
+            super().save(update_fields=['is_trending', 'trending_until'])
+    
+    def is_currently_trending(self):
+        """Check if article is currently trending (considers both manual and automatic trending)"""
+        if not self.is_trending:
+            return False
+        
+        # If trending_until is set and has passed, return False
+        if self.trending_until and timezone.now() > self.trending_until:
+            return False
+        
+        return True
 
 
 @register_snippet
@@ -647,20 +716,41 @@ class SectionPage(Page):
             section=self.section_key
         ).live()
         
-        # Prioriza artigos marcados como "Alto Impacto" para o destaque
+        # 1. DESTAQUE PRINCIPAL (fixo manualmente)
         featured_highlight = all_articles.filter(is_featured_highlight=True).order_by('-publication_date').first()
+        context['featured_article'] = featured_highlight
         
-        if featured_highlight:
-            # Se existe um artigo de alto impacto, ele é o destaque
-            context['featured_article'] = featured_highlight
-            # Exclui o artigo de destaque da lista de artigos
-            context['articles'] = all_articles.exclude(id=featured_highlight.id).order_by('-publication_date')
-        else:
-            # Caso contrário, o artigo mais recente é o destaque
-            all_articles_ordered = all_articles.order_by('-publication_date')
-            context['featured_article'] = all_articles_ordered.first()
-            context['articles'] = all_articles_ordered[1:]
+        # Exclude featured article from other listings
+        remaining_articles = all_articles.exclude(id=featured_highlight.id) if featured_highlight else all_articles
         
+        # 2. NOTÍCIAS "EM ALTA" (automáticas ou manuais)
+        trending_articles = []
+        for article in remaining_articles:
+            if article.is_currently_trending():
+                trending_articles.append(article)
+        
+        trending_articles = sorted(trending_articles, key=lambda x: x.publication_date, reverse=True)
+        context['trending_articles'] = trending_articles
+        
+        # Get IDs of articles already shown
+        shown_ids = [featured_highlight.id] if featured_highlight else []
+        shown_ids.extend([a.id for a in trending_articles])
+        
+        # 3. ARTIGOS REGULARES E PREMIUM
+        regular_articles = remaining_articles.exclude(id__in=shown_ids)
+        
+        # Check if user is authenticated and is a premium subscriber
+        user = request.user
+        is_premium_subscriber = (
+            user.is_authenticated and 
+            user.groups.filter(name="assinantes_premium").exists()
+        )
+        
+        if not is_premium_subscriber:
+            regular_articles = regular_articles.exclude(is_premium=True)
+        
+        context['articles'] = regular_articles.order_by('-publication_date')
+        context['is_premium_subscriber'] = is_premium_subscriber
         context['section_name'] = dict(ArticlePage.SECTION_CHOICES).get(self.section_key)
         
         # Fetch site customizations
@@ -804,19 +894,41 @@ class SupportSectionPage(Page):
         # Get all articles in this support section
         all_articles = ArticlePage.objects.descendant_of(self).live()
         
-        # Prioriza artigos marcados como "Alto Impacto" para o destaque
+        # 1. DESTAQUE PRINCIPAL (fixo manualmente)
         featured_highlight = all_articles.filter(is_featured_highlight=True).order_by('-publication_date').first()
+        context['featured_article'] = featured_highlight
         
-        if featured_highlight:
-            # Se existe um artigo de alto impacto, ele é o destaque
-            context['featured_article'] = featured_highlight
-            # Exclui o artigo de destaque da lista de artigos
-            context['articles'] = all_articles.exclude(id=featured_highlight.id).order_by('-publication_date')
-        else:
-            # Caso contrário, o artigo mais recente é o destaque
-            all_articles_ordered = all_articles.order_by('-publication_date')
-            context['featured_article'] = all_articles_ordered.first()
-            context['articles'] = all_articles_ordered[1:]
+        # Exclude featured article from other listings
+        remaining_articles = all_articles.exclude(id=featured_highlight.id) if featured_highlight else all_articles
+        
+        # 2. NOTÍCIAS "EM ALTA" (automáticas ou manuais)
+        trending_articles = []
+        for article in remaining_articles:
+            if article.is_currently_trending():
+                trending_articles.append(article)
+        
+        trending_articles = sorted(trending_articles, key=lambda x: x.publication_date, reverse=True)
+        context['trending_articles'] = trending_articles
+        
+        # Get IDs of articles already shown
+        shown_ids = [featured_highlight.id] if featured_highlight else []
+        shown_ids.extend([a.id for a in trending_articles])
+        
+        # 3. ARTIGOS REGULARES E PREMIUM
+        regular_articles = remaining_articles.exclude(id__in=shown_ids)
+        
+        # Check if user is authenticated and is a premium subscriber
+        user = request.user
+        is_premium_subscriber = (
+            user.is_authenticated and 
+            user.groups.filter(name="assinantes_premium").exists()
+        )
+        
+        if not is_premium_subscriber:
+            regular_articles = regular_articles.exclude(is_premium=True)
+        
+        context['articles'] = regular_articles.order_by('-publication_date')
+        context['is_premium_subscriber'] = is_premium_subscriber
         
         # Fetch site customizations
         try:

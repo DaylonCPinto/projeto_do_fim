@@ -44,6 +44,46 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     vertical-align: middle;
 }
 
+/* Premium Article Styling */
+.premium-article-title a {
+    color: #E3120B !important;
+}
+
+.premium-star {
+    color: #E3120B;
+    font-size: 1.1rem;
+    margin-right: 0.3rem;
+}
+
+/* Trending Article Styling */
+.trending-title a {
+    color: #FF8C00 !important; /* Orange color for trending titles */
+}
+
+.trending-fire-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 2rem;
+    animation: flicker 1.5s infinite alternate;
+    filter: drop-shadow(0 0 5px rgba(255, 140, 0, 0.8));
+}
+
+@keyframes flicker {
+    0% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1) rotate(-5deg);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(1) rotate(5deg);
+        opacity: 1;
+    }
+}
+
 .subscriber-status {
     display: inline-block;
     padding: 0.3rem 0.8rem;
@@ -209,6 +249,19 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
 
 .article-body p {
     margin-bottom: 1.5rem;
+}
+
+/* Ensure proper spacing for richtext content */
+.rich-text p,
+.richtext p,
+[data-block-key] p {
+    margin-bottom: 1.5rem;
+}
+
+.rich-text p:last-child,
+.richtext p:last-child,
+[data-block-key] p:last-child {
+    margin-bottom: 0;
 }
 
 .article-body h2, .article-body h3 {
