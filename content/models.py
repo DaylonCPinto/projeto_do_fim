@@ -427,11 +427,13 @@ class SectionPage(Page):
     ]
     
     SIZE_CHOICES = [
-        ('2rem', 'Pequeno (2rem)'),
-        ('2.5rem', 'Médio (2.5rem)'),
-        ('3rem', 'Grande (3rem)'),
+        ('1rem', 'Muito Pequeno (1rem)'),
+        ('1.5rem', 'Pequeno (1.5rem)'),
+        ('2rem', 'Médio (2rem)'),
+        ('2.5rem', 'Grande (2.5rem)'),
+        ('3rem', 'Muito Grande (3rem)'),
         ('3.5rem', 'Extra Grande (3.5rem)'),
-        ('4rem', 'Muito Grande (4rem)'),
+        ('4rem', 'Enorme (4rem)'),
     ]
     
     title_font = models.CharField(
@@ -570,11 +572,13 @@ class SupportSectionPage(Page):
     ]
     
     SIZE_CHOICES = [
-        ('2rem', 'Pequeno (2rem)'),
-        ('2.5rem', 'Médio (2.5rem)'),
-        ('3rem', 'Grande (3rem)'),
+        ('1rem', 'Muito Pequeno (1rem)'),
+        ('1.5rem', 'Pequeno (1.5rem)'),
+        ('2rem', 'Médio (2rem)'),
+        ('2.5rem', 'Grande (2.5rem)'),
+        ('3rem', 'Muito Grande (3rem)'),
         ('3.5rem', 'Extra Grande (3.5rem)'),
-        ('4rem', 'Muito Grande (4rem)'),
+        ('4rem', 'Enorme (4rem)'),
     ]
     
     title_font = models.CharField(
@@ -624,6 +628,21 @@ class SupportSectionPage(Page):
     # Define parent and child page types
     parent_page_types = ['content.HomePage']
     subpage_types = ['content.ArticlePage']
+    
+    def get_url_parts(self, request=None):
+        """Override to add /subsecao/ prefix to support section URLs"""
+        url_parts = super().get_url_parts(request=request)
+        
+        if url_parts is None:
+            return None
+            
+        site_id, root_url, page_path = url_parts
+        
+        # Add /subsecao/ prefix before the page slug
+        if page_path and not page_path.startswith('/subsecao/'):
+            page_path = f'/subsecao{page_path}'
+        
+        return (site_id, root_url, page_path)
     
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)

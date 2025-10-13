@@ -19,6 +19,12 @@ def get_topics():
     # Mas, para resolver a LookupError, vamos buscar as páginas de Artigo:
     return ArticlePage.objects.live().order_by('title')
 
+@register.simple_tag()
+def get_support_sections():
+    """Get all published support section pages for navigation"""
+    SupportSectionPage = apps.get_model('content', 'SupportSectionPage')
+    return SupportSectionPage.objects.live().order_by('title')
+
 @register.filter
 def timesince_brasilia(value):
     """

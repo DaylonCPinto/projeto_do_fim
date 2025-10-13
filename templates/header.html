@@ -63,10 +63,12 @@
                             <i class="bi bi-grid-3x3-gap"></i> Seções de apoio
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sectionsDropdown">
-                            <li><a class="dropdown-item" href="/geopolitica/"><i class="bi bi-globe"></i> Geopolítica</a></li>
-                            <li><a class="dropdown-item" href="/economia/"><i class="bi bi-graph-up"></i> Economia</a></li>
-                            <li><a class="dropdown-item" href="/clima/"><i class="bi bi-cloud-rain"></i> Clima</a></li>
-                            <li><a class="dropdown-item" href="/tecnologia/"><i class="bi bi-cpu"></i> Tecnologia</a></li>
+                            {% get_support_sections as support_sections %}
+                            {% for section in support_sections %}
+                                <li><a class="dropdown-item" href="{% pageurl section %}"><i class="bi bi-book"></i> {{ section.title }}</a></li>
+                            {% empty %}
+                                <li><span class="dropdown-item text-muted">Nenhuma seção de apoio disponível</span></li>
+                            {% endfor %}
                         </ul>
                     </li>
                     {% if user.is_authenticated %}
