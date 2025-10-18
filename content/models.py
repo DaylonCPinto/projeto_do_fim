@@ -126,6 +126,85 @@ class AudioBlock(blocks.StructBlock):
         template = "content/blocks/audio_block.html"
 
 
+# Custom block for externally hosted videos
+class CustomVideoBlock(blocks.StructBlock):
+    """Block that renders a customizable HTML5 video player."""
+
+    WIDTH_CHOICES = [
+        ("narrow", "Estreito (até 640px)"),
+        ("standard", "Padrão (até 860px)"),
+        ("wide", "Amplo (até 1040px)"),
+        ("full", "Largura Total"),
+    ]
+
+    ASPECT_RATIO_CHOICES = [
+        ("16x9", "16:9 (Widescreen)"),
+        ("4x3", "4:3 (Clássico)"),
+        ("1x1", "1:1 (Quadrado)"),
+        ("21x9", "21:9 (Cinemascope)"),
+    ]
+
+    MIME_TYPE_CHOICES = [
+        ("video/mp4", "MP4 (video/mp4)"),
+        ("video/webm", "WebM (video/webm)"),
+        ("video/ogg", "Ogg/Theora (video/ogg)"),
+    ]
+
+    video_url = blocks.URLBlock(
+        label="URL do Vídeo",
+        help_text="Cole o link direto do arquivo hospedado (MP4, WebM, etc.)",
+    )
+    mime_type = blocks.ChoiceBlock(
+        choices=MIME_TYPE_CHOICES,
+        default="video/mp4",
+        label="Formato do Vídeo",
+        help_text="Selecione o formato/mime type correspondente ao arquivo",
+    )
+    poster_image = ImageChooserBlock(
+        required=False,
+        label="Thumbnail do Vídeo (Upload)",
+        help_text="Imagem exibida antes da reprodução (opcional)",
+    )
+    poster_image_url = blocks.URLBlock(
+        required=False,
+        label="Thumbnail do Vídeo (URL externa)",
+        help_text="Opcionalmente use uma imagem hospedada externamente",
+    )
+    caption = blocks.CharBlock(
+        required=False,
+        label="Legenda",
+        help_text="Texto curto exibido abaixo do player (opcional)",
+    )
+    width = blocks.ChoiceBlock(
+        choices=WIDTH_CHOICES,
+        default="standard",
+        label="Largura do Player",
+        help_text="Controle a largura máxima do player dentro do artigo",
+    )
+    aspect_ratio = blocks.ChoiceBlock(
+        choices=ASPECT_RATIO_CHOICES,
+        default="16x9",
+        label="Proporção do Vídeo",
+        help_text="Escolha a proporção para manter o vídeo responsivo",
+    )
+
+    def clean(self, value):
+        """Ensure that only one poster source is used when both are provided."""
+        cleaned = super().clean(value)
+        poster_upload = cleaned.get("poster_image")
+        poster_url = cleaned.get("poster_image_url")
+        if poster_upload and poster_url:
+            raise ValidationError({
+                "poster_image_url": "Utilize apenas uma fonte para o thumbnail do vídeo (upload OU URL externa).",
+            })
+        return cleaned
+
+    class Meta:
+        icon = "media"
+        label = "Vídeo Personalizado (CDN)"
+        template = "content/blocks/custom_video_block.html"
+
+
 # Custom block for PDF Download
 class PDFDownloadBlock(blocks.StructBlock):
     """Block for PDF download with icon"""
@@ -615,6 +694,41 @@ class ArticlePage(Page):
         help_text="Use uma URL de imagem externa para economizar espaço. Se preenchido, será usado ao invés da imagem local."
     )
     
+    highlight_video_url = models.URLField(
+        blank=True,
+        verbose_name="URL do Vídeo de Destaque",
+        help_text="Link direto para um vídeo hospedado externamente (MP4, WebM, etc.) para uso no destaque da home.",
+    )
+
+    HIGHLIGHT_VIDEO_MIME_CHOICES = [
+        ('video/mp4', 'MP4 (video/mp4)'),
+        ('video/webm', 'WebM (video/webm)'),
+        ('video/ogg', 'Ogg/Theora (video/ogg)'),
+    ]
+
+    highlight_video_mime_type = models.CharField(
+        max_length=20,
+        choices=HIGHLIGHT_VIDEO_MIME_CHOICES,
+        default='video/mp4',
+        verbose_name="Formato do Vídeo de Destaque",
+        help_text="Seleciona o mime type usado ao renderizar o vídeo de destaque.",
+    )
+
+    highlight_video_poster = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        verbose_name="Thumbnail do Vídeo de Destaque",
+    )
+
+    highlight_video_poster_url = models.URLField(
+        blank=True,
+        verbose_name="Thumbnail Externo do Vídeo de Destaque",
+        help_text="URL opcional para imagem de capa do vídeo quando hospedada externamente.",
+    )
+
     # Caption and credits for featured image
     featured_image_caption = models.CharField(
         max_length=255,
@@ -671,6 +785,7 @@ class ArticlePage(Page):
         ('image_url', ImageBlock()),
         ('gif', GifBlock()),
         ('audio', AudioBlock()),
+        ('custom_video', CustomVideoBlock()),
         ('pdf_download', PDFDownloadBlock()),
         ('video', EmbedBlock(
             label="Vídeo (YouTube, Vimeo, etc.)",
@@ -721,10 +836,14 @@ class ArticlePage(Page):
         MultiFieldPanel([
             FieldPanel('featured_image'),
             FieldPanel('external_image_url'),
+            FieldPanel('highlight_video_url'),
+            FieldPanel('highlight_video_mime_type'),
+            FieldPanel('highlight_video_poster'),
+            FieldPanel('highlight_video_poster_url'),
             FieldPanel('featured_image_caption'),
             FieldPanel('featured_image_credit'),
             FieldPanel('featured_image_caption_position'),
-        ], heading="Imagem de Destaque (escolha uma opção)"),
+        ], heading="Mídia de Destaque (imagem ou vídeo)"),
         FieldPanel('content_blocks'),
         FieldPanel('body'),  # Campo legado com recursos completos
         FieldPanel('tags'),
@@ -737,6 +856,26 @@ class ArticlePage(Page):
         elif self.featured_image:
             return self.featured_image.file.url
         return None
+
+    def has_highlight_video(self):
+        """Retorna True quando um vídeo customizado de destaque foi configurado."""
+        return bool(self.highlight_video_url)
+
+    def get_highlight_video_poster_url(self):
+        """Obtém a melhor imagem de poster disponível para o vídeo de destaque."""
+        if self.highlight_video_poster:
+            return self.highlight_video_poster.file.url
+        if self.highlight_video_poster_url:
+            return self.highlight_video_poster_url
+        return None
+
+    def clean(self):
+        cleaned = super().clean()
+        if self.highlight_video_poster and self.highlight_video_poster_url:
+            raise ValidationError({
+                'highlight_video_poster_url': "Escolha apenas uma forma de definir o thumbnail do vídeo de destaque (upload OU URL externa).",
+            })
+        return cleaned
     
     def save(self, *args, **kwargs):
         """Override save to automatically set trending for new articles"""
