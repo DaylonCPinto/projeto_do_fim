@@ -18,6 +18,10 @@
 
     <!-- VIDEOS GRID -->
     {% if videos %}
+    <div class="videos-page-gallery">
+        {% for video in videos %}
+            <div class="videos-page-gallery-item">
+                {% include "content/partials/video_short_card.html" with video=video show_description=True %}
     <div class="videos-grid">
         <div class="row g-4">
             {% for video in videos %}
@@ -53,8 +57,7 @@
                     </div>
                 </div>
             </div>
-            {% endfor %}
-        </div>
+        {% endfor %}
     </div>
     {% else %}
     <div class="alert alert-info">
@@ -69,6 +72,7 @@
         </a>
     </div>
 
+    {% include "content/partials/video_short_modal.html" %}
     <div class="modal fade" id="shortVideoModal" tabindex="-1" aria-labelledby="shortVideoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">

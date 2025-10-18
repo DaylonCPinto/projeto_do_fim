@@ -1,0 +1,36 @@
+{% load wagtailcore_tags %}
+<div class="video-short-card"
+     role="button"
+     tabindex="0"
+     aria-label="Reproduzir {{ video.title }}"
+     data-bs-toggle="modal"
+     data-bs-target="#shortVideoModal"
+     data-title="{{ video.title|escape }}"
+     data-description="{{ video.description|default:''|striptags|escape }}"
+     data-thumbnail="{{ video.get_thumbnail_url }}"
+     data-source="{{ video.video_source_type }}"
+     data-embed-url="{{ video.get_embed_url }}"
+     data-video-url="{{ video.get_cdn_source }}"
+     data-mime-type="{{ video.get_cdn_mime }}"
+     data-duration="{{ video.duration }}"
+     data-auto-thumbnail="{{ video.needs_auto_thumbnail|yesno:'true,false' }}"
+     data-orientation="{% if video.is_vertical_format %}vertical{% else %}horizontal{% endif %}">
+    <div class="video-short-thumbnail">
+        <img src="{{ video.get_thumbnail_url }}"
+             alt="{{ video.title }}"
+             loading="lazy"
+             class="video-short-thumb-img">
+        <div class="video-play-overlay">
+            <i class="bi bi-play-fill"></i>
+        </div>
+        <div class="video-short-info">
+            <div class="video-short-title">{{ video.title }}</div>
+            {% if show_description and video.description %}
+                <div class="video-short-description">{{ video.description|truncatewords:18 }}</div>
+            {% endif %}
+            <div class="video-short-duration">
+                <i class="bi bi-clock"></i> {{ video.duration }}
+            </div>
+        </div>
+    </div>
+</div>
