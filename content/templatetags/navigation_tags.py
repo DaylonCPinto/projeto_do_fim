@@ -25,6 +25,13 @@ def get_support_sections():
     SupportSectionPage = apps.get_model('content', 'SupportSectionPage')
     return SupportSectionPage.objects.live().order_by('title')
 
+
+@register.simple_tag()
+def get_site_customization():
+    """Retorna a configuração global do site (se existir)."""
+    SiteCustomization = apps.get_model('content', 'SiteCustomization')
+    return SiteCustomization.objects.first()
+
 @register.filter
 def timesince_brasilia(value):
     """

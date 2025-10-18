@@ -1,4 +1,5 @@
 {% load static navigation_tags wagtailcore_tags %}
+{% get_site_customization as global_site_customization %}
 <!doctype html>
 <html lang="pt-br">
   <head>
@@ -19,8 +20,50 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;700&family=Lora:wght@400;700&family=Open+Sans:wght@400;600;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    {% if global_site_customization %}
+    <style>
+        :root {
+            --brand-primary: {{ global_site_customization.primary_color }};
+            --brand-secondary: {{ global_site_customization.secondary_color }};
+        }
+
+        body {
+            font-family: '{{ global_site_customization.body_font }}', sans-serif;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: '{{ global_site_customization.heading_font }}', sans-serif;
+        }
+
+        .btn-economist-red,
+        .bg-economist-red {
+            background-color: var(--brand-primary, #E3120B) !important;
+            border-color: var(--brand-primary, #E3120B) !important;
+        }
+
+        .btn-outline-economist-red {
+            color: var(--brand-primary, #E3120B) !important;
+            border-color: var(--brand-primary, #E3120B) !important;
+        }
+
+        .btn-outline-economist-red:hover {
+            background-color: var(--brand-primary, #E3120B) !important;
+            color: #fff !important;
+        }
+
+        .text-economist-red {
+            color: var(--brand-primary, #E3120B) !important;
+        }
+
+        .border-economist-red {
+            border-color: var(--brand-primary, #E3120B) !important;
+        }
+    </style>
+    {% endif %}
   </head>
-  <body>
+  <body{% if global_site_customization and global_site_customization.enable_dark_mode_toggle %} class="supports-dark-toggle"{% endif %}
+        data-scroll-progress="{% if global_site_customization and not global_site_customization.show_scroll_progress %}false{% else %}true{% endif %}"
+        data-dark-mode-toggle="{% if global_site_customization and global_site_customization.enable_dark_mode_toggle %}true{% else %}false{% endif %}">
 
     <!-- Inclui o Cabeçalho (Header e Sub-navegação) -->
     {% include "header.html" %}
@@ -31,6 +74,17 @@
 
     <!-- Inclui o Rodapé (Footer) -->
     {% include "footer.html" %}
+
+    {% if global_site_customization and global_site_customization.whatsapp_contact_url %}
+    <a href="{{ global_site_customization.whatsapp_contact_url }}" class="floating-contact-btn" target="_blank" rel="noopener">
+        {% if 'telegram' in global_site_customization.whatsapp_contact_url %}
+            <i class="bi bi-telegram"></i>
+        {% else %}
+            <i class="bi bi-whatsapp"></i>
+        {% endif %}
+        <span class="visually-hidden">Abrir canal de contato</span>
+    </a>
+    {% endif %}
 
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
