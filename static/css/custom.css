@@ -14,6 +14,7 @@
 :root {
     --site-header-height: 105px; /* Default fallback */
     --calculated-padding: 131px; /* Default: 105px * 1.25 */
+    --plyr-color-main: var(--brand-primary, #E3120B);
 }
 
 /* Global scroll behavior for fixed header */
@@ -1286,9 +1287,14 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
 }
 
 .video-short-grid {
-    --video-grid-gap: 0.75rem;
+    --video-grid-gap: 0.45rem;
     row-gap: var(--video-grid-gap);
     column-gap: var(--video-grid-gap);
+}
+
+.video-short-grid.row {
+    --bs-gutter-x: 0.55rem;
+    --bs-gutter-y: 0.8rem;
 }
 
 .video-shorts-heading h2 {
@@ -1323,7 +1329,7 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
 .video-short-thumbnail::before {
     content: '';
     display: block;
-    padding-bottom: 56.25%;
+    padding-bottom: 177.78%;
 }
 
 .video-short-thumb-img {
@@ -1411,7 +1417,12 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
 
 @media (min-width: 992px) {
     .video-short-grid {
-        --video-grid-gap: 1rem;
+        --video-grid-gap: 0.65rem;
+    }
+
+    .video-short-grid.row {
+        --bs-gutter-x: 0.65rem;
+        --bs-gutter-y: 0.9rem;
     }
 
     .video-short-title {
@@ -1461,6 +1472,50 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     border: 0;
     border-radius: 12px;
     background-color: #000;
+}
+
+.video-modal-wrapper > .plyr,
+.video-modal-wrapper > .plyr__video-embed {
+    width: 100%;
+    height: 100%;
+}
+
+.plyr--video.plyr--full-ui {
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #000;
+    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.25);
+}
+
+.plyr__control--overlaid {
+    background: rgba(227, 18, 11, 0.9);
+    border: 0;
+    box-shadow: 0 12px 24px rgba(227, 18, 11, 0.35);
+}
+
+.plyr__control--overlaid:hover,
+.plyr__control--overlaid:focus {
+    background: rgba(227, 18, 11, 1);
+}
+
+.plyr__controls {
+    background: linear-gradient(180deg, rgba(12, 12, 12, 0) 0%, rgba(12, 12, 12, 0.78) 100%);
+    padding: 1.05rem 1rem;
+}
+
+.plyr__controls button {
+    border-radius: 50%;
+}
+
+.plyr__control[aria-pressed="true"],
+.plyr__control.plyr__control--pressed {
+    background-color: rgba(227, 18, 11, 0.85);
+    color: #fff;
+}
+
+.plyr__menu__container {
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 .video-modal-description {
