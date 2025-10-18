@@ -890,7 +890,6 @@ class ArticlePage(Page):
                 return self.highlight_video_poster.file.url
             except Exception:
                 pass
-            return self.highlight_video_poster.file.url
         if self.highlight_video_poster_url:
             return self.highlight_video_poster_url
         return None
@@ -1058,16 +1057,76 @@ class VideoShort(models.Model):
     def __str__(self):
         return self.title
     
+    PLACEHOLDER_THUMBNAIL = 'https://via.placeholder.com/400x700/E3120B/FFFFFF?text=Video'
+
     def get_thumbnail_url(self):
-        """Retorna a URL do thumbnail, priorizando a externa"""
+        """Retorna a URL do thumbnail, priorizando fontes automáticas quando possível."""
         if self.thumbnail_url:
             return self.thumbnail_url
-        elif self.thumbnail_image:
+
+        if self.thumbnail_image:
             try:
                 return self.thumbnail_image.file.url
             except Exception:
-                return 'https://via.placeholder.com/400x700/E3120B/FFFFFF?text=Video'
-        return 'https://via.placeholder.com/400x700/E3120B/FFFFFF?text=Video'
+                # Fall back to auto-detection if the stored file is missing
+                pass
+
+        auto_thumbnail = self._get_auto_thumbnail_from_source()
+        if auto_thumbnail:
+            return auto_thumbnail
+
+        return self.PLACEHOLDER_THUMBNAIL
+
+    def _get_auto_thumbnail_from_source(self):
+        """Gera automaticamente um thumbnail a partir de plataformas conhecidas."""
+        if not self.video_url:
+            return ''
+
+        url = self.video_url.strip()
+        if not url:
+            return ''
+
+        try:
+            from urllib.parse import urlparse, parse_qs
+            parsed = urlparse(url)
+        except Exception:
+            return ''
+
+        netloc = parsed.netloc.lower().lstrip('www.')
+        path = parsed.path.rstrip('/')
+
+        def clean_segment(segment):
+            return segment.split('?')[0]
+
+        # YouTube standard links (watch, share, embed, shorts)
+        if 'youtube.com' in netloc or 'youtube-nocookie.com' in netloc:
+            if path == '/watch':
+                video_id = parse_qs(parsed.query).get('v', [''])[0]
+            else:
+                segments = [s for s in path.split('/') if s]
+                video_id = ''
+                if segments:
+                    if segments[0] in {'embed', 'shorts', 'live'} and len(segments) > 1:
+                        video_id = clean_segment(segments[1])
+                    else:
+                        video_id = clean_segment(segments[-1])
+
+            if video_id:
+                return f'https://img.youtube.com/vi/{video_id}/hqdefault.jpg'
+
+        if 'youtu.be' in netloc:
+            video_id = clean_segment(path.lstrip('/'))
+            if video_id:
+                return f'https://img.youtube.com/vi/{video_id}/hqdefault.jpg'
+
+        if 'vimeo.com' in netloc:
+            segments = [s for s in path.split('/') if s]
+            if segments:
+                video_id = clean_segment(segments[-1])
+                if video_id.isdigit():
+                    return f'https://vumbnail.com/{video_id}.jpg'
+
+        return ''
 
     def clean(self):
         from django.core.exceptions import ValidationError
@@ -1109,20 +1168,41 @@ class VideoShort(models.Model):
 
         url = self.video_url
 
-        if 'youtube.com/watch' in url:
-            from urllib.parse import urlparse, parse_qs
-            parsed = urlparse(url)
-            video_id = parse_qs(parsed.query).get('v', [''])[0]
+        from urllib.parse import urlparse, parse_qs
+
+        parsed = urlparse(url)
+        netloc = parsed.netloc.lower().lstrip('www.')
+        path = parsed.path.rstrip('/')
+
+        def clean_segment(segment):
+            return segment.split('?')[0]
+
+        if 'youtube.com' in netloc or 'youtube-nocookie.com' in netloc:
+            if path == '/watch':
+                video_id = parse_qs(parsed.query).get('v', [''])[0]
+            else:
+                segments = [s for s in path.split('/') if s]
+                video_id = ''
+                if segments:
+                    if segments[0] in {'embed', 'shorts', 'live'} and len(segments) > 1:
+                        video_id = clean_segment(segments[1])
+                    else:
+                        video_id = clean_segment(segments[-1])
+
             if video_id:
                 return f'https://www.youtube.com/embed/{video_id}'
-        if 'youtu.be/' in url:
-            video_id = url.rstrip('/').split('/')[-1]
+
+        if 'youtu.be' in netloc:
+            video_id = clean_segment(path.lstrip('/'))
             if video_id:
                 return f'https://www.youtube.com/embed/{video_id}'
-        if 'vimeo.com/' in url:
-            video_id = url.rstrip('/').split('/')[-1]
-            if video_id.isdigit():
-                return f'https://player.vimeo.com/video/{video_id}'
+
+        if 'vimeo.com' in netloc:
+            segments = [s for s in path.split('/') if s]
+            if segments:
+                video_id = clean_segment(segments[-1])
+                if video_id.isdigit():
+                    return f'https://player.vimeo.com/video/{video_id}'
 
         return url
 
