@@ -1059,13 +1059,6 @@ class VideoShort(models.Model):
     
     PLACEHOLDER_THUMBNAIL = 'https://via.placeholder.com/400x700/E3120B/FFFFFF?text=Video'
 
-    def _get_cached_auto_thumbnail(self):
-        """Cacheia o resultado do cálculo automático para evitar recomputações."""
-        if not hasattr(self, "_auto_thumbnail_cache"):
-            auto_thumbnail = self._get_auto_thumbnail_from_source() or ""
-            self._auto_thumbnail_cache = auto_thumbnail
-        return getattr(self, "_auto_thumbnail_cache", "")
-
     def get_thumbnail_url(self):
         """Retorna a URL do thumbnail, priorizando fontes automáticas quando possível."""
         if self.thumbnail_url:
@@ -1075,10 +1068,6 @@ class VideoShort(models.Model):
             try:
                 return self.thumbnail_image.file.url
             except Exception:
-                # Fall back to auto-detection if o arquivo local estiver ausente
-                pass
-
-        auto_thumbnail = self._get_cached_auto_thumbnail()
                 # Fall back to auto-detection if the stored file is missing
                 pass
 
@@ -1138,17 +1127,6 @@ class VideoShort(models.Model):
                     return f'https://vumbnail.com/{video_id}.jpg'
 
         return ''
-
-    def needs_auto_thumbnail(self):
-        """Indica se o frontend deve tentar gerar um thumbnail automaticamente."""
-        if self.thumbnail_url or self.thumbnail_image:
-            return False
-
-        auto_thumbnail = self._get_cached_auto_thumbnail()
-        if auto_thumbnail:
-            return False
-
-        return self.uses_cdn()
 
     def clean(self):
         from django.core.exceptions import ValidationError
@@ -1227,18 +1205,6 @@ class VideoShort(models.Model):
                     return f'https://player.vimeo.com/video/{video_id}'
 
         return url
-
-    def is_vertical_format(self):
-        """Tenta inferir se o vídeo tem orientação vertical (formato de shorts)."""
-        if self.uses_cdn():
-            return True
-
-        if not self.video_url:
-            return False
-
-        lowered = self.video_url.lower()
-        vertical_hints = ('/shorts/', 'shorts/', 'reels', 'stories', 'story', 'vertical')
-        return any(hint in lowered for hint in vertical_hints)
 
 
 class SectionPage(Page):
