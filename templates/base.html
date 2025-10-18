@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}{% endblock %} - {{ WAGTAIL_SITE_NAME }}</title>
+    <title>{% block title %}{% endblock %}{% if WAGTAIL_SITE_NAME %} - {{ WAGTAIL_SITE_NAME }}{% endif %}</title>
     
     <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
     <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}">

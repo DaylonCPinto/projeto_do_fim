@@ -18,7 +18,7 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 from wagtail.models import Page
 from wagtail.fields import RichTextField, StreamField
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel, FieldRowPanel
 from wagtail.snippets.models import register_snippet
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
@@ -169,6 +169,57 @@ class FonteLinkBlock(blocks.StructBlock):
         template = "content/blocks/fonte_link_block.html"
 
 
+class HomeCuratedSectionBlock(blocks.StructBlock):
+    """Bloco que permite montar seções editáveis na home via painel."""
+
+    LAYOUT_CHOICES = [
+        ("grid", "Grade Equilibrada"),
+        ("list", "Lista Editorial"),
+        ("split", "Destaque + Lista")
+    ]
+
+    ACCENT_CHOICES = [
+        ("economist-red", "Vermelho The Economist"),
+        ("ink", "Azul Escuro"),
+        ("charcoal", "Cinza Carvão"),
+        ("sand", "Areia Quente"),
+    ]
+
+    title = blocks.CharBlock(label="Título da Seção")
+    subtitle = blocks.TextBlock(required=False, label="Linha de Apoio")
+    layout_style = blocks.ChoiceBlock(
+        choices=LAYOUT_CHOICES,
+        default="grid",
+        label="Estilo da Listagem"
+    )
+    accent = blocks.ChoiceBlock(
+        choices=ACCENT_CHOICES,
+        default="economist-red",
+        label="Cor de Destaque"
+    )
+    call_to_action_text = blocks.CharBlock(
+        required=False,
+        label="Texto do Link/CTA"
+    )
+    call_to_action_url = blocks.URLBlock(
+        required=False,
+        label="URL do CTA",
+        help_text="Opcional – deixa a seção com um link "
+                  "para ver todos os artigos da editoria"
+    )
+    articles = blocks.ListBlock(
+        blocks.PageChooserBlock(target_model="content.ArticlePage"),
+        min_num=1,
+        label="Artigos Selecionados",
+        help_text="Escolha manualmente quais artigos aparecem nesta seção"
+    )
+
+    class Meta:
+        icon = "pick"
+        label = "Seção Curada (Home)"
+        template = "content/blocks/home_curated_section.html"
+
+
 class HomePage(Page):
     """Página inicial do site com configurações customizáveis"""
     
@@ -251,13 +302,77 @@ class HomePage(Page):
         verbose_name="Espaçamento entre Cards",
         help_text="Espaço entre os cards de artigos"
     )
-    
+
     show_dividers = models.BooleanField(
         default=False,
         verbose_name="Mostrar Divisores?",
         help_text="Adiciona linhas divisórias entre artigos (melhor para layout de lista)"
     )
-    
+
+    DIVIDER_STYLE_CHOICES = [
+        ('thin', 'Linha Fina Clássica'),
+        ('thick', 'Linha Grossa Editorial'),
+        ('double', 'Linha Dupla'),
+    ]
+
+    divider_style = models.CharField(
+        max_length=20,
+        choices=DIVIDER_STYLE_CHOICES,
+        default='thin',
+        verbose_name="Estilo dos Divisores",
+        help_text="Define como as linhas divisórias aparecem entre as seções"
+    )
+
+    hero_kicker = models.CharField(
+        max_length=120,
+        blank=True,
+        verbose_name="Kicker do Destaque",
+        help_text="Linha superior curta, ex: 'Análise Especial'"
+    )
+
+    hero_subtitle = models.TextField(
+        blank=True,
+        verbose_name="Resumo Editorial",
+        help_text="Texto que aparece ao lado do artigo em destaque"
+    )
+
+    hero_button_text = models.CharField(
+        max_length=60,
+        blank=True,
+        verbose_name="Texto do Botão",
+        help_text="Etiqueta do botão exibido no destaque principal"
+    )
+
+    hero_button_url = models.URLField(
+        blank=True,
+        verbose_name="URL do Botão",
+        help_text="Link opcional para guiar o leitor (ex: assinatura, newsletter)"
+    )
+
+    hero_background_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        verbose_name="Imagem de Fundo do Destaque",
+        help_text="Imagem aplicada como textura sutil atrás do destaque"
+    )
+
+    show_videos_section = models.BooleanField(
+        default=True,
+        verbose_name="Mostrar seção de vídeos?"
+    )
+
+    curated_sections = StreamField(
+        [
+            ("curated_section", HomeCuratedSectionBlock())
+        ],
+        blank=True,
+        use_json_field=True,
+        verbose_name="Seções Editoriais Curadas"
+    )
+
     show_trending_section = models.BooleanField(
         default=True,
         verbose_name="Mostrar Seção 'Em Alta'?",
@@ -272,12 +387,26 @@ class HomePage(Page):
             FieldPanel('columns_mobile'),
             FieldPanel('grid_gap'),
             FieldPanel('show_dividers'),
+            FieldPanel('divider_style'),
             FieldPanel('show_trending_section'),
+            FieldPanel('show_videos_section'),
         ], heading="Configurações de Layout da Home"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('hero_kicker'),
+                FieldPanel('hero_button_text'),
+            ]),
+            FieldPanel('hero_subtitle'),
+            FieldRowPanel([
+                FieldPanel('hero_button_url'),
+                FieldPanel('hero_background_image'),
+            ]),
+        ], heading="Destaque Principal"),
         MultiFieldPanel([
             FieldPanel('footer_tagline'),
             FieldPanel('footer_tagline_size'),
         ], heading="Configurações do Rodapé"),
+        FieldPanel('curated_sections'),
     ]
     
     # Define what types of pages can be children of HomePage
@@ -295,6 +424,7 @@ class HomePage(Page):
             'grid_gap': self.grid_gap,
             'show_dividers': self.show_dividers,
             'show_trending_section': self.show_trending_section,
+            'divider_style': self.divider_style,
             # CSS class helpers
             'grid_cols_desktop': f'lg:grid-cols-{self.columns_desktop}',
             'grid_cols_mobile': f'grid-cols-{self.columns_mobile}',
