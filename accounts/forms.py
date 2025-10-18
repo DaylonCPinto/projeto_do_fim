@@ -126,19 +126,22 @@ class SignUpForm(UserCreationForm):
         if cpf:
             # Sanitiza o CPF
             cpf = bleach.clean(cpf, tags=[], strip=True)
-            # Remove caracteres não numéricos para validação
+            # Remove caracteres não numéricos para validação e persistência
             cpf_numbers = re.sub(r'[^\d]', '', cpf)
-            
+
             # Valida usando o algoritmo de CPF
-            validate_cpf(cpf)
-            
-            # Verifica se o CPF já está em uso
-            if UserProfile.objects.filter(cpf=cpf).exists():
+            validate_cpf(cpf_numbers)
+
+            # Verifica duplicidade independente de máscara
+            pattern = r'^' + r'\D*'.join(cpf_numbers) + r'\D*$'
+            if UserProfile.objects.filter(cpf__regex=pattern).exists():
                 raise forms.ValidationError(
                     'Este CPF já está cadastrado. '
                     'Você pode fazer login ou recuperar sua conta.'
                 )
-        
+
+            return cpf_numbers
+
         return cpf
     
     def clean_email(self):
