@@ -139,6 +139,7 @@ class CustomVideoBlock(blocks.StructBlock):
 
     ASPECT_RATIO_CHOICES = [
         ("16x9", "16:9 (Widescreen)"),
+        ("9x16", "9:16 (Vertical)"),
         ("4x3", "4:3 (Clássico)"),
         ("1x1", "1:1 (Quadrado)"),
         ("21x9", "21:9 (Cinemascope)"),

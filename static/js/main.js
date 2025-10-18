@@ -365,13 +365,43 @@ function extractPlyrConfig(embedUrl) {
     return null;
 }
 
-function getAspectRatioFromElement(element, fallback = '16:9') {
-    if (!element) {
+function normalizeAspectRatio(value, fallback = '16:9') {
+    if (!value && value !== 0) {
         return fallback;
     }
 
+    const raw = String(value).trim();
+    if (!raw) {
+        return fallback;
+    }
+
+    const normalized = raw
+        .replace(/[xX/]/g, ':')
+        .replace(/[^0-9:.]/g, '')
+        .replace(/:+/g, ':')
+        .replace(/^:|:$/g, '');
+
+    const parts = normalized.split(':').filter(Boolean);
+    if (parts.length === 2) {
+        const width = parseFloat(parts[0]);
+        const height = parseFloat(parts[1]);
+        if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) {
+            return `${width}:${height}`;
+        }
+    }
+
+    return fallback;
+}
+
+function getAspectRatioFromElement(element, fallback = '16:9') {
+    if (!element) {
+        return normalizeAspectRatio(fallback);
+    }
+
+    const safeFallback = normalizeAspectRatio(fallback);
+
     if (element.dataset.aspectRatio) {
-        return element.dataset.aspectRatio;
+        return normalizeAspectRatio(element.dataset.aspectRatio, safeFallback);
     }
 
     const ratioContainer = element.closest('[class*="ratio-"]');
@@ -379,14 +409,11 @@ function getAspectRatioFromElement(element, fallback = '16:9') {
         const ratioClass = Array.from(ratioContainer.classList).find(cls => cls.startsWith('ratio-'));
         if (ratioClass) {
             const raw = ratioClass.replace('ratio-', '');
-            const parts = raw.split('x');
-            if (parts.length === 2 && parts[0] && parts[1]) {
-                return `${parts[0]}:${parts[1]}`;
-            }
+            return normalizeAspectRatio(raw, safeFallback);
         }
     }
 
-    return fallback;
+    return safeFallback;
 }
 
 function initShortVideoModal() {
@@ -396,6 +423,7 @@ function initShortVideoModal() {
     }
 
     const modalWrapper = modalEl.querySelector('.video-modal-wrapper');
+    const modalDialog = modalEl.querySelector('.short-video-modal');
     const descriptionEl = modalEl.querySelector('.video-modal-description');
     const modalTitleEl = modalEl.querySelector('.modal-title');
     let plyrInstance = null;
@@ -506,6 +534,28 @@ function initShortVideoModal() {
             return;
         }
 
+        const aspectRatio = normalizeAspectRatio(card.dataset.aspectRatio, '9:16');
+        const ratioParts = aspectRatio.split(':').map((value) => Number.parseFloat(value));
+        const ratioWidth = ratioParts[0];
+        const ratioHeight = ratioParts[1];
+
+        if (modalDialog && Number.isFinite(ratioWidth) && Number.isFinite(ratioHeight) && ratioWidth > 0 && ratioHeight > 0) {
+            modalDialog.style.setProperty('--short-modal-aspect-width', ratioWidth);
+            modalDialog.style.setProperty('--short-modal-aspect-height', ratioHeight);
+        }
+
+        const desiredClass = `ratio-${aspectRatio.replace(':', 'x')}`;
+        const ratioClasses = Array.from(modalWrapper.classList).filter((cls) => cls.startsWith('ratio-'));
+        ratioClasses.forEach((cls) => {
+            if (cls !== desiredClass) {
+                modalWrapper.classList.remove(cls);
+            }
+        });
+        if (!modalWrapper.classList.contains(desiredClass)) {
+            modalWrapper.classList.add(desiredClass);
+        }
+        modalWrapper.dataset.activeAspect = aspectRatio;
+
         renderLoader();
 
         const sourceType = card.dataset.source;
@@ -518,7 +568,6 @@ function initShortVideoModal() {
         const title = card.dataset.title || 'Vídeo';
         const description = card.dataset.description || '';
         const poster = card.dataset.thumbnail || card.querySelector('img')?.src || '';
-        const aspectRatio = card.dataset.aspectRatio || '9:16';
 
         if (modalTitleEl) {
             modalTitleEl.textContent = title;
@@ -603,6 +652,18 @@ function initShortVideoModal() {
             descriptionEl.textContent = '';
         }
         destroyPlayer();
+        if (modalDialog) {
+            modalDialog.style.removeProperty('--short-modal-aspect-width');
+            modalDialog.style.removeProperty('--short-modal-aspect-height');
+        }
+        if (modalWrapper) {
+            const ratioClasses = Array.from(modalWrapper.classList).filter((cls) => cls.startsWith('ratio-'));
+            ratioClasses.forEach((cls) => {
+                modalWrapper.classList.remove(cls);
+            });
+            modalWrapper.classList.add('ratio-9x16');
+            modalWrapper.dataset.activeAspect = '9:16';
+        }
     });
 }
 
