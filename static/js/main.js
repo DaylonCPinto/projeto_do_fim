@@ -328,6 +328,67 @@ function withAutoplay(url) {
     return `${url}${separator}${autoplayParams}`;
 }
 
+function extractPlyrConfig(embedUrl) {
+    if (!embedUrl) {
+        return null;
+    }
+
+    let parsed;
+    try {
+        parsed = new URL(embedUrl);
+    } catch (error) {
+        return null;
+    }
+
+    const hostname = parsed.hostname.replace(/^www\./, '').toLowerCase();
+    const segments = parsed.pathname.split('/').filter(Boolean);
+    const cleanId = (value) => value.replace(/\?.*/, '');
+
+    if (!segments.length) {
+        return null;
+    }
+
+    if (hostname.includes('youtube') || hostname.includes('youtube-nocookie')) {
+        const lastSegment = cleanId(segments[segments.length - 1]);
+        return lastSegment ? { provider: 'youtube', id: lastSegment } : null;
+    }
+
+    if (hostname === 'youtu.be') {
+        return segments[0] ? { provider: 'youtube', id: cleanId(segments[0]) } : null;
+    }
+
+    if (hostname.includes('vimeo')) {
+        const candidate = cleanId(segments[segments.length - 1]);
+        return /^\d+$/.test(candidate) ? { provider: 'vimeo', id: candidate } : null;
+    }
+
+    return null;
+}
+
+function getAspectRatioFromElement(element, fallback = '16:9') {
+    if (!element) {
+        return fallback;
+    }
+
+    if (element.dataset.aspectRatio) {
+        return element.dataset.aspectRatio;
+    }
+
+    const ratioContainer = element.closest('[class*="ratio-"]');
+    if (ratioContainer) {
+        const ratioClass = Array.from(ratioContainer.classList).find(cls => cls.startsWith('ratio-'));
+        if (ratioClass) {
+            const raw = ratioClass.replace('ratio-', '');
+            const parts = raw.split('x');
+            if (parts.length === 2 && parts[0] && parts[1]) {
+                return `${parts[0]}:${parts[1]}`;
+            }
+        }
+    }
+
+    return fallback;
+}
+
 function initShortVideoModal() {
     const modalEl = document.getElementById('shortVideoModal');
     if (!modalEl || typeof bootstrap === 'undefined') {
@@ -337,9 +398,22 @@ function initShortVideoModal() {
     const modalWrapper = modalEl.querySelector('.video-modal-wrapper');
     const descriptionEl = modalEl.querySelector('.video-modal-description');
     const modalTitleEl = modalEl.querySelector('.modal-title');
+    let plyrInstance = null;
+
+    const destroyPlayer = () => {
+        if (plyrInstance && typeof plyrInstance.destroy === 'function') {
+            try {
+                plyrInstance.destroy();
+            } catch (error) {
+                console.warn('Não foi possível destruir o player anterior.', error);
+            }
+        }
+        plyrInstance = null;
+    };
 
     const renderLoader = () => {
         if (modalWrapper) {
+            destroyPlayer();
             modalWrapper.innerHTML = `
                 <div class="video-modal-loader">
                     <div class="spinner-border text-economist-red" role="status">
@@ -348,6 +422,83 @@ function initShortVideoModal() {
                 </div>
             `;
         }
+    };
+
+    const initializePlyr = (selector, options = {}) => {
+        if (typeof Plyr === 'undefined') {
+            return;
+        }
+
+        const element = modalWrapper ? modalWrapper.querySelector(selector) : null;
+        if (!element) {
+            return;
+        }
+
+        destroyPlayer();
+
+        const defaultOptions = {
+            controls: [
+                'play-large',
+                'play',
+                'progress',
+                'current-time',
+                'mute',
+                'volume',
+                'settings',
+                'pip',
+                'airplay',
+                'fullscreen'
+            ],
+            tooltips: {
+                controls: true
+            },
+            storage: {
+                enabled: false
+            },
+            resetOnEnd: true,
+            ratio: '9:16',
+            youtube: {
+                rel: 0,
+                modestbranding: 1,
+                playsinline: 1
+            },
+            vimeo: {
+                byline: false,
+                portrait: false,
+                title: false
+            }
+        };
+
+        try {
+            plyrInstance = new Plyr(element, Object.assign({}, defaultOptions, options));
+            if (options.autoplay) {
+                plyrInstance.on('ready', () => {
+                    try {
+                        plyrInstance.play();
+                    } catch (error) {
+                        console.warn('Autoplay bloqueado pelo navegador.', error);
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Falha ao inicializar o player moderno.', error);
+        }
+    };
+
+    const renderEmbedWithPlyr = (embedUrl, ratio = '9:16') => {
+        const config = extractPlyrConfig(embedUrl);
+        if (config && typeof Plyr !== 'undefined') {
+            modalWrapper.innerHTML = `
+                <div id="short-modal-player"
+                     data-plyr-provider="${config.provider}"
+                     data-plyr-embed-id="${config.id}"
+                     data-aspect-ratio="${ratio}">
+                </div>
+            `;
+            initializePlyr('#short-modal-player', { autoplay: true, ratio });
+            return true;
+        }
+        return false;
     };
 
     const openModal = (card) => {
@@ -367,6 +518,7 @@ function initShortVideoModal() {
         const title = card.dataset.title || 'Vídeo';
         const description = card.dataset.description || '';
         const poster = card.dataset.thumbnail || card.querySelector('img')?.src || '';
+        const aspectRatio = card.dataset.aspectRatio || '9:16';
 
         if (modalTitleEl) {
             modalTitleEl.textContent = title;
@@ -379,33 +531,50 @@ function initShortVideoModal() {
             const posterAttr = poster ? ` poster="${poster}"` : '';
             const mimeAttr = mimeType ? ` type="${mimeType}"` : '';
             modalWrapper.innerHTML = `
-                <video class="video-modal-player" controls playsinline preload="metadata"${posterAttr}>
+                <video id="short-modal-player"
+                       class="video-modal-player"
+                       controls
+                       playsinline
+                       preload="metadata"${posterAttr}
+                       crossorigin="anonymous"
+                       data-aspect-ratio="${aspectRatio}">
                     <source src="${videoUrl}"${mimeAttr}>
                     Seu navegador não suporta o elemento de vídeo.
                 </video>
             `;
+            initializePlyr('#short-modal-player', { ratio: aspectRatio, autoplay: true });
         } else if (platformEmbedUrl) {
-            const autoplayEmbed = withAutoplay(platformEmbedUrl);
-            modalWrapper.innerHTML = `
-                <iframe src="${autoplayEmbed}" class="video-modal-iframe" allowfullscreen
-                        loading="lazy" allow="autoplay; fullscreen; picture-in-picture"
-                        referrerpolicy="no-referrer-when-downgrade"></iframe>
-            `;
-        } else if (platformUrl) {
-            const fallbackEmbed = resolveEmbedUrl(platformUrl);
-            if (fallbackEmbed) {
+            if (!renderEmbedWithPlyr(platformEmbedUrl, aspectRatio)) {
+                const autoplayEmbed = withAutoplay(platformEmbedUrl);
                 modalWrapper.innerHTML = `
-                    <iframe src="${withAutoplay(fallbackEmbed)}" class="video-modal-iframe" allowfullscreen
+                    <iframe src="${autoplayEmbed}" class="video-modal-iframe" allowfullscreen
                             loading="lazy" allow="autoplay; fullscreen; picture-in-picture"
                             referrerpolicy="no-referrer-when-downgrade"></iframe>
                 `;
+            }
+        } else if (platformUrl) {
+            const fallbackEmbed = resolveEmbedUrl(platformUrl);
+            if (fallbackEmbed) {
+                if (!renderEmbedWithPlyr(fallbackEmbed, aspectRatio)) {
+                    modalWrapper.innerHTML = `
+                        <iframe src="${withAutoplay(fallbackEmbed)}" class="video-modal-iframe" allowfullscreen
+                                loading="lazy" allow="autoplay; fullscreen; picture-in-picture"
+                                referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    `;
+                }
             } else {
                 modalWrapper.innerHTML = `
-                    <video class="video-modal-player" controls playsinline preload="metadata"${poster ? ` poster="${poster}"` : ''}>
+                    <video id="short-modal-player"
+                           class="video-modal-player"
+                           controls
+                           playsinline
+                           preload="metadata"${poster ? ` poster="${poster}"` : ''}
+                           data-aspect-ratio="${aspectRatio}">
                         <source src="${platformUrl}">
                         Seu navegador não suporta o elemento de vídeo.
                     </video>
                 `;
+                initializePlyr('#short-modal-player', { ratio: aspectRatio, autoplay: true });
             }
         } else if (videoUrl) {
             modalWrapper.innerHTML = `
@@ -433,6 +602,69 @@ function initShortVideoModal() {
         if (descriptionEl) {
             descriptionEl.textContent = '';
         }
+        destroyPlayer();
+    });
+}
+
+function enhanceStaticVideoPlayers() {
+    if (typeof Plyr === 'undefined') {
+        return;
+    }
+
+    const targets = document.querySelectorAll('.hero-video-player, .custom-video-player');
+
+    targets.forEach((videoEl) => {
+        if (!(videoEl instanceof HTMLVideoElement) || videoEl.dataset.plyrInitialized === 'true') {
+            return;
+        }
+
+        const ratio = getAspectRatioFromElement(videoEl, '16:9');
+
+        try {
+            const instance = new Plyr(videoEl, {
+                controls: [
+                    'play-large',
+                    'play',
+                    'progress',
+                    'current-time',
+                    'mute',
+                    'volume',
+                    'settings',
+                    'pip',
+                    'airplay',
+                    'fullscreen'
+                ],
+                ratio,
+                tooltips: {
+                    controls: true
+                },
+                storage: {
+                    enabled: false
+                },
+                youtube: {
+                    rel: 0,
+                    modestbranding: 1,
+                    playsinline: 1
+                },
+                vimeo: {
+                    byline: false,
+                    portrait: false,
+                    title: false
+                }
+            });
+
+            videoEl.dataset.plyrInitialized = 'true';
+
+            videoEl.addEventListener('ended', () => {
+                try {
+                    instance.stop();
+                } catch (error) {
+                    console.warn('Não foi possível resetar o player após o término do vídeo.', error);
+                }
+            });
+        } catch (error) {
+            console.error('Falha ao aprimorar player de vídeo.', error);
+        }
     });
 }
 
@@ -454,6 +686,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initShareButtons();
     initDarkMode();
     initShortVideoModal();
+    enhanceStaticVideoPlayers();
     deferResources();
     
     console.log('%c Portal de Análise %c Carregado com sucesso! ', 

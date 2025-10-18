@@ -19,6 +19,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;700&family=Lora:wght@400;700&family=Open+Sans:wght@400;600;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
     
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
     <link rel="stylesheet" href="{% static 'css/custom.css' %}">
     {% if global_site_customization %}
     <style>
@@ -92,8 +93,10 @@
     <!-- Header Padding Calculator - Must load early to avoid visual jump -->
     <script src="{% static 'js/header_padding.js' %}"></script>
     
+    <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.min.js" defer></script>
+
     <!-- Custom JavaScript -->
-    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/main.js' %}" defer></script>
     
     <!-- Block for additional page-specific JavaScript -->
     {% block extra_js %}{% endblock %}
