@@ -1079,6 +1079,10 @@ class VideoShort(models.Model):
                 pass
 
         auto_thumbnail = self._get_cached_auto_thumbnail()
+                # Fall back to auto-detection if the stored file is missing
+                pass
+
+        auto_thumbnail = self._get_auto_thumbnail_from_source()
         if auto_thumbnail:
             return auto_thumbnail
 

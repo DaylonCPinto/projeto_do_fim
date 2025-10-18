@@ -22,6 +22,40 @@
         {% for video in videos %}
             <div class="videos-page-gallery-item">
                 {% include "content/partials/video_short_card.html" with video=video show_description=True %}
+    <div class="videos-grid">
+        <div class="row g-4">
+            {% for video in videos %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="video-short-card"
+                     role="button"
+                     tabindex="0"
+                     aria-label="Reproduzir {{ video.title }}"
+                     data-bs-toggle="modal"
+                     data-bs-target="#shortVideoModal"
+                     data-title="{{ video.title|escape }}"
+                     data-description="{{ video.description|default:''|escape }}"
+                     data-thumbnail="{{ video.get_thumbnail_url }}"
+                     data-source="{{ video.video_source_type }}"
+                     data-embed-url="{{ video.get_embed_url }}"
+                     data-video-url="{{ video.get_cdn_source }}"
+                     data-mime-type="{{ video.get_cdn_mime }}"
+                     style="cursor: pointer;">
+                    <div class="video-short-thumbnail position-relative">
+                        <img src="{{ video.get_thumbnail_url }}" alt="{{ video.title }}" class="img-fluid rounded" style="width: 100%; height: 400px; object-fit: cover;">
+                        <div class="video-play-overlay position-absolute top-50 start-50 translate-middle">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size: 4rem; opacity: 0.9;"></i>
+                        </div>
+                        <div class="video-short-info position-absolute bottom-0 start-0 w-100 p-3" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                            <div class="video-short-title text-white fw-bold mb-1">{{ video.title }}</div>
+                            {% if video.description %}
+                                <div class="video-short-description text-white-50 small mb-2">{{ video.description|truncatewords:10 }}</div>
+                            {% endif %}
+                            <div class="video-short-duration text-white small">
+                                <i class="bi bi-clock"></i> {{ video.duration }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         {% endfor %}
     </div>
@@ -39,4 +73,29 @@
     </div>
 
     {% include "content/partials/video_short_modal.html" %}
+    <div class="modal fade" id="shortVideoModal" tabindex="-1" aria-labelledby="shortVideoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="shortVideoModalLabel">Vídeo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="video-modal-placeholder">
+                        <div class="ratio ratio-9x16 video-modal-wrapper">
+                            <div class="video-modal-loader">
+                                <div class="spinner-border text-economist-red" role="status">
+                                    <span class="visually-hidden">Carregando...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <div class="video-modal-description text-muted small"></div>
+                    <button type="button" class="btn btn-outline-economist-red" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
