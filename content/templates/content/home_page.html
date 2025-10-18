@@ -57,15 +57,31 @@
                 </div>
             </div>
             <div class="hero-artwork">
-                <a href="{% pageurl featured_article %}">
-                    {% if featured_article.specific.external_image_url %}
-                        <img src="{{ featured_article.specific.external_image_url }}" class="hero-image"
-                             alt="{{ featured_article.title }}">
-                    {% elif featured_article.specific.featured_image %}
-                        {% image featured_article.specific.featured_image fill-900x600 as hero_image %}
-                        <img src="{{ hero_image.url }}" class="hero-image" alt="{{ hero_image.alt }}">
-                    {% endif %}
-                </a>
+                {% if featured_article.specific.has_highlight_video %}
+                    {% with poster=featured_article.specific.get_highlight_video_poster_url %}
+                    <div class="hero-video-wrapper ratio ratio-16x9">
+                        <video class="hero-video-player"
+                               controls
+                               preload="metadata"
+                               playsinline
+                               {% if poster %}poster="{{ poster }}"{% endif %}>
+                            <source src="{{ featured_article.specific.highlight_video_url }}"
+                                    type="{{ featured_article.specific.highlight_video_mime_type }}">
+                            Seu navegador não suporta o elemento de vídeo.
+                        </video>
+                    </div>
+                    {% endwith %}
+                {% else %}
+                    <a href="{% pageurl featured_article %}">
+                        {% if featured_article.specific.external_image_url %}
+                            <img src="{{ featured_article.specific.external_image_url }}" class="hero-image"
+                                 alt="{{ featured_article.title }}">
+                        {% elif featured_article.specific.featured_image %}
+                            {% image featured_article.specific.featured_image fill-900x600 as hero_image %}
+                            <img src="{{ hero_image.url }}" class="hero-image" alt="{{ hero_image.alt }}">
+                        {% endif %}
+                    </a>
+                {% endif %}
             </div>
         </div>
     </section>
