@@ -1,9 +1,11 @@
 # Em accounts/views.py
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
+from django.utils.http import url_has_allowed_host_and_scheme
 from .forms import SignUpForm, EmailAuthenticationForm
 
 
@@ -66,9 +68,16 @@ def custom_login(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, f'Bem-vindo de volta, {user.username}!')
-            # Redireciona para a próxima página ou home
-            next_url = request.GET.get('next', '/')
-            return redirect(next_url)
+            # Redireciona para a próxima página ou home com validação segura
+            next_url = request.GET.get('next') or request.POST.get('next')
+            fallback_url = settings.LOGIN_REDIRECT_URL or '/'
+            if next_url and url_has_allowed_host_and_scheme(
+                url=next_url,
+                allowed_hosts={request.get_host(), *settings.ALLOWED_HOSTS},
+                require_https=request.is_secure(),
+            ):
+                return redirect(next_url)
+            return redirect(fallback_url)
         else:
             messages.error(request, 'E-mail ou senha incorretos.')
     else:
@@ -78,3 +87,4 @@ def custom_login(request):
         'form': form,
         'title': 'Login'
     })
+
