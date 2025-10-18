@@ -5,6 +5,11 @@
 
 // Scroll Progress Bar
 (function initScrollProgress() {
+    const body = document.body;
+    if (!body || body.dataset.scrollProgress === 'false') {
+        return;
+    }
+
     const progressBar = document.createElement('div');
     progressBar.id = 'scroll-progress';
     progressBar.style.cssText = `
@@ -17,7 +22,7 @@
         z-index: 9999;
         transition: width 0.1s ease;
     `;
-    document.body.appendChild(progressBar);
+    body.appendChild(progressBar);
 
     window.addEventListener('scroll', () => {
         const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -224,20 +229,133 @@ function fallbackShare(url) {
 
 // Dark Mode Toggle (Optional Feature)
 function initDarkMode() {
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    
-    if (darkModeToggle) {
-        const isDarkMode = localStorage.getItem('darkMode') === 'true';
-        
-        if (isDarkMode) {
-            document.body.classList.add('dark-mode');
-        }
-        
-        darkModeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-        });
+    const body = document.body;
+    if (!body || body.dataset.darkModeToggle !== 'true') {
+        return;
     }
+
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    if (!darkModeToggle) {
+        return;
+    }
+
+    const iconEl = darkModeToggle.querySelector('i');
+    const labelEl = darkModeToggle.querySelector('.dark-mode-label');
+    const storedPreference = localStorage.getItem('darkMode');
+
+    if (storedPreference === 'true') {
+        body.classList.add('dark-mode');
+    } else if (storedPreference === 'false') {
+        body.classList.remove('dark-mode');
+    }
+
+    const updateToggleLabel = () => {
+        const isDark = body.classList.contains('dark-mode');
+        if (iconEl) {
+            iconEl.classList.toggle('bi-moon-stars', !isDark);
+            iconEl.classList.toggle('bi-sun-fill', isDark);
+        }
+        if (labelEl) {
+            labelEl.textContent = isDark ? 'Modo Claro' : 'Modo Escuro';
+        }
+    };
+
+    updateToggleLabel();
+
+    darkModeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        const isDark = body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDark);
+        updateToggleLabel();
+    });
+}
+
+function initShortVideoModal() {
+    const modalEl = document.getElementById('shortVideoModal');
+    if (!modalEl || typeof bootstrap === 'undefined') {
+        return;
+    }
+
+    const modalWrapper = modalEl.querySelector('.video-modal-wrapper');
+    const descriptionEl = modalEl.querySelector('.video-modal-description');
+    const modalTitleEl = modalEl.querySelector('.modal-title');
+
+    const renderLoader = () => {
+        if (modalWrapper) {
+            modalWrapper.innerHTML = `
+                <div class="video-modal-loader">
+                    <div class="spinner-border text-economist-red" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                </div>
+            `;
+        }
+    };
+
+    const openModal = (card) => {
+        if (!modalWrapper) {
+            return;
+        }
+
+        renderLoader();
+
+        const sourceType = card.dataset.source;
+        const embedUrl = card.dataset.embedUrl;
+        const videoUrl = card.dataset.videoUrl;
+        const mimeType = card.dataset.mimeType;
+        const title = card.dataset.title || 'Vídeo';
+        const description = card.dataset.description || '';
+        const poster = card.dataset.thumbnail;
+
+        if (modalTitleEl) {
+            modalTitleEl.textContent = title;
+        }
+        if (descriptionEl) {
+            descriptionEl.textContent = description;
+        }
+
+        if (sourceType === 'cdn' && videoUrl) {
+            const posterAttr = poster ? ` poster="${poster}"` : '';
+            const mimeAttr = mimeType ? ` type="${mimeType}"` : '';
+            modalWrapper.innerHTML = `
+                <video class="video-modal-player" controls playsinline preload="metadata"${posterAttr}>
+                    <source src="${videoUrl}"${mimeAttr}>
+                    Seu navegador não suporta o elemento de vídeo.
+                </video>
+            `;
+        } else if (embedUrl) {
+            modalWrapper.innerHTML = `
+                <iframe src="${embedUrl}" class="video-modal-iframe" allowfullscreen
+                        loading="lazy" allow="autoplay; fullscreen; picture-in-picture"
+                        referrerpolicy="no-referrer-when-downgrade"></iframe>
+            `;
+        } else if (videoUrl) {
+            modalWrapper.innerHTML = `
+                <iframe src="${videoUrl}" class="video-modal-iframe" allowfullscreen loading="lazy"></iframe>
+            `;
+        } else {
+            modalWrapper.innerHTML = '<p class="p-4 text-center text-muted">Não foi possível carregar o vídeo selecionado.</p>';
+        }
+
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    };
+
+    document.querySelectorAll('.video-short-card').forEach((card) => {
+        card.addEventListener('click', () => openModal(card));
+        card.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openModal(card);
+            }
+        });
+    });
+
+    modalEl.addEventListener('hidden.bs.modal', () => {
+        renderLoader();
+        if (descriptionEl) {
+            descriptionEl.textContent = '';
+        }
+    });
 }
 
 // Performance: Defer non-critical resources
@@ -257,6 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initNewsletterForm();
     initShareButtons();
     initDarkMode();
+    initShortVideoModal();
     deferResources();
     
     console.log('%c Portal de Análise %c Carregado com sucesso! ', 

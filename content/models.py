@@ -126,6 +126,85 @@ class AudioBlock(blocks.StructBlock):
         template = "content/blocks/audio_block.html"
 
 
+# Custom block for externally hosted videos
+class CustomVideoBlock(blocks.StructBlock):
+    """Block that renders a customizable HTML5 video player."""
+
+    WIDTH_CHOICES = [
+        ("narrow", "Estreito (até 640px)"),
+        ("standard", "Padrão (até 860px)"),
+        ("wide", "Amplo (até 1040px)"),
+        ("full", "Largura Total"),
+    ]
+
+    ASPECT_RATIO_CHOICES = [
+        ("16x9", "16:9 (Widescreen)"),
+        ("4x3", "4:3 (Clássico)"),
+        ("1x1", "1:1 (Quadrado)"),
+        ("21x9", "21:9 (Cinemascope)"),
+    ]
+
+    MIME_TYPE_CHOICES = [
+        ("video/mp4", "MP4 (video/mp4)"),
+        ("video/webm", "WebM (video/webm)"),
+        ("video/ogg", "Ogg/Theora (video/ogg)"),
+    ]
+
+    video_url = blocks.URLBlock(
+        label="URL do Vídeo",
+        help_text="Cole o link direto do arquivo hospedado (MP4, WebM, etc.)",
+    )
+    mime_type = blocks.ChoiceBlock(
+        choices=MIME_TYPE_CHOICES,
+        default="video/mp4",
+        label="Formato do Vídeo",
+        help_text="Selecione o formato/mime type correspondente ao arquivo",
+    )
+    poster_image = ImageChooserBlock(
+        required=False,
+        label="Thumbnail do Vídeo (Upload)",
+        help_text="Imagem exibida antes da reprodução (opcional)",
+    )
+    poster_image_url = blocks.URLBlock(
+        required=False,
+        label="Thumbnail do Vídeo (URL externa)",
+        help_text="Opcionalmente use uma imagem hospedada externamente",
+    )
+    caption = blocks.CharBlock(
+        required=False,
+        label="Legenda",
+        help_text="Texto curto exibido abaixo do player (opcional)",
+    )
+    width = blocks.ChoiceBlock(
+        choices=WIDTH_CHOICES,
+        default="standard",
+        label="Largura do Player",
+        help_text="Controle a largura máxima do player dentro do artigo",
+    )
+    aspect_ratio = blocks.ChoiceBlock(
+        choices=ASPECT_RATIO_CHOICES,
+        default="16x9",
+        label="Proporção do Vídeo",
+        help_text="Escolha a proporção para manter o vídeo responsivo",
+    )
+
+    def clean(self, value):
+        """Ensure that only one poster source is used when both are provided."""
+        cleaned = super().clean(value)
+        poster_upload = cleaned.get("poster_image")
+        poster_url = cleaned.get("poster_image_url")
+        if poster_upload and poster_url:
+            raise ValidationError({
+                "poster_image_url": "Utilize apenas uma fonte para o thumbnail do vídeo (upload OU URL externa).",
+            })
+        return cleaned
+
+    class Meta:
+        icon = "media"
+        label = "Vídeo Personalizado (CDN)"
+        template = "content/blocks/custom_video_block.html"
+
+
 # Custom block for PDF Download
 class PDFDownloadBlock(blocks.StructBlock):
     """Block for PDF download with icon"""
@@ -359,9 +438,22 @@ class HomePage(Page):
         help_text="Imagem aplicada como textura sutil atrás do destaque"
     )
 
+    VIDEO_SECTION_POSITION_CHOICES = [
+        ('below_highlight', 'Abaixo do destaque principal'),
+        ('below_recent', 'Abaixo de "Análises Recentes"'),
+    ]
+
     show_videos_section = models.BooleanField(
         default=True,
         verbose_name="Mostrar seção de vídeos?"
+    )
+
+    video_section_position = models.CharField(
+        max_length=30,
+        choices=VIDEO_SECTION_POSITION_CHOICES,
+        default='below_highlight',
+        verbose_name="Posição dos vídeos curtos",
+        help_text="Controle se a vitrine de vídeos fica abaixo do destaque principal ou das análises recentes."
     )
 
     curated_sections = StreamField(
@@ -390,6 +482,7 @@ class HomePage(Page):
             FieldPanel('divider_style'),
             FieldPanel('show_trending_section'),
             FieldPanel('show_videos_section'),
+            FieldPanel('video_section_position'),
         ], heading="Configurações de Layout da Home"),
         MultiFieldPanel([
             FieldRowPanel([
@@ -499,14 +592,22 @@ class HomePage(Page):
         context['articles'] = regular_articles.order_by('-publication_date')
         context['is_premium_subscriber'] = is_premium_subscriber
         
-        # Busca vídeos curtos destacados
-        context['featured_videos'] = VideoShort.objects.filter(is_featured=True)[:4]
+        # Busca vídeos curtos destacados respeitando prioridade
+        featured_videos_qs = VideoShort.objects.filter(is_featured=True).order_by('order', '-created_at')
+        context['featured_videos'] = featured_videos_qs[:6]
         
         # Busca customizações do site
         try:
-            context['site_customization'] = SiteCustomization.objects.first()
+            site_customization = SiteCustomization.objects.first()
         except SiteCustomization.DoesNotExist:
-            context['site_customization'] = None
+            site_customization = None
+
+        context['site_customization'] = site_customization
+        context['show_video_shorts'] = (
+            bool(context['featured_videos'])
+            and self.show_videos_section
+            and (site_customization.show_video_section if site_customization else True)
+        )
         
         # Adiciona a home_page ao contexto para uso no footer
         context['home_page'] = self
@@ -615,6 +716,41 @@ class ArticlePage(Page):
         help_text="Use uma URL de imagem externa para economizar espaço. Se preenchido, será usado ao invés da imagem local."
     )
     
+    highlight_video_url = models.URLField(
+        blank=True,
+        verbose_name="URL do Vídeo de Destaque",
+        help_text="Link direto para um vídeo hospedado externamente (MP4, WebM, etc.) para uso no destaque da home.",
+    )
+
+    HIGHLIGHT_VIDEO_MIME_CHOICES = [
+        ('video/mp4', 'MP4 (video/mp4)'),
+        ('video/webm', 'WebM (video/webm)'),
+        ('video/ogg', 'Ogg/Theora (video/ogg)'),
+    ]
+
+    highlight_video_mime_type = models.CharField(
+        max_length=20,
+        choices=HIGHLIGHT_VIDEO_MIME_CHOICES,
+        default='video/mp4',
+        verbose_name="Formato do Vídeo de Destaque",
+        help_text="Seleciona o mime type usado ao renderizar o vídeo de destaque.",
+    )
+
+    highlight_video_poster = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        verbose_name="Thumbnail do Vídeo de Destaque",
+    )
+
+    highlight_video_poster_url = models.URLField(
+        blank=True,
+        verbose_name="Thumbnail Externo do Vídeo de Destaque",
+        help_text="URL opcional para imagem de capa do vídeo quando hospedada externamente.",
+    )
+
     # Caption and credits for featured image
     featured_image_caption = models.CharField(
         max_length=255,
@@ -671,6 +807,7 @@ class ArticlePage(Page):
         ('image_url', ImageBlock()),
         ('gif', GifBlock()),
         ('audio', AudioBlock()),
+        ('custom_video', CustomVideoBlock()),
         ('pdf_download', PDFDownloadBlock()),
         ('video', EmbedBlock(
             label="Vídeo (YouTube, Vimeo, etc.)",
@@ -721,10 +858,14 @@ class ArticlePage(Page):
         MultiFieldPanel([
             FieldPanel('featured_image'),
             FieldPanel('external_image_url'),
+            FieldPanel('highlight_video_url'),
+            FieldPanel('highlight_video_mime_type'),
+            FieldPanel('highlight_video_poster'),
+            FieldPanel('highlight_video_poster_url'),
             FieldPanel('featured_image_caption'),
             FieldPanel('featured_image_credit'),
             FieldPanel('featured_image_caption_position'),
-        ], heading="Imagem de Destaque (escolha uma opção)"),
+        ], heading="Mídia de Destaque (imagem ou vídeo)"),
         FieldPanel('content_blocks'),
         FieldPanel('body'),  # Campo legado com recursos completos
         FieldPanel('tags'),
@@ -737,6 +878,26 @@ class ArticlePage(Page):
         elif self.featured_image:
             return self.featured_image.file.url
         return None
+
+    def has_highlight_video(self):
+        """Retorna True quando um vídeo customizado de destaque foi configurado."""
+        return bool(self.highlight_video_url)
+
+    def get_highlight_video_poster_url(self):
+        """Obtém a melhor imagem de poster disponível para o vídeo de destaque."""
+        if self.highlight_video_poster:
+            return self.highlight_video_poster.file.url
+        if self.highlight_video_poster_url:
+            return self.highlight_video_poster_url
+        return None
+
+    def clean(self):
+        cleaned = super().clean()
+        if self.highlight_video_poster and self.highlight_video_poster_url:
+            raise ValidationError({
+                'highlight_video_poster_url': "Escolha apenas uma forma de definir o thumbnail do vídeo de destaque (upload OU URL externa).",
+            })
+        return cleaned
     
     def save(self, *args, **kwargs):
         """Override save to automatically set trending for new articles"""
@@ -789,13 +950,48 @@ class ArticlePage(Page):
 @register_snippet
 class VideoShort(models.Model):
     """Modelo para vídeos curtos (shorts)"""
+
+    VIDEO_SOURCE_CHOICES = [
+        ('platform', 'Plataforma (YouTube, Vimeo, etc.)'),
+        ('cdn', 'Arquivo direto em CDN'),
+    ]
+
+    VIDEO_MIME_CHOICES = [
+        ('video/mp4', 'MP4 (video/mp4)'),
+        ('video/webm', 'WebM (video/webm)'),
+        ('video/ogg', 'Ogg/Theora (video/ogg)'),
+    ]
+
     title = models.CharField(max_length=100, verbose_name="Título do Vídeo")
     description = models.TextField(max_length=250, blank=True, verbose_name="Descrição")
     
     # Opções de vídeo
     video_url = models.URLField(
         verbose_name="URL do Vídeo",
-        help_text="URL do vídeo (YouTube, Vimeo, etc.)"
+        help_text="URL do vídeo (YouTube, Vimeo, etc.)",
+        blank=True,
+    )
+
+    video_source_type = models.CharField(
+        max_length=20,
+        choices=VIDEO_SOURCE_CHOICES,
+        default='platform',
+        verbose_name="Origem do Vídeo",
+        help_text="Escolha entre incorporar de uma plataforma ou carregar o player com um arquivo em CDN.",
+    )
+
+    cdn_video_url = models.URLField(
+        blank=True,
+        verbose_name="URL do Vídeo (CDN)",
+        help_text="Forneça o link direto (MP4, WebM, etc.) quando utilizar um arquivo próprio em CDN.",
+    )
+
+    cdn_mime_type = models.CharField(
+        max_length=20,
+        choices=VIDEO_MIME_CHOICES,
+        blank=True,
+        verbose_name="Formato do Vídeo (CDN)",
+        help_text="Obrigatório para arquivos diretos. Ajuda os navegadores a detectar o formato corretamente.",
     )
     
     thumbnail_image = models.ForeignKey(
@@ -837,7 +1033,10 @@ class VideoShort(models.Model):
     panels = [
         FieldPanel('title'),
         FieldPanel('description'),
+        FieldPanel('video_source_type'),
         FieldPanel('video_url'),
+        FieldPanel('cdn_video_url'),
+        FieldPanel('cdn_mime_type'),
         MultiFieldPanel([
             FieldPanel('thumbnail_image'),
             FieldPanel('thumbnail_url'),
@@ -862,6 +1061,63 @@ class VideoShort(models.Model):
         elif self.thumbnail_image:
             return self.thumbnail_image.file.url
         return 'https://via.placeholder.com/400x700/E3120B/FFFFFF?text=Video'
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        super().clean()
+
+        if self.thumbnail_image and self.thumbnail_url:
+            raise ValidationError({
+                'thumbnail_url': 'Escolha apenas uma fonte para o thumbnail (upload OU URL externa).'
+            })
+
+        if self.video_source_type == 'platform' and not self.video_url:
+            raise ValidationError({
+                'video_url': 'Informe a URL da plataforma quando o tipo for Plataforma.'
+            })
+
+        if self.video_source_type == 'cdn':
+            errors = {}
+            if not self.cdn_video_url:
+                errors['cdn_video_url'] = 'Informe o link direto do arquivo hospedado na CDN.'
+            if not self.cdn_mime_type:
+                errors['cdn_mime_type'] = 'Selecione o formato correspondente ao arquivo hospedado.'
+            if errors:
+                raise ValidationError(errors)
+
+    def uses_cdn(self):
+        return self.video_source_type == 'cdn' and bool(self.cdn_video_url)
+
+    def get_cdn_source(self):
+        return self.cdn_video_url if self.uses_cdn() else ''
+
+    def get_cdn_mime(self):
+        return self.cdn_mime_type if self.uses_cdn() else ''
+
+    def get_embed_url(self):
+        """Converte links conhecidos em URLs incorporáveis."""
+        if self.uses_cdn() or not self.video_url:
+            return ''
+
+        url = self.video_url
+
+        if 'youtube.com/watch' in url:
+            from urllib.parse import urlparse, parse_qs
+            parsed = urlparse(url)
+            video_id = parse_qs(parsed.query).get('v', [''])[0]
+            if video_id:
+                return f'https://www.youtube.com/embed/{video_id}'
+        if 'youtu.be/' in url:
+            video_id = url.rstrip('/').split('/')[-1]
+            if video_id:
+                return f'https://www.youtube.com/embed/{video_id}'
+        if 'vimeo.com/' in url:
+            video_id = url.rstrip('/').split('/')[-1]
+            if video_id.isdigit():
+                return f'https://player.vimeo.com/video/{video_id}'
+
+        return url
 
 
 class SectionPage(Page):
@@ -1221,14 +1477,86 @@ class SiteCustomization(models.Model):
         verbose_name="Cor Secundária",
         help_text="Cor secundária (formato hexadecimal)"
     )
-    
+
     # Layout
     show_video_section = models.BooleanField(
         default=True,
         verbose_name="Mostrar Seção de Vídeos?",
         help_text="Ativa/desativa a seção de vídeos curtos na home"
     )
-    
+
+    show_scroll_progress = models.BooleanField(
+        default=True,
+        verbose_name="Exibir barra de progresso de leitura?",
+        help_text="Controla a barra fina no topo que indica o quanto do artigo já foi lido."
+    )
+
+    enable_dark_mode_toggle = models.BooleanField(
+        default=False,
+        verbose_name="Mostrar alternância de modo escuro?",
+        help_text="Exibe um botão no menu para que os leitores alternem entre modo claro e escuro."
+    )
+
+    announcement_enabled = models.BooleanField(
+        default=False,
+        verbose_name="Ativar barra de anúncio/editorial?",
+        help_text="Mostra uma faixa acima do cabeçalho com mensagens editoriais ou campanhas."
+    )
+
+    announcement_text = models.CharField(
+        max_length=150,
+        blank=True,
+        verbose_name="Mensagem do anúncio",
+        help_text="Texto curto exibido na barra promocional do topo."
+    )
+
+    announcement_link_text = models.CharField(
+        max_length=60,
+        blank=True,
+        verbose_name="Texto do botão do anúncio",
+        help_text="Opcional. Se preenchido, um botão será exibido ao lado da mensagem."
+    )
+
+    announcement_link_url = models.URLField(
+        blank=True,
+        verbose_name="Link do anúncio",
+        help_text="URL aberta ao clicar no botão da barra promocional."
+    )
+
+    whatsapp_contact_url = models.URLField(
+        blank=True,
+        verbose_name="Link de contato (WhatsApp/Telegram)",
+        help_text="Exibe um botão flutuante para contato rápido via WhatsApp, Telegram ou similar."
+    )
+
+    short_videos_title = models.CharField(
+        max_length=80,
+        default="Vídeos em Destaque",
+        verbose_name="Título da seção de vídeos",
+        help_text="Texto exibido no topo da vitrine de vídeos curtos."
+    )
+
+    short_videos_description = models.CharField(
+        max_length=160,
+        blank=True,
+        verbose_name="Descrição da seção de vídeos",
+        help_text="Linha auxiliar exibida abaixo do título (opcional)."
+    )
+
+    short_videos_cta_label = models.CharField(
+        max_length=40,
+        default="Ver todos",
+        blank=True,
+        verbose_name="Texto do link da seção de vídeos",
+        help_text="Etiqueta do link de ação ao lado do título. Deixe em branco para ocultar."
+    )
+
+    short_videos_cta_url = models.URLField(
+        blank=True,
+        verbose_name="URL do link da seção de vídeos",
+        help_text="Para onde o visitante é levado ao clicar no CTA da seção de vídeos."
+    )
+
     articles_per_page = models.IntegerField(
         default=9,
         verbose_name="Artigos por Página",
@@ -1246,13 +1574,53 @@ class SiteCustomization(models.Model):
         ], heading="Cores"),
         MultiFieldPanel([
             FieldPanel('show_video_section'),
+            FieldPanel('show_scroll_progress'),
+            FieldPanel('enable_dark_mode_toggle'),
             FieldPanel('articles_per_page'),
         ], heading="Layout"),
+        MultiFieldPanel([
+            FieldPanel('announcement_enabled'),
+            FieldPanel('announcement_text'),
+            FieldPanel('announcement_link_text'),
+            FieldPanel('announcement_link_url'),
+        ], heading="Barra de anúncio"),
+        MultiFieldPanel([
+            FieldPanel('short_videos_title'),
+            FieldPanel('short_videos_description'),
+            FieldPanel('short_videos_cta_label'),
+            FieldPanel('short_videos_cta_url'),
+        ], heading="Vitrine de vídeos"),
+        FieldPanel('whatsapp_contact_url'),
     ]
     
     class Meta:
         verbose_name = "Customização do Site"
         verbose_name_plural = "Customização do Site"
-    
+
     def __str__(self):
         return "Configurações de Customização do Site"
+
+    def clean(self):
+        super().clean()
+
+        from django.core.exceptions import ValidationError
+
+        if self.announcement_enabled and not self.announcement_text:
+            raise ValidationError({
+                'announcement_text': 'Informe a mensagem que será exibida na barra de anúncio.'
+            })
+
+        if self.announcement_link_text and not self.announcement_link_url:
+            raise ValidationError({
+                'announcement_link_url': 'Forneça o link que será aberto ao clicar no botão da barra.'
+            })
+
+        if self.announcement_link_url and not self.announcement_link_text:
+            raise ValidationError({
+                'announcement_link_text': 'Informe o texto do botão para o link configurado.'
+            })
+
+        if self.short_videos_cta_url and not self.short_videos_cta_label:
+            raise ValidationError({
+                'short_videos_cta_label': 'Informe o texto do link da seção de vídeos ou deixe ambos os campos vazios.'
+            })

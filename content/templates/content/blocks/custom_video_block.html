@@ -1,0 +1,23 @@
+{% load wagtailimages_tags %}
+{% if self.poster_image %}
+    {% image self.poster_image fill-1600x900 as poster_rendition %}
+{% endif %}
+<div class="custom-video-block custom-video-block--{{ self.width }}">
+    <div class="custom-video-inner">
+        <div class="ratio ratio-{{ self.aspect_ratio }} custom-video-frame">
+            <video class="custom-video-player"
+                   controls
+                   preload="metadata"
+                   playsinline
+                   {% if poster_rendition %}poster="{{ poster_rendition.url }}"
+                   {% elif self.poster_image_url %}poster="{{ self.poster_image_url }}"
+                   {% endif %}>
+                <source src="{{ self.video_url }}" type="{{ self.mime_type }}">
+                Seu navegador não suporta o elemento de vídeo.
+            </video>
+        </div>
+        {% if self.caption %}
+            <p class="custom-video-caption">{{ self.caption }}</p>
+        {% endif %}
+    </div>
+</div>
