@@ -729,6 +729,97 @@ function enhanceStaticVideoPlayers() {
     });
 }
 
+function adjustArticleVideoEmbeds() {
+    const containers = document.querySelectorAll('.article-body .article-video-embed');
+
+    if (!containers.length) {
+        return;
+    }
+
+    const resetMediaStyles = (media) => {
+        media.style.removeProperty('position');
+        media.style.removeProperty('top');
+        media.style.removeProperty('left');
+        media.style.removeProperty('width');
+        media.style.removeProperty('height');
+    };
+
+    const applyAutoSizing = (container, media) => {
+        resetMediaStyles(media);
+        container.classList.remove('article-video-embed--fixed-ratio');
+        container.classList.add('article-video-embed--auto');
+        container.style.removeProperty('padding-top');
+        media.removeAttribute('width');
+        media.removeAttribute('height');
+        media.style.width = '100%';
+        media.style.height = 'auto';
+    };
+
+    const applyFixedRatio = (container, media, width, height) => {
+        if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+            applyAutoSizing(container, media);
+            return;
+        }
+
+        const ratioValue = (height / width) * 100;
+        if (!Number.isFinite(ratioValue) || ratioValue <= 0) {
+            applyAutoSizing(container, media);
+            return;
+        }
+
+        const ratioPercentage = ratioValue.toFixed(4);
+
+        resetMediaStyles(media);
+        container.classList.remove('article-video-embed--auto');
+        container.classList.add('article-video-embed--fixed-ratio');
+        container.style.paddingTop = `${ratioPercentage}%`;
+        media.removeAttribute('width');
+        media.removeAttribute('height');
+        media.style.position = 'absolute';
+        media.style.top = '0';
+        media.style.left = '0';
+        media.style.width = '100%';
+        media.style.height = '100%';
+    };
+
+    containers.forEach((container) => {
+        const media = container.querySelector('iframe, video');
+        if (!media) {
+            return;
+        }
+
+        if (media instanceof HTMLIFrameElement) {
+            const widthAttr = parseFloat(media.getAttribute('width'));
+            const heightAttr = parseFloat(media.getAttribute('height'));
+
+            if (Number.isFinite(widthAttr) && Number.isFinite(heightAttr) && widthAttr > 0 && heightAttr > 0) {
+                applyFixedRatio(container, media, widthAttr, heightAttr);
+            } else {
+                applyAutoSizing(container, media);
+            }
+        } else if (media instanceof HTMLVideoElement) {
+            const updateFromMetadata = () => {
+                const { videoWidth, videoHeight } = media;
+                if (videoWidth && videoHeight) {
+                    applyFixedRatio(container, media, videoWidth, videoHeight);
+                } else {
+                    applyAutoSizing(container, media);
+                }
+            };
+
+            if (media.readyState >= 1) {
+                updateFromMetadata();
+            } else {
+                media.addEventListener('loadedmetadata', updateFromMetadata, { once: true });
+                // Fallback in case metadata never loads
+                media.addEventListener('error', () => applyAutoSizing(container, media), { once: true });
+            }
+        } else {
+            applyAutoSizing(container, media);
+        }
+    });
+}
+
 // Performance: Defer non-critical resources
 function deferResources() {
     // Defer loading of non-critical CSS
@@ -748,9 +839,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initDarkMode();
     initShortVideoModal();
     enhanceStaticVideoPlayers();
+    adjustArticleVideoEmbeds();
     deferResources();
-    
-    console.log('%c Portal de Análise %c Carregado com sucesso! ', 
+
+    console.log('%c Portal de Análise %c Carregado com sucesso! ',
                 'background: #E3120B; color: white; padding: 5px 10px; border-radius: 3px 0 0 3px;',
                 'background: #111; color: white; padding: 5px 10px; border-radius: 0 3px 3px 0;');
 });

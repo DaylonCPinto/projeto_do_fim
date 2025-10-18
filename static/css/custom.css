@@ -971,14 +971,39 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     margin: 2.5rem 0;
 }
 
-.video-block .ratio {
+.article-video-embed {
+    position: relative;
+    width: 100%;
+    background: #000;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.video-block iframe {
+.article-video-embed--fixed-ratio {
+    height: 0;
+}
+
+.article-video-embed iframe,
+.article-video-embed video {
+    display: block;
+    width: 100%;
     border: none;
+    background: #000;
+}
+
+.article-video-embed--fixed-ratio iframe,
+.article-video-embed--fixed-ratio video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+}
+
+.article-video-embed--auto iframe,
+.article-video-embed--auto video {
+    position: static;
+    height: auto;
 }
 
 .custom-video-block-wrapper {
