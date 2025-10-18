@@ -270,6 +270,64 @@ function initDarkMode() {
     });
 }
 
+function resolveEmbedUrl(url) {
+    if (!url) {
+        return '';
+    }
+
+    let parsedUrl;
+    try {
+        parsedUrl = new URL(url);
+    } catch (error) {
+        return url;
+    }
+
+    const hostname = parsedUrl.hostname.replace(/^www\./, '').toLowerCase();
+    const pathSegments = parsedUrl.pathname.split('/').filter(Boolean);
+
+    const clean = (value) => value ? value.split('?')[0] : '';
+
+    if (hostname.includes('youtube')) {
+        let videoId = '';
+        if (parsedUrl.pathname === '/watch') {
+            videoId = parsedUrl.searchParams.get('v') || '';
+        } else if (pathSegments.length) {
+            if (['embed', 'shorts', 'live'].includes(pathSegments[0]) && pathSegments[1]) {
+                videoId = clean(pathSegments[1]);
+            } else {
+                videoId = clean(pathSegments[pathSegments.length - 1]);
+            }
+        }
+
+        if (videoId) {
+            return `https://www.youtube.com/embed/${videoId}`;
+        }
+    }
+
+    if (hostname === 'youtu.be' && pathSegments.length) {
+        return `https://www.youtube.com/embed/${clean(pathSegments[0])}`;
+    }
+
+    if (hostname.includes('vimeo') && pathSegments.length) {
+        const videoId = clean(pathSegments[pathSegments.length - 1]);
+        if (/^\d+$/.test(videoId)) {
+            return `https://player.vimeo.com/video/${videoId}`;
+        }
+    }
+
+    return url;
+}
+
+function withAutoplay(url) {
+    if (!url) {
+        return '';
+    }
+
+    const separator = url.includes('?') ? '&' : '?';
+    const autoplayParams = 'autoplay=1&rel=0&playsinline=1';
+    return `${url}${separator}${autoplayParams}`;
+}
+
 function initShortVideoModal() {
     const modalEl = document.getElementById('shortVideoModal');
     if (!modalEl || typeof bootstrap === 'undefined') {
@@ -300,12 +358,15 @@ function initShortVideoModal() {
         renderLoader();
 
         const sourceType = card.dataset.source;
-        const embedUrl = card.dataset.embedUrl;
-        const videoUrl = card.dataset.videoUrl;
+        const cdnUrl = card.dataset.videoUrl;
+        const platformUrl = card.dataset.platformUrl;
+        const embedUrlFromServer = card.dataset.embedUrl;
+        const videoUrl = cdnUrl || '';
+        const platformEmbedUrl = embedUrlFromServer || resolveEmbedUrl(platformUrl);
         const mimeType = card.dataset.mimeType;
         const title = card.dataset.title || 'Vídeo';
         const description = card.dataset.description || '';
-        const poster = card.dataset.thumbnail;
+        const poster = card.dataset.thumbnail || card.querySelector('img')?.src || '';
 
         if (modalTitleEl) {
             modalTitleEl.textContent = title;
@@ -314,7 +375,7 @@ function initShortVideoModal() {
             descriptionEl.textContent = description;
         }
 
-        if (sourceType === 'cdn' && videoUrl) {
+        if ((sourceType === 'cdn' || (!platformEmbedUrl && videoUrl)) && videoUrl) {
             const posterAttr = poster ? ` poster="${poster}"` : '';
             const mimeAttr = mimeType ? ` type="${mimeType}"` : '';
             modalWrapper.innerHTML = `
@@ -323,12 +384,29 @@ function initShortVideoModal() {
                     Seu navegador não suporta o elemento de vídeo.
                 </video>
             `;
-        } else if (embedUrl) {
+        } else if (platformEmbedUrl) {
+            const autoplayEmbed = withAutoplay(platformEmbedUrl);
             modalWrapper.innerHTML = `
-                <iframe src="${embedUrl}" class="video-modal-iframe" allowfullscreen
+                <iframe src="${autoplayEmbed}" class="video-modal-iframe" allowfullscreen
                         loading="lazy" allow="autoplay; fullscreen; picture-in-picture"
                         referrerpolicy="no-referrer-when-downgrade"></iframe>
             `;
+        } else if (platformUrl) {
+            const fallbackEmbed = resolveEmbedUrl(platformUrl);
+            if (fallbackEmbed) {
+                modalWrapper.innerHTML = `
+                    <iframe src="${withAutoplay(fallbackEmbed)}" class="video-modal-iframe" allowfullscreen
+                            loading="lazy" allow="autoplay; fullscreen; picture-in-picture"
+                            referrerpolicy="no-referrer-when-downgrade"></iframe>
+                `;
+            } else {
+                modalWrapper.innerHTML = `
+                    <video class="video-modal-player" controls playsinline preload="metadata"${poster ? ` poster="${poster}"` : ''}>
+                        <source src="${platformUrl}">
+                        Seu navegador não suporta o elemento de vídeo.
+                    </video>
+                `;
+            }
         } else if (videoUrl) {
             modalWrapper.innerHTML = `
                 <iframe src="${videoUrl}" class="video-modal-iframe" allowfullscreen loading="lazy"></iframe>

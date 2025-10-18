@@ -32,7 +32,7 @@
                 </a>
             {% endif %}
         </div>
-        <div class="row row-cols-2 row-cols-md-4 row-cols-xl-5 g-3 justify-content-center">
+        <div class="row row-cols-2 row-cols-md-4 row-cols-xl-5 g-2 g-lg-3 justify-content-center video-short-grid">
             {% for video in videos %}
             <div class="col">
                 <div class="video-short-card"
@@ -46,17 +46,24 @@
                      data-thumbnail="{{ video.get_thumbnail_url }}"
                      data-source="{{ video.video_source_type }}"
                      data-embed-url="{{ video.get_embed_url }}"
+                     data-platform-url="{{ video.video_url }}"
                      data-video-url="{{ video.get_cdn_source }}"
                      data-mime-type="{{ video.get_cdn_mime }}">
                     <div class="video-short-thumbnail">
-                        <img src="{{ video.get_thumbnail_url }}" alt="{{ video.title }}">
-                        <div class="video-play-overlay">
-                            <i class="bi bi-play-fill"></i>
-                        </div>
-                        <div class="video-short-info">
-                            <div class="video-short-title">{{ video.title }}</div>
-                            <div class="video-short-duration">
-                                <i class="bi bi-clock"></i> {{ video.duration }}
+                        <img src="{{ video.get_thumbnail_url }}"
+                             alt="{{ video.title }}"
+                             loading="lazy"
+                             decoding="async"
+                             class="video-short-thumb-img">
+                        <div class="video-short-overlay">
+                            <span class="video-badge">
+                                <i class="bi bi-play-fill"></i>
+                            </span>
+                            <div class="video-short-info">
+                                <div class="video-short-title">{{ video.title }}</div>
+                                <div class="video-short-duration">
+                                    <i class="bi bi-clock"></i> {{ video.duration }}
+                                </div>
                             </div>
                         </div>
                     </div>
