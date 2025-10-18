@@ -890,6 +890,7 @@ class ArticlePage(Page):
                 return self.highlight_video_poster.file.url
             except Exception:
                 pass
+            return self.highlight_video_poster.file.url
         if self.highlight_video_poster_url:
             return self.highlight_video_poster_url
         return None
