@@ -91,6 +91,12 @@
         {% if should_show_videos and page.video_section_position == 'below_highlight' %}
             {% include "content/partials/video_shorts_section.html" with videos=featured_videos site_customization=site_customization %}
         {% endif %}
+        {% if layout_config.show_dividers %}
+            {% if should_show_videos and page.video_section_position == 'below_highlight' %}
+                {# divisor será inserido após a vitrine de vídeos #}
+            {% else %}
+                <div class="section-divider section-divider-{{ layout_config.divider_style }}"></div>
+            {% endif %}
         {% if layout_config.show_dividers and not (should_show_videos and page.video_section_position == 'below_highlight') %}
             <div class="section-divider section-divider-{{ layout_config.divider_style }}"></div>
         {% endif %}

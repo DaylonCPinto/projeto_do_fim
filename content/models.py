@@ -886,6 +886,10 @@ class ArticlePage(Page):
     def get_highlight_video_poster_url(self):
         """Obtém a melhor imagem de poster disponível para o vídeo de destaque."""
         if self.highlight_video_poster:
+            try:
+                return self.highlight_video_poster.file.url
+            except Exception:
+                pass
             return self.highlight_video_poster.file.url
         if self.highlight_video_poster_url:
             return self.highlight_video_poster_url
@@ -1059,7 +1063,10 @@ class VideoShort(models.Model):
         if self.thumbnail_url:
             return self.thumbnail_url
         elif self.thumbnail_image:
-            return self.thumbnail_image.file.url
+            try:
+                return self.thumbnail_image.file.url
+            except Exception:
+                return 'https://via.placeholder.com/400x700/E3120B/FFFFFF?text=Video'
         return 'https://via.placeholder.com/400x700/E3120B/FFFFFF?text=Video'
 
     def clean(self):
