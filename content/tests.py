@@ -246,5 +246,64 @@ class MediaFallbackTests(TestCase):
 
         self.assertEqual(
             video.get_thumbnail_url(),
-            'https://via.placeholder.com/400x700/E3120B/FFFFFF?text=Video'
+            VideoShort.PLACEHOLDER_THUMBNAIL
+        )
+
+    def test_video_short_thumbnail_generated_from_youtube_watch(self):
+        video = VideoShort.objects.create(
+            title="YouTube Watch",
+            description="Resumo",
+            video_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        )
+
+        self.assertEqual(
+            video.get_thumbnail_url(),
+            'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg'
+        )
+
+    def test_video_short_thumbnail_generated_from_youtube_shorts(self):
+        video = VideoShort.objects.create(
+            title="YouTube Shorts",
+            video_url="https://www.youtube.com/shorts/AbCdEf12345",
+        )
+
+        self.assertEqual(
+            video.get_thumbnail_url(),
+            'https://img.youtube.com/vi/AbCdEf12345/hqdefault.jpg'
+        )
+
+    def test_video_short_cdn_requests_auto_thumbnail_generation(self):
+        video = VideoShort.objects.create(
+            title="CDN Clip",
+            video_source_type='cdn',
+            cdn_video_url="https://cdn.example.com/short.mp4",
+            cdn_mime_type="video/mp4",
+        )
+
+        self.assertTrue(video.needs_auto_thumbnail())
+
+    def test_video_short_vertical_detection(self):
+        video = VideoShort.objects.create(
+            title="Short Orientation",
+            video_url="https://www.youtube.com/shorts/AbCdEf12345",
+        )
+
+        self.assertTrue(video.is_vertical_format())
+
+        horizontal_video = VideoShort.objects.create(
+            title="Wide Clip",
+            video_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        )
+
+        self.assertFalse(horizontal_video.is_vertical_format())
+
+    def test_video_short_embed_url_handles_youtube_shorts(self):
+        video = VideoShort(
+            title="Short Embed",
+            video_url="https://www.youtube.com/shorts/AbCdEf12345",
+        )
+
+        self.assertEqual(
+            video.get_embed_url(),
+            'https://www.youtube.com/embed/AbCdEf12345'
         )

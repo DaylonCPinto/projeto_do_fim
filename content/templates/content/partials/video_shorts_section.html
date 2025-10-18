@@ -32,64 +32,14 @@
                 </a>
             {% endif %}
         </div>
-        <div class="row row-cols-2 row-cols-md-4 row-cols-xl-5 g-3 justify-content-center">
+        <div class="video-short-grid">
             {% for video in videos %}
-            <div class="col">
-                <div class="video-short-card"
-                     role="button"
-                     tabindex="0"
-                     aria-label="Reproduzir {{ video.title }}"
-                     data-bs-toggle="modal"
-                     data-bs-target="#shortVideoModal"
-                     data-title="{{ video.title|escape }}"
-                     data-description="{{ video.description|default:''|escape }}"
-                     data-thumbnail="{{ video.get_thumbnail_url }}"
-                     data-source="{{ video.video_source_type }}"
-                     data-embed-url="{{ video.get_embed_url }}"
-                     data-video-url="{{ video.get_cdn_source }}"
-                     data-mime-type="{{ video.get_cdn_mime }}">
-                    <div class="video-short-thumbnail">
-                        <img src="{{ video.get_thumbnail_url }}" alt="{{ video.title }}">
-                        <div class="video-play-overlay">
-                            <i class="bi bi-play-fill"></i>
-                        </div>
-                        <div class="video-short-info">
-                            <div class="video-short-title">{{ video.title }}</div>
-                            <div class="video-short-duration">
-                                <i class="bi bi-clock"></i> {{ video.duration }}
-                            </div>
-                        </div>
-                    </div>
+                <div class="video-short-grid-item">
+                    {% include "content/partials/video_short_card.html" with video=video show_description=False %}
                 </div>
-            </div>
             {% endfor %}
         </div>
     </div>
 </div>
-
-<div class="modal fade" id="shortVideoModal" tabindex="-1" aria-labelledby="shortVideoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="shortVideoModalLabel">Vídeo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body p-0">
-                <div class="video-modal-placeholder">
-                    <div class="ratio ratio-9x16 video-modal-wrapper">
-                        <div class="video-modal-loader">
-                            <div class="spinner-border text-economist-red" role="status">
-                                <span class="visually-hidden">Carregando...</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer justify-content-between">
-                <div class="video-modal-description text-muted small"></div>
-                <button type="button" class="btn btn-outline-economist-red" data-bs-dismiss="modal">Fechar</button>
-            </div>
-        </div>
-    </div>
-</div>
+{% include "content/partials/video_short_modal.html" %}
 {% endif %}

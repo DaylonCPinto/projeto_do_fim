@@ -270,6 +270,120 @@ function initDarkMode() {
     });
 }
 
+function initShortVideoThumbnails() {
+    const cards = document.querySelectorAll('.video-short-card');
+    if (!cards.length) {
+        return;
+    }
+
+    const generateThumbnail = (card) => {
+        if (card.dataset.autoThumbnail !== 'true') {
+            return;
+        }
+
+        const imgEl = card.querySelector('.video-short-thumb-img');
+        const videoUrl = card.dataset.videoUrl;
+
+        if (!imgEl || !videoUrl) {
+            card.dataset.autoThumbnail = 'false';
+            return;
+        }
+
+        let cleaned = false;
+        const cleanup = (videoEl) => {
+            if (cleaned) {
+                return;
+            }
+            cleaned = true;
+            if (videoEl) {
+                videoEl.pause();
+                videoEl.removeAttribute('src');
+                videoEl.load();
+                videoEl.remove();
+            }
+        };
+
+        const videoEl = document.createElement('video');
+        videoEl.crossOrigin = 'anonymous';
+        videoEl.preload = 'auto';
+        videoEl.muted = true;
+        videoEl.playsInline = true;
+
+        const resolveThumbnail = (dataUrl = '') => {
+            if (dataUrl) {
+                imgEl.src = dataUrl;
+                card.dataset.thumbnail = dataUrl;
+                card.dataset.autoThumbnail = 'generated';
+                card.classList.add('video-short-card--hydrated');
+            } else {
+                card.dataset.autoThumbnail = 'false';
+            }
+            cleanup(videoEl);
+        };
+
+        const captureFrame = () => {
+            try {
+                if (!videoEl.videoWidth || !videoEl.videoHeight) {
+                    resolveThumbnail('');
+                    return;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = videoEl.videoWidth;
+                canvas.height = videoEl.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+                resolveThumbnail(dataUrl);
+            } catch (error) {
+                console.warn('Falha ao gerar thumbnail automático do vídeo curto:', error);
+                resolveThumbnail('');
+            }
+        };
+
+        const scheduleCapture = () => {
+            window.requestAnimationFrame(() => captureFrame());
+        };
+
+        videoEl.addEventListener('loadedmetadata', () => {
+            try {
+                const targetTime = Math.min(1.0, (videoEl.duration || 20) * 0.05) || 0.1;
+                videoEl.currentTime = targetTime;
+            } catch (error) {
+                // Ignorar erros de seek prematuro
+            }
+        }, { once: true });
+
+        videoEl.addEventListener('seeked', scheduleCapture, { once: true });
+        videoEl.addEventListener('loadeddata', scheduleCapture, { once: true });
+        videoEl.addEventListener('error', () => resolveThumbnail(''), { once: true });
+
+        videoEl.src = videoUrl.includes('#') ? videoUrl : `${videoUrl}#t=0.1`;
+        videoEl.load();
+    };
+
+    const observer = 'IntersectionObserver' in window
+        ? new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const card = entry.target;
+                    obs.unobserve(card);
+                    generateThumbnail(card);
+                }
+            });
+        }, { rootMargin: '160px 0px' })
+        : null;
+
+    cards.forEach(card => {
+        if (card.dataset.autoThumbnail === 'true') {
+            if (observer) {
+                observer.observe(card);
+            } else {
+                generateThumbnail(card);
+            }
+        }
+    });
+}
+
 function initShortVideoModal() {
     const modalEl = document.getElementById('shortVideoModal');
     if (!modalEl || typeof bootstrap === 'undefined') {
@@ -279,9 +393,11 @@ function initShortVideoModal() {
     const modalWrapper = modalEl.querySelector('.video-modal-wrapper');
     const descriptionEl = modalEl.querySelector('.video-modal-description');
     const modalTitleEl = modalEl.querySelector('.modal-title');
+    const modalSubtitleEl = modalEl.querySelector('.modal-subtitle');
 
     const renderLoader = () => {
         if (modalWrapper) {
+            modalWrapper.dataset.orientation = 'loading';
             modalWrapper.innerHTML = `
                 <div class="video-modal-loader">
                     <div class="spinner-border text-economist-red" role="status">
@@ -306,12 +422,20 @@ function initShortVideoModal() {
         const title = card.dataset.title || 'Vídeo';
         const description = card.dataset.description || '';
         const poster = card.dataset.thumbnail;
+        const duration = card.dataset.duration;
+        const orientation = card.dataset.orientation || (sourceType === 'platform' ? 'horizontal' : 'vertical');
 
         if (modalTitleEl) {
             modalTitleEl.textContent = title;
         }
+        if (modalSubtitleEl) {
+            modalSubtitleEl.textContent = duration ? `Duração: ${duration}` : '';
+        }
         if (descriptionEl) {
             descriptionEl.textContent = description;
+        }
+        if (modalWrapper) {
+            modalWrapper.dataset.orientation = orientation;
         }
 
         if (sourceType === 'cdn' && videoUrl) {
@@ -355,6 +479,9 @@ function initShortVideoModal() {
         if (descriptionEl) {
             descriptionEl.textContent = '';
         }
+        if (modalSubtitleEl) {
+            modalSubtitleEl.textContent = '';
+        }
     });
 }
 
@@ -375,10 +502,11 @@ document.addEventListener('DOMContentLoaded', function() {
     initNewsletterForm();
     initShareButtons();
     initDarkMode();
+    initShortVideoThumbnails();
     initShortVideoModal();
     deferResources();
-    
-    console.log('%c Portal de Análise %c Carregado com sucesso! ', 
+
+    console.log('%c Portal de Análise %c Carregado com sucesso! ',
                 'background: #E3120B; color: white; padding: 5px 10px; border-radius: 3px 0 0 3px;',
                 'background: #111; color: white; padding: 5px 10px; border-radius: 0 3px 3px 0;');
 });
