@@ -352,19 +352,19 @@ class HomePage(Page):
         shown_ids = [featured_highlight.id] if featured_highlight else []
         shown_ids.extend([a.id for a in trending_articles])
         
-        # 3. ARTIGOS REGULARES E PREMIUM (visíveis conforme grupo de usuário)
+        # 3. ARTIGOS REGULARES E PREMIUM (todos visíveis nas listagens)
         regular_articles = remaining_articles.exclude(id__in=shown_ids)
         
         # Check if user is authenticated and is a premium subscriber
         user = request.user
         is_premium_subscriber = (
             user.is_authenticated and 
-            user.groups.filter(name="assinantes_premium").exists()
+            hasattr(user, 'userprofile') and
+            user.userprofile.is_subscriber
         )
         
-        if not is_premium_subscriber:
-            # Filter out premium articles for non-subscribers
-            regular_articles = regular_articles.exclude(is_premium=True)
+        # TODOS os artigos aparecem nas listagens (incluindo premium)
+        # O controle de acesso ao conteúdo completo é feito no template do artigo
         
         context['articles'] = regular_articles.order_by('-publication_date')
         context['is_premium_subscriber'] = is_premium_subscriber
@@ -635,6 +635,25 @@ class ArticlePage(Page):
             return False
         
         return True
+    
+    def get_context(self, request, *args, **kwargs):
+        """
+        Add subscriber status to context for paywall logic.
+        
+        Returns:
+            dict: Context with is_subscriber flag
+        """
+        context = super().get_context(request, *args, **kwargs)
+        
+        # Safely check if user is a subscriber
+        user = request.user
+        context['is_subscriber'] = (
+            user.is_authenticated and 
+            hasattr(user, 'userprofile') and
+            user.userprofile.is_subscriber
+        )
+        
+        return context
 
 
 @register_snippet
@@ -830,18 +849,19 @@ class SectionPage(Page):
         shown_ids = [featured_highlight.id] if featured_highlight else []
         shown_ids.extend([a.id for a in trending_articles])
         
-        # 3. ARTIGOS REGULARES E PREMIUM
+        # 3. ARTIGOS REGULARES E PREMIUM (todos visíveis nas listagens)
         regular_articles = remaining_articles.exclude(id__in=shown_ids)
         
         # Check if user is authenticated and is a premium subscriber
         user = request.user
         is_premium_subscriber = (
             user.is_authenticated and 
-            user.groups.filter(name="assinantes_premium").exists()
+            hasattr(user, 'userprofile') and
+            user.userprofile.is_subscriber
         )
         
-        if not is_premium_subscriber:
-            regular_articles = regular_articles.exclude(is_premium=True)
+        # TODOS os artigos aparecem nas listagens (incluindo premium)
+        # O controle de acesso ao conteúdo completo é feito no template do artigo
         
         context['articles'] = regular_articles.order_by('-publication_date')
         context['is_premium_subscriber'] = is_premium_subscriber
@@ -1008,18 +1028,19 @@ class SupportSectionPage(Page):
         shown_ids = [featured_highlight.id] if featured_highlight else []
         shown_ids.extend([a.id for a in trending_articles])
         
-        # 3. ARTIGOS REGULARES E PREMIUM
+        # 3. ARTIGOS REGULARES E PREMIUM (todos visíveis nas listagens)
         regular_articles = remaining_articles.exclude(id__in=shown_ids)
         
         # Check if user is authenticated and is a premium subscriber
         user = request.user
         is_premium_subscriber = (
             user.is_authenticated and 
-            user.groups.filter(name="assinantes_premium").exists()
+            hasattr(user, 'userprofile') and
+            user.userprofile.is_subscriber
         )
         
-        if not is_premium_subscriber:
-            regular_articles = regular_articles.exclude(is_premium=True)
+        # TODOS os artigos aparecem nas listagens (incluindo premium)
+        # O controle de acesso ao conteúdo completo é feito no template do artigo
         
         context['articles'] = regular_articles.order_by('-publication_date')
         context['is_premium_subscriber'] = is_premium_subscriber

@@ -58,7 +58,7 @@
 
         <!-- LÓGICA DO PAYWALL -->
         {% if page.is_premium %}
-            {% if user.is_authenticated and user.userprofile.is_subscriber %}
+            {% if is_subscriber %}
                 <!-- CONTEÚDO COMPLETO PARA ASSINANTES -->
                 <div class="article-body">
                     {% if page.content_blocks %}
