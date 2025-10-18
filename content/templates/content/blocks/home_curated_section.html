@@ -1,0 +1,47 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+<section class="home-curated-section accent-{{ value.accent }} layout-{{ value.layout_style }}">
+    <div class="section-header">
+        <span class="accent-pill">Seleção editorial</span>
+        <h2 class="section-title">{{ value.title }}</h2>
+        {% if value.subtitle %}
+            <p class="section-subtitle">{{ value.subtitle }}</p>
+        {% endif %}
+        {% if value.call_to_action_text and value.call_to_action_url %}
+            <a href="{{ value.call_to_action_url }}" class="section-cta" target="_blank" rel="noopener">
+                {{ value.call_to_action_text }} <i class="bi bi-arrow-up-right"></i>
+            </a>
+        {% endif %}
+    </div>
+    <div class="curated-articles">
+        {% for article in value.articles %}
+            {% with article=article.specific %}
+            <article class="curated-article-card {% if value.layout_style == 'split' and forloop.first %}curated-article-featured{% endif %}{% if value.layout_style == 'list' and not forloop.first %} no-thumb{% endif %}">
+                {% if value.layout_style != 'list' or forloop.first %}
+                <div class="curated-thumb">
+                    {% if article.external_image_url %}
+                        <img src="{{ article.external_image_url }}" alt="{{ article.title }}">
+                    {% elif article.featured_image %}
+                        {% image article.featured_image fill-600x400 as thumb %}
+                        <img src="{{ thumb.url }}" alt="{{ thumb.alt }}">
+                    {% else %}
+                        <img src="https://placehold.co/600x400/ebe4dc/333?text=Em+an%C3%A1lise" alt="{{ article.title }}">
+                    {% endif %}
+                </div>
+                {% endif %}
+                <div class="curated-copy">
+                    <div class="curated-meta">
+                        {{ article.publication_date|date:"d \d\e F" }} • há {{ article.publication_date|timesince_brasilia }}
+                    </div>
+                    <h3 class="curated-title">
+                        <a href="{% pageurl article %}">{{ article.title }}</a>
+                        {% if article.is_premium %}
+                            <span class="premium-badge">Premium</span>
+                        {% endif %}
+                    </h3>
+                    <p class="curated-summary">{{ article.introduction|richtext|striptags|truncatewords:26 }}</p>
+                </div>
+            </article>
+            {% endwith %}
+        {% endfor %}
+    </div>
+</section>

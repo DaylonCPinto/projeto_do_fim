@@ -1,23 +1,41 @@
 from pathlib import Path
 import os
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
+def get_env_bool(name, default=False):
+    """Converte variáveis de ambiente em booleanos de forma resiliente."""
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"true", "1", "yes", "on"}
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = get_env_bool('DEBUG', default=True)
+
 # Quick-start development settings - unsuitable for production
 # SECURITY WARNING: keep the secret key used in production secret!
-# Substitua a linha da SECRET_KEY por esta:
 SECRET_KEY = os.getenv('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = 'django-insecure-development-key'
+    else:
+        raise ImproperlyConfigured('Defina a variável de ambiente SECRET_KEY em produção.')
 
 # Hosts permitidos - importante para segurança
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '').split(',') if host.strip()]
+if not ALLOWED_HOSTS:
+    if DEBUG:
+        ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+    else:
+        raise ImproperlyConfigured('Defina ALLOWED_HOSTS para o ambiente de produção.')
 
 # CSRF Trusted Origins para Azure e domínios personalizados
 CSRF_TRUSTED_ORIGINS = [origin for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if origin]
@@ -67,8 +85,9 @@ MIDDLEWARE = [
 ]
 
 # Security Settings for Production
+SECURE_SSL_REDIRECT = False
 if not DEBUG:
-    SECURE_SSL_REDIRECT = False
+    SECURE_SSL_REDIRECT = get_env_bool('SECURE_SSL_REDIRECT', default=True)
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -105,7 +124,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Lógica inteligente de Banco de Dados
-if os.getenv('DEBUG') == 'False':
+if not DEBUG:
     # --- CONFIGURAÇÃO DE PRODUÇÃO (Lê do .env) ---
     DATABASES = {
         'default': {

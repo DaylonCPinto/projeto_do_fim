@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 from .forms import SignUpForm
 from .validators import (
     validate_cpf,
@@ -184,7 +186,7 @@ class SignUpFormTest(TestCase):
             email='test@gmail.com',
             password='SecurePass456'
         )
-        
+
         form_data = {
             'username': 'testuser123',
             'email': 'test@gmail.com',
@@ -195,3 +197,74 @@ class SignUpFormTest(TestCase):
         form = SignUpForm(data=form_data)
         self.assertFalse(form.is_valid())
         self.assertIn('email', form.errors)
+
+    def test_form_duplicate_cpf_detects_mask_variation(self):
+        """CPF duplicado deve ser bloqueado mesmo com máscara diferente."""
+        user = User.objects.create_user(
+            username='existinguser',
+            email='existing@gmail.com',
+            password='SecurePass456'
+        )
+        user.userprofile.cpf = '11144477735'
+        user.userprofile.save()
+
+        form_data = {
+            'username': 'testuser124',
+            'email': 'newuser@gmail.com',
+            'cpf': '111.444.777-35',
+            'password1': 'SecurePass456',
+            'password2': 'SecurePass456',
+        }
+        form = SignUpForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('cpf', form.errors)
+
+    def test_form_saves_cpf_without_mask(self):
+        """O CPF deve ser persistido apenas com números."""
+        form_data = {
+            'username': 'testuser125',
+            'email': 'unique@gmail.com',
+            'cpf': '111.444.777-35',
+            'password1': 'SecurePass456',
+            'password2': 'SecurePass456',
+        }
+        form = SignUpForm(data=form_data)
+        self.assertTrue(form.is_valid(), form.errors)
+        user = form.save()
+        self.assertEqual(user.userprofile.cpf, '11144477735')
+
+
+class CustomLoginViewTests(TestCase):
+    """Testes para o fluxo de login customizado."""
+
+    def setUp(self):
+        self.password = 'SecurePass456'
+        self.user = User.objects.create_user(
+            username='loginuser',
+            email='login@gmail.com',
+            password=self.password,
+        )
+
+    def test_login_rejects_external_redirect(self):
+        """Redirecionamento deve permanecer interno mesmo com next externo."""
+        login_url = reverse('login')
+        response = self.client.post(
+            f"{login_url}?next=https://example.com", {
+                'username': 'login@gmail.com',
+                'password': self.password,
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, settings.LOGIN_REDIRECT_URL)
+
+    def test_login_allows_safe_next(self):
+        """Redireciona para URLs internas aprovadas."""
+        login_url = reverse('login')
+        response = self.client.post(
+            f"{login_url}?next=/conta/", {
+                'username': 'login@gmail.com',
+                'password': self.password,
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/conta/')

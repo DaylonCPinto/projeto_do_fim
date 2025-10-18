@@ -1,10 +1,11 @@
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from datetime import datetime, timedelta, date
 from django.utils import timezone
 import zoneinfo
 from content.templatetags.navigation_tags import timesince_brasilia, get_support_sections
 from wagtail.models import Site, Page
-from content.models import HomePage, SupportSectionPage
+from django.contrib.auth.models import AnonymousUser
+from content.models import HomePage, SupportSectionPage, ArticlePage
 
 
 class SupportSectionNavigationTestCase(TestCase):
@@ -134,3 +135,58 @@ class TimesinceBrasiliaTestCase(TestCase):
         """Test that None returns empty string"""
         result = timesince_brasilia(None)
         self.assertEqual(result, '')
+
+
+class HomePageConfigurationTests(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        root_page = Page.objects.get(id=1)
+        self.home_page = HomePage(
+            title="Config Home",
+            slug="config-home",
+        )
+        root_page.add_child(instance=self.home_page)
+
+    def test_layout_config_exposes_divider_style(self):
+        self.home_page.divider_style = 'double'
+        self.home_page.show_dividers = True
+        self.home_page.save()
+
+        config = self.home_page.get_layout_config()
+        self.assertEqual(config['divider_style'], 'double')
+        self.assertTrue(config['show_dividers'])
+
+    def test_curated_sections_persist_and_render(self):
+        article = ArticlePage(
+            title="Curated Story",
+            slug="curated-story",
+            introduction="<p>Resumo</p>",
+            publication_date=timezone.now(),
+        )
+        self.home_page.add_child(instance=article)
+
+        self.home_page.curated_sections = [
+            ('curated_section', {
+                'title': 'Panorama global',
+                'subtitle': 'Análises que moldam o debate.',
+                'layout_style': 'grid',
+                'accent': 'ink',
+                'call_to_action_text': 'Ver todos',
+                'call_to_action_url': 'https://example.com',
+                'articles': [article],
+            })
+        ]
+        self.home_page.save()
+        self.home_page.refresh_from_db()
+
+        request = self.factory.get('/')
+        request.user = AnonymousUser()
+        context = self.home_page.get_context(request)
+
+        self.assertEqual(len(self.home_page.curated_sections), 1)
+        self.assertEqual(
+            self.home_page.curated_sections[0].value['title'],
+            'Panorama global'
+        )
+        self.assertIn('layout_config', context)
+        self.assertEqual(context['layout_config']['divider_style'], self.home_page.divider_style)
