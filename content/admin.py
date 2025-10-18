@@ -5,7 +5,7 @@ from .models import VideoShort, SiteCustomization
 @admin.register(VideoShort)
 class VideoShortAdmin(admin.ModelAdmin):
     """Admin modernizado para vídeos curtos"""
-    list_display = ('title', 'video_preview', 'duration', 'is_featured_badge', 'order', 'created_at')
+    list_display = ('title', 'video_preview', 'source_display', 'duration', 'is_featured_badge', 'order', 'created_at')
     list_filter = ('is_featured', 'created_at')
     search_fields = ('title', 'description')
     list_editable = ('order',)
@@ -13,7 +13,11 @@ class VideoShortAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Informações do Vídeo', {
-            'fields': ('title', 'description', 'video_url', 'duration')
+            'fields': ('title', 'description', 'duration')
+        }),
+        ('Origem e Reprodução', {
+            'fields': ('video_source_type', 'video_url', 'cdn_video_url', 'cdn_mime_type'),
+            'description': 'Use URL da plataforma ou link direto hospedado na CDN com o formato correto.'
         }),
         ('Thumbnail', {
             'fields': ('thumbnail_image', 'thumbnail_url'),
@@ -49,6 +53,17 @@ class VideoShortAdmin(admin.ModelAdmin):
                 'text-transform: uppercase;">NORMAL</span>'
             )
     is_featured_badge.short_description = 'Status'
+
+    def source_display(self, obj):
+        color = '#0d6efd' if obj.video_source_type == 'platform' else '#20c997'
+        label = obj.get_video_source_type_display()
+        return format_html(
+            '<span style="background-color: {}; color: white; padding: 4px 10px; '
+            'border-radius: 999px; font-size: 11px; text-transform: uppercase;">{}</span>',
+            color,
+            label
+        )
+    source_display.short_description = 'Origem'
     
     actions = ['mark_as_featured', 'unmark_as_featured']
     
@@ -79,9 +94,21 @@ class SiteCustomizationAdmin(admin.ModelAdmin):
             'description': 'Defina as cores principais do site (formato hexadecimal)'
         }),
         ('Layout e Exibição', {
-            'fields': ('show_video_section', 'articles_per_page'),
+            'fields': ('show_video_section', 'show_scroll_progress', 'enable_dark_mode_toggle', 'articles_per_page'),
             'description': 'Configure o layout e comportamento da página inicial'
         }),
+        ('Barra de anúncio', {
+            'fields': ('announcement_enabled', 'announcement_text', 'announcement_link_text', 'announcement_link_url'),
+            'description': 'Gerencie a faixa promocional ou editorial exibida no topo do site'
+        }),
+        ('Vitrine de vídeos', {
+            'fields': ('short_videos_title', 'short_videos_description', 'short_videos_cta_label', 'short_videos_cta_url'),
+            'description': 'Personalize o título e o CTA da seção de vídeos curtos'
+        }),
+        ('Contato rápido', {
+            'fields': ('whatsapp_contact_url',),
+            'description': 'Link para botão flutuante de WhatsApp, Telegram ou outro canal imediato'
+        })
     )
     
     def has_add_permission(self, request):
