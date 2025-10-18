@@ -5,7 +5,9 @@ import zoneinfo
 from content.templatetags.navigation_tags import timesince_brasilia, get_support_sections
 from wagtail.models import Site, Page
 from django.contrib.auth.models import AnonymousUser
-from content.models import HomePage, SupportSectionPage, ArticlePage
+from content.models import HomePage, SupportSectionPage, ArticlePage, VideoShort
+from wagtail.images import get_image_model
+from wagtail.images.tests.utils import get_test_image_file
 
 
 class SupportSectionNavigationTestCase(TestCase):
@@ -190,3 +192,59 @@ class HomePageConfigurationTests(TestCase):
         )
         self.assertIn('layout_config', context)
         self.assertEqual(context['layout_config']['divider_style'], self.home_page.divider_style)
+
+
+class MediaFallbackTests(TestCase):
+    def setUp(self):
+        self.image_model = get_image_model()
+        root_page = Page.objects.get(id=1)
+        self.home_page = HomePage(
+            title="Media Home",
+            slug="media-home",
+        )
+        root_page.add_child(instance=self.home_page)
+
+    def test_highlight_video_poster_handles_missing_file(self):
+        poster = self.image_model.objects.create(
+            title="Poster",
+            file=get_test_image_file(filename="poster.jpg"),
+        )
+        article = ArticlePage(
+            title="Video Highlight",
+            slug="video-highlight",
+            introduction="<p>Resumo</p>",
+            highlight_video_url="https://cdn.example.com/highlight.mp4",
+            highlight_video_mime_type="video/mp4",
+            highlight_video_poster=poster,
+            publication_date=timezone.now(),
+        )
+        self.home_page.add_child(instance=article)
+
+        # Remove o arquivo físico para simular storage inconsistente
+        poster.file.delete(save=False)
+
+        self.assertIsNone(article.get_highlight_video_poster_url())
+
+    def test_video_short_thumbnail_placeholder_on_missing_file(self):
+        thumbnail = self.image_model.objects.create(
+            title="Thumbnail",
+            file=get_test_image_file(filename="thumb.jpg"),
+        )
+        video = VideoShort.objects.create(
+            title="Short Clip",
+            description="Resumo",
+            video_source_type="cdn",
+            cdn_video_url="https://cdn.example.com/short.mp4",
+            cdn_mime_type="video/mp4",
+            duration="0:45",
+            is_featured=True,
+            thumbnail_image=thumbnail,
+        )
+
+        # Remove o arquivo físico associado ao thumbnail
+        thumbnail.file.delete(save=False)
+
+        self.assertEqual(
+            video.get_thumbnail_url(),
+            'https://via.placeholder.com/400x700/E3120B/FFFFFF?text=Video'
+        )

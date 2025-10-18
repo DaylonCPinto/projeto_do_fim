@@ -1,7 +1,20 @@
 {% load static wagtailcore_tags navigation_tags %}
+{% get_site_customization as header_customization %}
 
 <!-- HEADER FIXO MODERNIZADO -->
 <header class="modern-header shadow-sm fixed-top bg-white border-bottom" style="z-index:1050;">
+    {% if header_customization and header_customization.announcement_enabled %}
+    <div class="announcement-bar text-white" style="background: var(--brand-primary, #E3120B);">
+        <div class="container d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 py-2">
+            <span class="announcement-text fw-semibold">{{ header_customization.announcement_text }}</span>
+            {% if header_customization.announcement_link_text and header_customization.announcement_link_url %}
+                <a href="{{ header_customization.announcement_link_url }}" class="btn btn-sm btn-light text-economist-red fw-bold">
+                    {{ header_customization.announcement_link_text }}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
     <!-- Top Bar with Search and User Info -->
     <div class="header-top bg-light border-bottom" style="padding: 0.4rem 0;">
         <div class="container">
@@ -58,9 +71,9 @@
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="mainSectionsDropdown" role="button" 
+                        <a class="nav-link dropdown-toggle" href="#" id="mainSectionsDropdown" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-grid-3x3-gap"></i> Seções
+                            <i class="bi bi-grid-3x3-gap"></i> Menu Principal
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="mainSectionsDropdown">
                             <li><a class="dropdown-item" href="/geopolitica/"><i class="bi bi-globe"></i> Geopolítica</a></li>
@@ -91,6 +104,14 @@
                                     <i class="bi bi-box-arrow-right"></i> Sair
                                 </button>
                             </form>
+                        </li>
+                    {% endif %}
+                    {% if header_customization and header_customization.enable_dark_mode_toggle %}
+                        <li class="nav-item ms-lg-3">
+                            <button id="dark-mode-toggle" type="button" class="btn btn-sm btn-outline-economist-red rounded-pill px-3 d-flex align-items-center gap-2">
+                                <i class="bi bi-moon-stars"></i>
+                                <span class="dark-mode-label">Modo Escuro</span>
+                            </button>
                         </li>
                     {% endif %}
                 </ul>

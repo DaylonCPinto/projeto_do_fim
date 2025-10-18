@@ -57,60 +57,51 @@
                 </div>
             </div>
             <div class="hero-artwork">
-                <a href="{% pageurl featured_article %}">
-                    {% if featured_article.specific.external_image_url %}
-                        <img src="{{ featured_article.specific.external_image_url }}" class="hero-image"
-                             alt="{{ featured_article.title }}">
-                    {% elif featured_article.specific.featured_image %}
-                        {% image featured_article.specific.featured_image fill-900x600 as hero_image %}
-                        <img src="{{ hero_image.url }}" class="hero-image" alt="{{ hero_image.alt }}">
-                    {% endif %}
-                </a>
+                {% if featured_article.specific.has_highlight_video %}
+                    {% with poster=featured_article.specific.get_highlight_video_poster_url %}
+                    <div class="hero-video-wrapper ratio ratio-16x9">
+                        <video class="hero-video-player"
+                               controls
+                               preload="metadata"
+                               playsinline
+                               {% if poster %}poster="{{ poster }}"{% endif %}>
+                            <source src="{{ featured_article.specific.highlight_video_url }}"
+                                    type="{{ featured_article.specific.highlight_video_mime_type }}">
+                            Seu navegador não suporta o elemento de vídeo.
+                        </video>
+                    </div>
+                    {% endwith %}
+                {% else %}
+                    <a href="{% pageurl featured_article %}">
+                        {% if featured_article.specific.external_image_url %}
+                            <img src="{{ featured_article.specific.external_image_url }}" class="hero-image"
+                                 alt="{{ featured_article.title }}">
+                        {% elif featured_article.specific.featured_image %}
+                            {% image featured_article.specific.featured_image fill-900x600 as hero_image %}
+                            <img src="{{ hero_image.url }}" class="hero-image" alt="{{ hero_image.alt }}">
+                        {% endif %}
+                    </a>
+                {% endif %}
             </div>
         </div>
     </section>
     {% endif %}
 
-    <!-- SEÇÃO DE VÍDEOS CURTOS -->
-    {% if featured_videos and page.show_videos_section %}
-    <div id="videos-section" class="video-shorts-section">
-        <div class="container">
-            <div class="d-flex align-items-center justify-content-between mb-4">
-                <h2 class="mb-0">
-                    <i class="bi bi-play-circle-fill text-economist-red me-2"></i>
-                    Vídeos em Destaque
-                </h2>
-                <a href="#" class="text-economist-red text-decoration-none fw-bold">
-                    Ver todos <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
-            <div class="row g-3">
-                {% for video in featured_videos %}
-                <div class="col-6 col-md-3">
-                    <div class="video-short-card" onclick="window.open('{{ video.video_url }}', '_blank')">
-                        <div class="video-short-thumbnail">
-                            <img src="{{ video.get_thumbnail_url }}" alt="{{ video.title }}">
-                            <div class="video-play-overlay">
-                                <i class="bi bi-play-fill"></i>
-                            </div>
-                            <div class="video-short-info">
-                                <div class="video-short-title">{{ video.title }}</div>
-                                <div class="video-short-duration">
-                                    <i class="bi bi-clock"></i> {{ video.duration }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if layout_config.show_dividers %}
-        <div class="section-divider section-divider-{{ layout_config.divider_style }}"></div>
-    {% endif %}
+    {% with should_show_videos=show_video_shorts %}
+        {% if should_show_videos and page.video_section_position == 'below_highlight' %}
+            {% include "content/partials/video_shorts_section.html" with videos=featured_videos site_customization=site_customization %}
+        {% endif %}
+        {% if layout_config.show_dividers %}
+            {% if should_show_videos and page.video_section_position == 'below_highlight' %}
+                {# divisor será inserido após a vitrine de vídeos #}
+            {% else %}
+                <div class="section-divider section-divider-{{ layout_config.divider_style }}"></div>
+            {% endif %}
+        {% endif %}
+        {% if should_show_videos and page.video_section_position == 'below_highlight' and layout_config.show_dividers %}
+            <div class="section-divider section-divider-{{ layout_config.divider_style }}"></div>
+        {% endif %}
+    {% endwith %}
 
     <!-- SEÇÃO DE NOTÍCIAS EM ALTA -->
     {% if trending_articles and layout_config.show_trending_section %}
@@ -208,7 +199,16 @@
         </div>
     </div>
     {% endif %}
-    
+
+    {% with should_show_videos=show_video_shorts %}
+        {% if should_show_videos and page.video_section_position == 'below_recent' %}
+            {% if layout_config.show_dividers %}
+                <div class="section-divider section-divider-{{ layout_config.divider_style }}"></div>
+            {% endif %}
+            {% include "content/partials/video_shorts_section.html" with videos=featured_videos site_customization=site_customization %}
+        {% endif %}
+    {% endwith %}
+
     </div><!-- End layout-wrapper -->
 
 {% endblock %}
