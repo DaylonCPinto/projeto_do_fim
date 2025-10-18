@@ -6,6 +6,7 @@
     <div class="custom-video-inner">
         <div class="ratio ratio-{{ self.aspect_ratio }} custom-video-frame">
             <video class="custom-video-player"
+                   data-aspect-ratio="{% if self.aspect_ratio == '9x16' %}9:16{% elif self.aspect_ratio == '4x3' %}4:3{% elif self.aspect_ratio == '1x1' %}1:1{% elif self.aspect_ratio == '21x9' %}21:9{% else %}16:9{% endif %}"
                    controls
                    preload="metadata"
                    playsinline

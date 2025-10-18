@@ -1445,6 +1445,10 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     }
 }
 
+.ratio-9x16 {
+    --bs-aspect-ratio: calc(9 / 16 * 100%);
+}
+
 .video-modal-placeholder {
     background-color: #000;
     display: flex;
@@ -1485,6 +1489,50 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     overflow: hidden;
     background-color: #000;
     box-shadow: 0 22px 48px rgba(0, 0, 0, 0.25);
+}
+
+.short-video-modal {
+    --short-modal-aspect-width: 9;
+    --short-modal-aspect-height: 16;
+    --short-modal-max-height: min(80vh, 640px);
+    max-width: min(100vw - 2rem, 520px);
+}
+
+.short-video-modal .modal-content {
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.short-video-modal .modal-header,
+.short-video-modal .modal-footer {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.short-video-modal .modal-body {
+    padding: 0;
+}
+
+.short-video-modal .video-modal-placeholder {
+    min-height: 0;
+    padding: 1.5rem 1.5rem 0;
+}
+
+.short-video-modal .video-modal-wrapper {
+    width: min(100%, calc(var(--short-modal-max-height) * var(--short-modal-aspect-width) / var(--short-modal-aspect-height)));
+    margin: 0 auto;
+}
+
+.short-video-modal .video-modal-description {
+    margin-right: auto;
+}
+
+@media (min-width: 768px) {
+    .short-video-modal {
+        --short-modal-max-height: min(82vh, 720px);
+        max-width: min(100vw - 2rem, 560px);
+    }
 }
 
 .plyr__control--overlaid {
