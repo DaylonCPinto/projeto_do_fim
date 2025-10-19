@@ -28,9 +28,10 @@
         {% if page.featured_image or page.external_image_url %}
         <div class="featured-image-container mb-4">
             {% if page.external_image_url %}
-                <img src="{{ page.external_image_url }}" alt="{{ page.title }}" class="img-fluid rounded">
+                <img src="{{ page.external_image_url }}" alt="{{ page.title }}" class="img-fluid rounded"
+                     loading="lazy" decoding="async">
             {% elif page.featured_image %}
-                {% image page.featured_image original class="img-fluid rounded" %}
+                {% image page.featured_image original class="img-fluid rounded" loading="lazy" decoding="async" %}
             {% endif %}
             
             {% if page.featured_image_caption or page.featured_image_credit %}
@@ -94,7 +95,7 @@
                             {% elif block.block_type == 'image_with_caption' %}
                                 <div class="content-block image-with-caption-block">
                                     <figure class="figure w-100">
-                                        {% image block.value.image original class="figure-img img-fluid rounded" %}
+                                        {% image block.value.image original class="figure-img img-fluid rounded" loading="lazy" decoding="async" %}
                                         {% if block.value.caption or block.value.credit %}
                                         <figcaption class="figure-caption">
                                             {% if block.value.caption %}{{ block.value.caption }}{% endif %}
@@ -228,7 +229,7 @@
                         {% elif block.block_type == 'image_with_caption' %}
                             <div class="content-block image-with-caption-block">
                                 <figure class="figure w-100">
-                                    {% image block.value.image original class="figure-img img-fluid rounded" %}
+                                        {% image block.value.image original class="figure-img img-fluid rounded" loading="lazy" decoding="async" %}
                                     {% if block.value.caption or block.value.credit %}
                                     <figcaption class="figure-caption">
                                         {% if block.value.caption %}{{ block.value.caption }}{% endif %}

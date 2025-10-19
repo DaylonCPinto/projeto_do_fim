@@ -1,10 +1,11 @@
 {% load static navigation_tags wagtailcore_tags %}
 {% get_site_customization as global_site_customization %}
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-br" class="no-js">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
     <title>{% block title %}{% endblock %}{% if WAGTAIL_SITE_NAME %} - {{ WAGTAIL_SITE_NAME }}{% endif %}</title>
     
     <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
@@ -69,7 +70,7 @@
     <!-- Inclui o Cabeçalho (Header e Sub-navegação) -->
     {% include "header.html" %}
 
-    <main class="container">
+    <main id="main-content" class="site-main container" role="main">
         {% block content %}{% endblock %}
     </main>
 

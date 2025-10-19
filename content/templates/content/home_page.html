@@ -75,10 +75,12 @@
                     <a href="{% pageurl featured_article %}">
                         {% if featured_article.specific.external_image_url %}
                             <img src="{{ featured_article.specific.external_image_url }}" class="hero-image"
-                                 alt="{{ featured_article.title }}">
+                                 alt="{{ featured_article.title }}" loading="eager" decoding="async"
+                                 fetchpriority="high">
                         {% elif featured_article.specific.featured_image %}
                             {% image featured_article.specific.featured_image fill-900x600 as hero_image %}
-                            <img src="{{ hero_image.url }}" class="hero-image" alt="{{ hero_image.alt }}">
+                            <img src="{{ hero_image.url }}" class="hero-image" alt="{{ hero_image.alt }}"
+                                 loading="eager" decoding="async" fetchpriority="high">
                         {% endif %}
                     </a>
                 {% endif %}
@@ -110,10 +112,11 @@
                     {% if article.specific.external_image_url or article.specific.featured_image %}
                     <a href="{% pageurl article %}" class="position-relative d-block">
                         {% if article.specific.external_image_url %}
-                            <img src="{{ article.specific.external_image_url }}" class="card-img-top rounded" 
-                                 alt="{{ article.title }}" style="height: 250px; object-fit: cover;">
+                            <img src="{{ article.specific.external_image_url }}" class="card-img-top rounded"
+                                 alt="{{ article.title }}" style="height: 250px; object-fit: cover;"
+                                 loading="lazy" decoding="async">
                         {% elif article.specific.featured_image %}
-                            {% image article.specific.featured_image fill-400x250 class="card-img-top rounded" %}
+                            {% image article.specific.featured_image fill-400x250 class="card-img-top rounded" loading="lazy" decoding="async" %}
                         {% endif %}
                         <span class="trending-fire-badge">🔥</span>
                     </a>
@@ -165,10 +168,11 @@
                     {% if article.specific.external_image_url or article.specific.featured_image %}
                     <a href="{% pageurl article %}">
                         {% if article.specific.external_image_url %}
-                            <img src="{{ article.specific.external_image_url }}" class="card-img-top rounded" 
-                                 alt="{{ article.title }}" style="height: 250px; object-fit: cover;">
+                            <img src="{{ article.specific.external_image_url }}" class="card-img-top rounded"
+                                 alt="{{ article.title }}" style="height: 250px; object-fit: cover;"
+                                 loading="lazy" decoding="async">
                         {% elif article.specific.featured_image %}
-                            {% image article.specific.featured_image fill-400x250 class="card-img-top rounded" %}
+                            {% image article.specific.featured_image fill-400x250 class="card-img-top rounded" loading="lazy" decoding="async" %}
                         {% endif %}
                     </a>
                     {% endif %}

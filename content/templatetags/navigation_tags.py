@@ -10,34 +10,26 @@ register = template.Library()
 
 @register.simple_tag()
 def get_topics():
-    # CORREÇÃO CRÍTICA: Substituindo 'TopicPage' pelo provável nome real do modelo: 'ArticlePage'
-    ArticlePage = apps.get_model('content', 'ArticlePage') # <-- TENTATIVA FINAL
-    
-    # A consulta deve buscar todas as páginas de ARTIGO que estão vivas.
-    # No entanto, se o menu é de TÓPICOS, você precisaria de uma lógica 
-    # mais complexa para pegar os TÓPICOS únicos dos artigos ou a página INDEX.
-    # Mas, para resolver a LookupError, vamos buscar as páginas de Artigo:
+    """Retorna os artigos publicados ordenados alfabeticamente."""
+    ArticlePage = apps.get_model('content', 'ArticlePage')
     return ArticlePage.objects.live().order_by('title')
 
 @register.simple_tag()
 def get_support_sections():
-    """Get all published support section pages for navigation"""
+    """Lista páginas de apoio publicadas para uso na navegação."""
     SupportSectionPage = apps.get_model('content', 'SupportSectionPage')
     return SupportSectionPage.objects.live().order_by('title')
 
 
 @register.simple_tag()
 def get_site_customization():
-    """Retorna a configuração global do site (se existir)."""
+    """Retorna a configuração global do site, quando disponível."""
     SiteCustomization = apps.get_model('content', 'SiteCustomization')
     return SiteCustomization.objects.first()
 
 @register.filter
 def timesince_brasilia(value):
-    """
-    Calcula o tempo decorrido desde a data fornecida, 
-    considerando o timezone de Brasília (America/Sao_Paulo).
-    """
+    """Calcula o tempo decorrido usando o fuso horário de Brasília."""
     if not value:
         return ''
     

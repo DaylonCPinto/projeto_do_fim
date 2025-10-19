@@ -48,7 +48,7 @@ Este projeto implementa as melhores práticas de segurança:
 - ✅ Validação de senhas fortes
 - ✅ Logging de segurança
 
-Veja [SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md) para mais detalhes.
+Veja [SECURITY_AND_CODE_QUALITY.md](SECURITY_AND_CODE_QUALITY.md) para mais detalhes.
 
 ## 📋 Pré-requisitos
 
@@ -93,8 +93,7 @@ Acesse:
 
 Para instruções detalhadas de configuração, consulte:
 - **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Guia completo de configuração passo a passo
-- **[FEATURES_GUIDE.md](FEATURES_GUIDE.md)** - Guia de funcionalidades
-- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Resumo técnico
+- **[SECURITY_AND_CODE_QUALITY.md](SECURITY_AND_CODE_QUALITY.md)** - Lista de verificações de segurança e qualidade
 
 ### Configuração Tradicional (Alternativa)
 
