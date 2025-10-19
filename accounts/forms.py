@@ -1,16 +1,4 @@
-"""
-Formulários de autenticação e registro de usuários.
-
-Este módulo contém formulários com validação e sanitização robustas:
-- EmailAuthenticationForm: Login com e-mail
-- SignUpForm: Registro com validação de CPF, e-mail e username
-
-Security Features:
-- Sanitização com bleach para prevenir XSS
-- Validação de formato de CPF, e-mail e username
-- Verificação de duplicatas
-- Proteção contra injeção de código
-"""
+"""Formulários de autenticação e registro com validação reforçada."""
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -27,12 +15,7 @@ import bleach
 
 
 class EmailAuthenticationForm(AuthenticationForm):
-    """
-    Formulário de autenticação customizado que usa e-mail ao invés de username.
-    
-    Facilita o login do usuário permitindo o uso do e-mail como identificador
-    principal ao invés do username tradicional.
-    """
+    """Permite autenticação usando e-mail em vez do username padrão."""
     username = forms.EmailField(
         label='E-mail',
         widget=forms.EmailInput(attrs={
@@ -53,9 +36,7 @@ class EmailAuthenticationForm(AuthenticationForm):
 
 
 class SignUpForm(UserCreationForm):
-    """
-    Formulário de registro com validação de email, CPF e campos obrigatórios.
-    """
+    """Formulário de cadastro com validação de e-mail, CPF e usuário."""
     email = forms.EmailField(
         required=True,
         label='E-mail',
@@ -107,9 +88,7 @@ class SignUpForm(UserCreationForm):
         self.fields['password2'].help_text = 'Informe a mesma senha informada anteriormente.'
     
     def clean_username(self):
-        """
-        Valida e sanitiza o nome de usuário.
-        """
+        """Sanitiza e valida o nome de usuário fornecido."""
         username = self.cleaned_data.get('username')
         if username:
             # Sanitiza o username
@@ -119,9 +98,7 @@ class SignUpForm(UserCreationForm):
         return username
     
     def clean_cpf(self):
-        """
-        Valida e sanitiza o CPF.
-        """
+        """Normaliza o CPF e garante que ele seja válido e único."""
         cpf = self.cleaned_data.get('cpf')
         if cpf:
             # Sanitiza o CPF
@@ -145,9 +122,7 @@ class SignUpForm(UserCreationForm):
         return cpf
     
     def clean_email(self):
-        """
-        Valida e sanitiza o email.
-        """
+        """Sanitiza o e-mail e confirma domínio e unicidade."""
         email = self.cleaned_data.get('email')
         if email:
             # Sanitiza o email
@@ -165,15 +140,14 @@ class SignUpForm(UserCreationForm):
         return email
     
     def save(self, commit=True):
-        """
-        Salva o usuário com o email e CPF fornecidos.
-        """
+        """Persiste o usuário garantindo a sincronização com o perfil."""
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
         if commit:
             user.save()
-            # Atualiza o perfil com o CPF
-            if hasattr(user, 'userprofile'):
-                user.userprofile.cpf = self.cleaned_data.get('cpf')
-                user.userprofile.save()
+            cpf = self.cleaned_data.get('cpf')
+            user_profile, _ = UserProfile.objects.get_or_create(user=user)
+            user_profile.cpf = cpf
+            user_profile.save()
+            user.userprofile = user_profile
         return user

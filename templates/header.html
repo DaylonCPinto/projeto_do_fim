@@ -4,7 +4,7 @@
 <!-- HEADER FIXO MODERNIZADO -->
 <header class="modern-header shadow-sm fixed-top bg-white border-bottom" style="z-index:1050;">
     {% if header_customization and header_customization.announcement_enabled %}
-    <div class="announcement-bar text-white" style="background: var(--brand-primary, #E3120B);">
+    <div class="announcement-bar text-white" style="background: var(--brand-primary, #E3120B);" aria-live="polite">
         <div class="container d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 py-2">
             <span class="announcement-text fw-semibold">{{ header_customization.announcement_text }}</span>
             {% if header_customization.announcement_link_text and header_customization.announcement_link_url %}
@@ -143,15 +143,5 @@
 <!-- Header spacing is now handled dynamically by header_padding.js -->
 <!-- This provides better responsive behavior and prevents content overlap -->
 
-<!-- JavaScript para data atual -->
-<script>
-    // Atualiza a data atual no header
-    document.addEventListener('DOMContentLoaded', function() {
-        const dateElement = document.getElementById('current-date');
-        if (dateElement) {
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const hoje = new Date();
-            dateElement.textContent = hoje.toLocaleDateString('pt-BR', options);
-        }
-    });
-</script>
+<!-- Data do cabeçalho atualizada pelo main.js -->
+

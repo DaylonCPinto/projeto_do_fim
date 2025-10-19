@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -12,10 +12,7 @@ from .forms import SignUpForm, EmailAuthenticationForm
 @csrf_protect
 @never_cache
 def signup(request):
-    """
-    View para registro de novos usuários.
-    Protegido contra CSRF e não permite cache.
-    """
+    """Registra um novo usuário com proteção CSRF e cache desabilitado."""
     # Redireciona usuários já autenticados
     if request.user.is_authenticated:
         return redirect('/')
@@ -41,10 +38,7 @@ def signup(request):
 
 @never_cache
 def welcome(request):
-    """
-    View para página de boas-vindas após registro.
-    Requer autenticação.
-    """
+    """Exibe a página de boas-vindas apenas para usuários autenticados."""
     if not request.user.is_authenticated:
         return redirect('login')
     
@@ -56,9 +50,7 @@ def welcome(request):
 @csrf_protect
 @never_cache
 def custom_login(request):
-    """
-    View customizada para login usando e-mail.
-    """
+    """Processa o login via e-mail com validação de redirecionamento seguro."""
     if request.user.is_authenticated:
         return redirect('/')
     

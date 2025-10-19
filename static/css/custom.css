@@ -24,13 +24,13 @@ html {
 }
 
 /* Apply dynamic padding to main content */
-main.container {
+.site-main {
     padding-top: var(--calculated-padding, 131px);
     /* Fallback for browsers without CSS custom properties support */
 }
 
 /* No-JS fallback: ensure reasonable padding */
-.no-js main.container {
+.no-js .site-main {
     padding-top: 131px;
 }
 
@@ -46,6 +46,36 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     font-family: 'Roboto', sans-serif;
     font-weight: 700;
     letter-spacing: -0.02em;
+}
+
+a:focus-visible,
+button:focus-visible,
+.nav-link:focus-visible {
+    outline: 3px solid var(--brand-primary, #E3120B);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .hero-image,
+    .article-card,
+    .floating-contact-btn,
+    .video-short-card,
+    .highlight-section,
+    .plyr__control,
+    .hero-slab,
+    .article-card:hover {
+        transition: none !important;
+        animation: none !important;
+    }
 }
 
 /* ---------------------------------------

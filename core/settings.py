@@ -168,6 +168,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'static_root'
+if not STATIC_ROOT.exists():
+    STATIC_ROOT.mkdir(parents=True, exist_ok=True)
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage' # Adicionado para Whitenoise
 
 
@@ -183,6 +185,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Wagtail settings
 WAGTAIL_SITE_NAME = 'Portal de Análise'
 WAGTAILADMIN_BASE_URL = os.getenv('WAGTAILADMIN_BASE_URL')
+if not WAGTAILADMIN_BASE_URL:
+    if DEBUG:
+        WAGTAILADMIN_BASE_URL = 'http://localhost:8000'
+    else:
+        raise ImproperlyConfigured(
+            'Defina WAGTAILADMIN_BASE_URL para gerar URLs absolutas corretas no admin.'
+        )
 
 # Wagtail Rich Text Editor Configuration - Enhanced Features
 # This enables a comprehensive set of formatting options in the admin

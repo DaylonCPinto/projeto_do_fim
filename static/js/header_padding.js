@@ -19,7 +19,7 @@
      */
     function updateHeaderPadding() {
         const header = document.querySelector('.modern-header');
-        const mainContent = document.querySelector('main.container');
+        const mainContent = document.querySelector('main.site-main');
         
         if (!header || !mainContent) {
             return;

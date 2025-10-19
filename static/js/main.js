@@ -3,6 +3,28 @@
  * ================================================
  */
 
+document.documentElement.classList.remove('no-js');
+
+function initCurrentDateDisplay() {
+    const dateElement = document.getElementById('current-date');
+    if (!dateElement) {
+        return;
+    }
+
+    try {
+        const formatter = new Intl.DateTimeFormat('pt-BR', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        dateElement.textContent = formatter.format(new Date());
+    } catch (error) {
+        dateElement.textContent = new Date().toLocaleDateString('pt-BR');
+    }
+}
+
 // Scroll Progress Bar
 (function initScrollProgress() {
     const body = document.body;
@@ -831,6 +853,7 @@ function deferResources() {
 
 // Initialize all features when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    initCurrentDateDisplay();
     estimateReadingTime();
     initLazyLoading();
     enhanceArticleCards();
