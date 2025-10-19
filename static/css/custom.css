@@ -1042,6 +1042,26 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     background: #000;
 }
 
+/* Ensure responsive ratio containers position their content correctly */
+.ratio {
+    position: relative;
+    width: 100%;
+}
+
+.ratio > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.ratio > video,
+.ratio > iframe {
+    width: 100%;
+    height: 100%;
+}
+
 .custom-video-player {
     width: 100%;
     height: 100%;
